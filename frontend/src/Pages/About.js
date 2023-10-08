@@ -2,9 +2,15 @@ import React from 'react'
 import HeroImage from '../images/HeroImage.jpg'
 import AboutImg1 from "../images/AboutImg1.jpg"
 import Story from "../images/Story.jpg"
+import Navbar from '../Components/Navbar'
+import Hero from '../Pages/Hero'
+import Footer from '../Components/Footer'
 function About() {
   return (
-    <div class="bg-sky-900">
+    <div>
+        {/* <Navbar /> */}
+        {/* <Hero /> */}
+        <div class="bg-sky-900">
         <div class="grid grid-cols-2 mb-20 px-auto overflow-hidden p-2">
             <div class="relative p-20 ">
                 <img src={AboutImg1} alt="Image1" class="rounded-lg shadow-xl shadow-grey-900"></img>
@@ -27,7 +33,9 @@ function About() {
         </div>  
 
     </div>
-  )
+    {/* <Footer /> */}
+    </div>
+  )  
 }
 
 export default About

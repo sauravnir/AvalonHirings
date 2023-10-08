@@ -26,7 +26,7 @@ export default function Navbar(){
                     <a href="#" class="block py-2 pl-3 pr-4 text-dark bg-blue-700 rounded md:bg-transparent md:text-dark-700 md:p-0 dark:text-dark md:dark:text-dark-500 md:dark:hover:text-blue-500" aria-current="page">HOME</a>
                     </li>
                     <li>
-                    <Link to='../Pages/LoginPage' class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-dark md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">ABOUT</Link>
+                    <Link to='./' class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-blue-700 md:p-0 dark:text-dark md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">ABOUT</Link>
                     </li>
                     <li>
                     <a href="#" class="block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-dark-700 md:p-0 dark:text-dark md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">CONTACT</a>
