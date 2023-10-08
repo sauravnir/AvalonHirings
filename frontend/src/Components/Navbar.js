@@ -33,7 +33,7 @@ export default function Navbar(){
                     </li>
                     <li>
                     <Link to='../Pages/LoginPage' class="mt-2 block py-2 pl-3 pr-4 text-gray-900 rounded hover:bg-gray-100 md:hover:bg-transparent md:border-0 md:hover:text-dark-700 md:p-0 dark:text-dark md:dark:hover:text-blue-500 dark:hover:bg-gray-700 dark:hover:text-white md:dark:hover:bg-transparent">
-                        <button class="text-white bg-sky-900 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-blue-800 place-items-center">LOGIN</button></Link>
+                        <button class="text-white bg-sky-900 hover:bg-sky-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-5 py-2.5 text-center mr-2 mb-2 dark:bg-sky-600 dark:hover:bg-sky-700 dark:focus:ring-blue-800 place-items-center">LOGIN</button></Link>
                     </li>    
                 </ul>
                 </div>

@@ -8,13 +8,15 @@ import {
   Link
 } from "react-router-dom";
 import LoginPage from './Pages/LoginPage';
+import Registration from './Pages/Registration';
 
 
 function App(){
   return(
     <Router>
-      <HomePage />
-      {/* <LoginPage /> */}
+      {/* <HomePage /> */}
+      <LoginPage />
+      {/* <Registration /> */}
     </Router>
   )
 }
