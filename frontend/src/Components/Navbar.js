@@ -3,7 +3,11 @@ export default function Navbar(){
     const logoPath = process.env.PUBLIC_URL + '/images/A.png'
     return( 
             <nav class="bg-white border-gray-200 dark:bg-white-500 shadow-xl sticky">
-            <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-4">
+                <div class="max-w-screen-xl flex flex-wrap items-center justify-end mt-1 mx-auto p-2 text-gray-900 font-medium">
+                    <a  href="https://maps.app.goo.gl/R5DdmntpcHbsEFs26">Golfutar, Kathmandu</a>
+                    <a href="#"><h1 class="ml-4">+977 9815977947</h1></a>
+                </div>
+            <div class="max-w-screen-xl flex flex-wrap items-center justify-between mx-auto p-3">
                 <a href="#" class="flex items-center">
                     <img src={logoPath} class="h-8 mr-3" alt="Avalon Hirings" />
                     <span class="self-center text-2xl font-semibold whitespace-nowrap dark:text-dark">Avalon Hirings</span>
