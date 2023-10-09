@@ -1,31 +1,58 @@
 import React from 'react'
+import {useState} from 'react'
 import Sidebar from '../Components/Sidebar'
 import UserProfile from '../images/icons/userprofile.png'
+import ToggleMenu from '../images/icons/togglemenu.png'
+import SignOut from '../images/icons/signout.png'
+import DashNav from '../Components/DashNav'
+
+
+
+
 function Dashboard() {
+
+  const [isOpen, isSetOpen] = useState(true);
+  console.log(isOpen)
+
+  function sidebarToggle(){
+    isSetOpen(prevIsOpen => !prevIsOpen)
+  }
+
+  const styleDiv = {
+      width:isOpen ? "250px" : "80px", 
+  }
+
+  const styleElement = {
+    display : isOpen ? "block" : "none"
+  }
+
   return (
-    <div>
-      <div class="flex flex-col overflow-hidden w-1/6 h-screen bg-gradient-to-b from-gray-900 to-sky-900 shadow-xl shadow-gray-900 z-200">
-                <div class="flex flex-row w-full justify-center space-x-3 items-center mt-5">
-                    <img src={UserProfile} alt="userprofile" class="h-auto w-14 shadow"></img>
-                    <h1 class="text-white text-base font-medium">Username</h1>
+    <div >
+        <DashNav />
+      <div  style={styleDiv}  class="flex flex-col overflow-hidden w-1/6 h-screen bg-gradient-to-b from-violet-900 to-slate-900 shadow-xl shadow-gray-900 relative z-2000 ">
+                <div class="flex flex-row w-full justify-start pl-3 space-x-3 items-center mt-5">
+                    <img style={styleElement} src={UserProfile} alt="userprofile" class="h-auto w-14"></img>
+                    <h1 style={styleElement} class="text-white text-base font-medium">Username</h1>
+                    <button onClick={sidebarToggle}><img src={ToggleMenu} alt="toggleMenu" style={{marginLeft: isOpen?"20px":"0px"}} class="flex flex-row h-auto w-8 ml-3 shadow"></img></button>
                 </div>
-                <hr class="w-full h-px my-6 bg-gray-200 border-0 shadow-sm dark:bg-gray-700"></hr>
+                <hr class="w-full  h-px my-6 bg-white border-0 shadow-sm dark:bg-white"></hr>
 
-                {/* <div class="flex flex-col overflow-hidden mt-2 pl-3 pr-3 ">
-                  <Sidebar />
-                 </div>   */}
+                <div class="flex flex-col overflow-hidden mt-2 relative">
+                  {/* Sending Props to Sidebar.js page */}
+                  <Sidebar style={styleElement}/>
 
-                
-                {/* <div class="flex flex-col overflow-hidden mt-2 pl-3 pr-3 ">
-                    <a href="#">
-                        <div class="flex flex-row space-x-2 hover:bg-gradient-to-r from-gray-800 to-gray-500 text-sky-900 h-fit items-center justify-start rounded-sm">
-                        <img src={`..images/icons/${props.logo}`} alt="userprofile" class="h-auto w-10"></img>
-                        <h1 class="text-white text-lg font-medium">{props.page}</h1>
-                        </div>
-                    </a>
-                </div> */}
 
+                  <a href="">
+                  <div class="flex flex-row space-x-4 m-3 text-sky-900 h-fit active items-center justify-start rounded-sm pl-2">
+                    <img style={styleElement} src={SignOut} alt="Profile" class="h-auto w-9 p-1"></img>
+                  <h1 style={styleElement} class="hover:underline text-white text-base font-medium">Sign-Out</h1>  
+                </div>
+                </a>
+                 </div> 
             </div>
+
+            
+            
     </div>
   )
 }

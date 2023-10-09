@@ -3,20 +3,26 @@ export default [
         id: 1,
         page:"Dashboard",
         logo:"dashboard.png",
+        // path:"/dashboard",
     },
     {
         id: 2,
-        page:"Dashboard",
-        logo:"dashboard.png",
+        page:"Payments",
+        logo:"payment.png",
     },
     {
         id: 3,
-        page:"Dashboard",
-        logo:"dashboard.png",
+        page:"Contracts",
+        logo:"contract.png",
     },
     {
         id: 4,
-        page:"Dashboard",
-        logo:"dashboard.png",
-    }
+        page:"Caliber",
+        logo:"rating.png",
+    },
+    {
+        id: 5,
+        page:"Reports",
+        logo:"report.png",
+    },
 ]
