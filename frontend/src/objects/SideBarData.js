@@ -3,6 +3,7 @@ export default [
         id: 1,
         page:"Dashboard",
         logo:"dashboard.png",
+        link:'/dashboard',
         // path:"/dashboard",
     },
     {

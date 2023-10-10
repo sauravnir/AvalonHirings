@@ -3,7 +3,7 @@ import HeroImage from '../images/HeroImage.jpg'
 function Hero() {
   return (
     <div>
-        <div class="px-auto py-10  h-screen">
+        <div class="px-auto py-10  h-screen" id="hero">
             {/* <img class="relative bg-cover" src={HeroImage}></img> */}
         <div class="flex flex-col p-5 mt-20">
             <div class="flex flex-col p-2 mx-auto">

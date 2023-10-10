@@ -1,6 +1,5 @@
 import React from "react";
-// Importing DatePicker Library
-
+import { Link } from "react-router-dom";
 import Logo from "../images/Abnw.png";
 
 function Registration() {
@@ -14,13 +13,13 @@ function Registration() {
             </span>
             <span class="text-sm mt-2 dark:text-dark-900">
               Already have an account?{" "}
-              <a
+              <Link to='/login'
                 href="#"
                 class="font-medium text-blue-500 hover:text-blue-800 hover:underline"
               >
                 {" "}
                 Login here
-              </a>
+              </Link>
             </span>
           </div>
 
@@ -31,7 +30,7 @@ function Registration() {
             >
               {/* Full Name */}
               <div class="mb-1">
-                <label
+                <label  
                   class="block text-gray-700 text-m font-medium mb-2"
                   for="Fullname"
                 >

@@ -1,5 +1,7 @@
 import React from "react";
 import logo from '../images/A.png'
+import { Link } from "react-router-dom";
+import { HashLink } from "react-router-hash-link";
 
 function Footer(){
     return(
@@ -17,13 +19,13 @@ function Footer(){
                   <h2 class="mb-6 text-sm font-semibold text-gray-900 uppercase dark:text-white">Page Links</h2>
                   <ul class="text-gray-500 dark:text-gray-400 font-medium">
                       <li class="mb-4">
-                          <a href="#" class="hover:underline ">Home</a>
+                          <HashLink to='#hero' class="hover:underline ">Home</HashLink>
                       </li>
                       <li>
-                          <a href="#" class="hover:underline">About</a>
+                          <HashLink to='#about' class="hover:underline">About</HashLink>
                       </li>
                       <li class="mt-3">
-                          <a href="#" class="hover:underline">Contact</a>
+                          <HashLink to='#contact' class="hover:underline">Contact</HashLink>
                       </li>
                   </ul>
               </div>
