@@ -1,7 +1,7 @@
 from rest_framework import serializers
-from . models import *
+from django.contrib.auth.models import User  
 
-class ReactSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
     class Meta:
-        model = React
-        fields = ['employee','department']
+        model = User
+        fields = ['id', 'fullname','email','password','usertype','dateofbirth','username']

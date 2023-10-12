@@ -1,19 +1,17 @@
 import React from 'react';
-import HomePage from './Pages/HomePage';
+import HomePage from './Pages/LandingPage/HomePage';
 import './App.css';
 import {
   BrowserRouter as Router,
   Routes,
   Route,
 } from "react-router-dom";
-import LoginPage from './Pages/LoginPage';
-import About from './Pages/About';
-import Contact from './Pages/Contact';
-import Registration from './Pages/Registration';  
-import Dashboard from './Pages/Dashboard';
-import Hero from './Pages/Hero';
-import ForgotPassword from './Pages/ForgotPassword';
-
+import LoginPage from './Pages/LoginRegistration/LoginPage';
+import Registration from './Pages/LoginRegistration/Registration';  
+import Dashboard from './Pages/Dashboard/AdminDashboard/Dashboard';
+import ForgotPassword from './Pages/LoginRegistration/ForgotPassword';
+import OtpCode from './Pages/LoginRegistration/OtpCode';
+import ContractReview from './Pages/Dashboard/AdminDashboard/ContractReview';
 function App() {
   return (
     <Router>
@@ -22,8 +20,10 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path='/login' element={<LoginPage />} />
           <Route path='/register' element={<Registration />} />
-          <Route path='forgotPassword' element={<ForgotPassword />} />
           <Route path='/dashboard' element={<Dashboard />} />
+          <Route path='/forgotpassword' element={<ForgotPassword />}/>
+          <Route path='/otp' element={<OtpCode />} />
+          <Route path='/contractreview' element={<ContractReview />} />
         </Routes>
     </Router>
   );
