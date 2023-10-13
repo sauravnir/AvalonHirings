@@ -1,8 +1,32 @@
 import React from "react";
+import axios from 'axios';
+// import {useState} from "react"; 
+
 import Logo from "../../images/Abnw.png"
 import { Link } from "react-router-dom";
 
+
+
 function LoginPage() {
+
+  const [email , setEmail] = React.useState("");
+  const [password, setPassword] = React.useState("");
+  // const history = useHistory();
+
+  const handleLogin = async() => {
+    try {
+      const response = await axios.post('http://localhost:8000/api/login', {
+        username: email,
+        password: password,
+      });
+      console.log(response.data);
+      localStorage.setItem('token', response.data.token);
+      localStorage.setItem('user', JSON.stringify(response.data.user));
+      // history.push('/dashboard');
+    } catch (error) {
+      console.log(error);
+    }
+  }
   return (
     <div>
       <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">

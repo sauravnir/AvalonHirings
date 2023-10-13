@@ -2,7 +2,30 @@ import React from "react";
 import { Link } from "react-router-dom";
 import Logo from "../../images/Abnw.png";
 
+
+
+
 function Registration() {
+  const[register , setRegister] = React.useState({
+    dateofbirth:"",
+    fullname: "",
+    email: "",
+    password: "",
+    password_confirmation: "",
+    uset_tyepe :"",
+    fileupload:"",
+  });
+
+  const handleRegister = async() => {
+    try{
+      console.log("Hello");
+    }
+    catch(error) 
+    {
+      console.log(error);
+    }
+  }
+
   return (
     <div>
       <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
