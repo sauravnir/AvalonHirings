@@ -1,29 +1,52 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import {useState} from 'react';
+import { Link , useNavigate } from "react-router-dom";
+import axios from 'axios';
 import Logo from "../../images/Abnw.png";
 
-
-
-
 function Registration() {
-  const[register , setRegister] = React.useState({
-    dateofbirth:"",
-    fullname: "",
-    email: "",
-    password: "",
-    password_confirmation: "",
-    uset_tyepe :"",
-    fileupload:"",
-  });
+  
+  const navigate = useNavigate();
+  const [fullName , setFullName] = useState("");
+  const [userType , setUserType] = useState("");
+  const [dateOfBirth , setDateOfBirth] = useState("");
+  const [email , setEmail] = useState("");
+  const [password , setPassword] = useState("");
+  const [confirmPassword , setConfirmPassword] = useState("");
+  const [userName , setUserName] = useState("");
+  const [navigateError , setNavigateError] = useState("");
 
-  const handleRegister = async() => {
-    try{
-      console.log("Hello");
+  const handleRegister = async(e) => {
+    e.preventDefault();
+    if (password === confirmPassword){
+      try{
+        const response = await axios.post('http://127.0.0.1:8000/app/register/',{
+          fullname:fullName,
+          user_type:userType,
+          date_of_birth:dateOfBirth,
+          email:email,
+          password:password,
+          username:userName
+        });
+        console.log(response.data.access);
+        if(response.data.access){
+          navigate('/login');
+        }
+        else{
+          console.log(response.data)
+          setNavigateError("Err.. something went wrong");
+        }
+      }
+      catch(error) 
+      {
+        console.log( error);
+        // setNavigateError("IDK yar");
+      }
     }
-    catch(error) 
-    {
-      console.log(error);
+    else {
+      setNavigateError("The Passwords Nonot Match!");
     }
+    
   }
 
   return (
@@ -47,11 +70,12 @@ function Registration() {
           </div>
 
           <div class="grid grid-rows-2 grid-flow-row gap-4 max-w-xl justify-between ">
+          
             <form
               class="md:flex flex-col space-y-3  pt-4 pb-2 justify-center"
-              action="#"
+              onSubmit={handleRegister}
               method="post"
-              enctype="multipart/form-data"
+              // enctype="multipart/form-data"
             >
               {/* Full Name */}
               <div class="mb-1">
@@ -67,7 +91,8 @@ function Registration() {
                   name="fullname"
                   type="text"
                   placeholder="John Smith"
-                />
+                  onChange={(e) => setFullName(e.target.value)}
+                  required/>
               </div>
               {/* Email Address */}
               <div class="mb-1">
@@ -83,6 +108,8 @@ function Registration() {
                   name="email"
                   type="email"
                   placeholder="example@gmail.com"
+                  onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
               {/* User Name */}
@@ -100,6 +127,8 @@ function Registration() {
                     name="username"
                     type="text"
                     placeholder="JohnSmith123"
+                    onChange={(e) => setUserName(e.target.value)}
+                    required
                   />
                 </div>
                 {/* User Type */}
@@ -110,8 +139,11 @@ function Registration() {
                   >
                     User-type
                   </label>
-                  <select class="shadow appearance-none border border-gray-200 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline">
-                  <option>******</option>
+                  <select class="shadow appearance-none border border-gray-200 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
+                  onChange={(e) => setUserType(e.target.value)}
+                  required
+                  >
+                    
                     <option>Client</option>
                     <option>Employee</option>
                   </select>
@@ -134,7 +166,9 @@ function Registration() {
                       type="text"
                       name="dateofbirth"
                       id="dateofbirth"
-                      placeholder="XXXX/XX/XX"
+                      placeholder="XXXX-XX-XX"
+                      onChange={(e)=>setDateOfBirth(e.target.value)}
+                      required
                     />
                   </div>
                 </div>
@@ -154,6 +188,8 @@ function Registration() {
                     name="password"
                     type="password"
                     placeholder="**********"
+                    onChange={(e)=> setPassword(e.target.value)}
+                    required
                   />
                 </div>
 
@@ -170,11 +206,13 @@ function Registration() {
                     name="confirmpassword"
                     type="password"
                     placeholder="**********"
+                    onChange={(e)=> setConfirmPassword(e.target.value)}
+                    required
                   />
                 </div>
               </div>
 
-              <div class="flex max-w-xl">
+              {/* <div class="flex max-w-xl">
               <div class="mb-1">
                   <label
                     class="block text-gray-700 text-m font-medium mb-2"
@@ -192,15 +230,17 @@ function Registration() {
                   />
                   <span class="flex text-red-900 text-sm">Only file with .pdf extension is accepted.</span>
                 </div> 
-              </div>
+              </div> */}
 
               <div class="flex flex-row items-center w-full py-2 justify-center p-5 ">
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
-                  type="button"
+                  type="submit"
+                  // onClick={handleRegister}
                 >
                   Create Account
                 </button>
+                {navigateError && <p style={{ color: 'red' }}>{navigateError}</p>}
               </div>
             </form>
           </div>

@@ -1,32 +1,39 @@
 import React from "react";
 import axios from 'axios';
+import {useNavigate} from  'react-router-dom';
 // import {useState} from "react"; 
 
 import Logo from "../../images/Abnw.png"
 import { Link } from "react-router-dom";
 
 
-
 function LoginPage() {
 
   const [email , setEmail] = React.useState("");
   const [password, setPassword] = React.useState("");
-  // const history = useHistory();
+  const [error, setError] = React.useState("");
+  const navigate = useNavigate();
 
-  const handleLogin = async() => {
+  const handleLogin = async () => {
     try {
-      const response = await axios.post('http://localhost:8000/api/login', {
-        username: email,
-        password: password,
-      });
-      console.log(response.data);
-      localStorage.setItem('token', response.data.token);
-      localStorage.setItem('user', JSON.stringify(response.data.user));
-      // history.push('/dashboard');
+        const response = await axios.post('http://127.0.0.1:8000/app/login/', {
+            email: email,
+            password: password,
+        }, {
+            withCredentials: true,
+        });
+        console.log(response.data);
+        if (response.data.access) {
+            navigate('/otp');
+        } else {
+            setError('Invalid Credentials');
+        }
     } catch (error) {
-      console.log(error);
+        console.error('Login Failed', error);
+        setError('Error!');
     }
-  }
+};
+
   return (
     <div>
       <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
@@ -47,7 +54,7 @@ function LoginPage() {
             </span>
           </div>
           <div class="grid grid-rows-2 grid-flow-row gap-4 max-w-xl">
-            <form class="md:flex flex-col space-y-4 p-8  justify-center">
+            <form class="md:flex flex-col space-y-4 p-8  justify-center" onSubmit={handleLogin}>
               <div class="mb-4">
                 <label
                   class="block text-gray-700 text-m font-medium mb-2"
@@ -61,6 +68,7 @@ function LoginPage() {
                   name="email"
                   type="email"
                   placeholder="example@gmail.com"
+                  onChange={(e) => setEmail(e.target.value)}
                 />
               </div>
               <div class="mb-6">
@@ -76,6 +84,7 @@ function LoginPage() {
                   name="password"
                   type="password"
                   placeholder="***********"
+                  onChange={(e) => setPassword(e.target.value)}
                 />
               </div>
               <div class="flex flex-row mb-6">
@@ -89,14 +98,16 @@ function LoginPage() {
                 </Link>
               </div>
               <div class="flex flex-row items-center w-full py-4 justify-center p-5 ">
-                <Link to='/otp'>
+                {/* <Link to='/otp'> */}
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
-                  type="button"
+                  type="submit"
+                  // onClick={handleLogin}
                 >
                   Sign In
                 </button>
-                </Link>
+                {/* </Link> */}
+                {error && <p style={{ color: 'red' }}>{error}</p>}
               </div>
 
               <div class="flex flex-col justify-center items-center p-3">

@@ -12,7 +12,7 @@ class Users(AbstractBaseUser , PermissionsMixin):
     fileupload = models.FileField(upload_to='uploads/')
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['fullname', 'user_type', 'date_of_birth','password','username']
+    REQUIRED_FIELDS = ['fullname', 'user_type', 'date_of_birth','email','password','username']
 
     groups = models.ManyToManyField(
         'auth.Group',
