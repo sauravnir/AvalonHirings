@@ -1,7 +1,7 @@
 import React from "react";
 import axios from 'axios';
 import {useNavigate} from  'react-router-dom';
-// import {useState} from "react"; 
+import {useState} from "react"; 
 
 import Logo from "../../images/Abnw.png"
 import { Link } from "react-router-dom";
@@ -9,28 +9,45 @@ import { Link } from "react-router-dom";
 
 function LoginPage() {
 
-  const [email , setEmail] = React.useState("");
-  const [password, setPassword] = React.useState("");
-  const [error, setError] = React.useState("");
+  const [useremail , setEmail] = useState("");
+  const [userpassword, setPassword] = useState("");
+  const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  const loginData = {
+    email : useremail , 
+    password : userpassword , 
+  }
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
     try {
-        const response = await axios.post('http://127.0.0.1:8000/app/login/', {
-            email: email,
-            password: password,
-        }, {
-            withCredentials: true,
-        });
-        console.log(response.data);
-        if (response.data.access) {
-            navigate('/otp');
-        } else {
-            setError('Invalid Credentials');
-        }
+      console.log(loginData);
+      // if ( email == "admin@admin.com" && password == "ronaldofan123"){
+      //   navigate("/dashboard");
+      // }
+
+      const response = await fetch("http://127.0.0.1:8000/app/login/",{
+        method:"POST",
+        headers:{
+          'Content-Type': 'application/json'
+        },
+        body:JSON.stringify(loginData)
+      })
+
+      if (response.ok) {
+        const responseData = await response.json();
+        console.log('Data inserted successfully:', responseData);
+        navigate('/otp');
+      } else {
+        const errorData = await response.json();
+        console.error('Error inserting data. Server responded with:', response.status, errorData);
+        setError('Invalid Credentials')
+        // setNavigateError("Err.. something went wrong");
+
+      } 
     } catch (error) {
-        console.error('Login Failed', error);
-        setError('Error!');
+      console.log('Error occured:', error);
     }
 };
 
@@ -102,7 +119,7 @@ function LoginPage() {
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
                   type="submit"
-                  // onClick={handleLogin}
+                  
                 >
                   Sign In
                 </button>

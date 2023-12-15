@@ -9,7 +9,7 @@ class Users(AbstractBaseUser , PermissionsMixin):
     user_type = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
     date_of_birth = models.DateField()
-    fileupload = models.FileField(upload_to='uploads/')
+    # fileupload = models.FileField(upload_to='uploads/')
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = ['fullname', 'user_type', 'date_of_birth','email','password','username']

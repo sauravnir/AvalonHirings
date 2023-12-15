@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import Users
 
-class UserSerializer(serializers.ModelSerializer):
+class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
         fields = ('fullname', 'user_type', 'date_of_birth','email','password','username')
@@ -18,3 +18,9 @@ class UserSerializer(serializers.ModelSerializer):
             instance.set_password(password)
             instance.save()
         return instance
+
+
+
+class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)

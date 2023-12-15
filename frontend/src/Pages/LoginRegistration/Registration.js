@@ -16,35 +16,45 @@ function Registration() {
   const [userName , setUserName] = useState("");
   const [navigateError , setNavigateError] = useState("");
 
+  const registeredData = {
+      fullname:fullName,
+      user_type:userType,
+      date_of_birth:dateOfBirth,
+      email:email,
+      password:password,
+      username:userName
+  }
   const handleRegister = async(e) => {
     e.preventDefault();
     if (password === confirmPassword){
+      console.log(registeredData);
       try{
-        const response = await axios.post('http://127.0.0.1:8000/app/register/',{
-          fullname:fullName,
-          user_type:userType,
-          date_of_birth:dateOfBirth,
-          email:email,
-          password:password,
-          username:userName
-        });
-        console.log(response.data.access);
-        if(response.data.access){
+
+        const response = await fetch('http://127.0.0.1:8000/app/register/',{
+          method : 'POST',
+          headers : {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(registeredData),
+        })
+        
+        if (response.ok) {
+          const responseData = await response.json();
+          console.log('Data inserted successfully:', responseData);
           navigate('/login');
-        }
-        else{
-          console.log(response.data)
+        } else {
+          const errorData = await response.json();
+          console.error('Error inserting data. Server responded with:', response.status, errorData);
           setNavigateError("Err.. something went wrong");
-        }
+        } 
       }
       catch(error) 
       {
-        console.log( error);
-        // setNavigateError("IDK yar");
+        console.log('Error',error);
       }
     }
     else {
-      setNavigateError("The Passwords Nonot Match!");
+      window.location.reload();
     }
     
   }
@@ -52,6 +62,7 @@ function Registration() {
   return (
     <div>
       <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
+      {navigateError && <p style={{ color: 'red' }}>{navigateError}</p>}
         <div class="h-screen w-2/3 shadow-lg bg-white justify-start p-10">
           <div class="flex flex-col items-start py-5 pb-2 md:mb-0">
             <span class="text-3xl font-medium whitespace-nowrap dark:text-dark-900">
@@ -74,7 +85,7 @@ function Registration() {
             <form
               class="md:flex flex-col space-y-3  pt-4 pb-2 justify-center"
               onSubmit={handleRegister}
-              method="post"
+              // method="post"
               // enctype="multipart/form-data"
             >
               {/* Full Name */}
@@ -143,7 +154,7 @@ function Registration() {
                   onChange={(e) => setUserType(e.target.value)}
                   required
                   >
-                    
+                    <option>******</option>
                     <option>Client</option>
                     <option>Employee</option>
                   </select>
@@ -240,7 +251,7 @@ function Registration() {
                 >
                   Create Account
                 </button>
-                {navigateError && <p style={{ color: 'red' }}>{navigateError}</p>}
+                
               </div>
             </form>
           </div>
