@@ -12,6 +12,7 @@ import Dashboard from './Pages/Dashboard/AdminDashboard/Dashboard';
 import ForgotPassword from './Pages/LoginRegistration/ForgotPassword';
 import OtpCode from './Pages/LoginRegistration/OtpCode';
 import ContractReview from './Pages/Dashboard/AdminDashboard/ContractReview';
+import ContractAction from './Pages/Dashboard/AdminDashboard/ContractAction.js';
 function App() {
   return (
     <Router>
@@ -24,6 +25,7 @@ function App() {
           <Route path='/forgotpassword' element={<ForgotPassword />}/>
           <Route path='/otp' element={<OtpCode />} />
           <Route path='/contractreview' element={<ContractReview />} />
+          <Route path='/contractaction' element={<ContractAction />} />
         </Routes>
     </Router>
   );
