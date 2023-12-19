@@ -13,6 +13,8 @@ import ForgotPassword from './Pages/LoginRegistration/ForgotPassword';
 import OtpCode from './Pages/LoginRegistration/OtpCode';
 import ContractReview from './Pages/Dashboard/AdminDashboard/ContractReview';
 import ContractAction from './Pages/Dashboard/AdminDashboard/ContractAction.js';
+import PrivateRoute from './Components/Dashboards/Routes/PrivateRoute.js';
+
 function App() {
   return (
     <Router>
@@ -21,10 +23,14 @@ function App() {
           <Route path="/" element={<HomePage />} />
           <Route path='/login' element={<LoginPage />} />
           <Route path='/register' element={<Registration />} />
-          <Route path='/dashboard' element={<Dashboard />} />
+          <Route path='/dashboard' element={<PrivateRoute />} >
+            <Route path='/dashboard' element={<Dashboard/>}/>
+          </Route>
           <Route path='/forgotpassword' element={<ForgotPassword />}/>
           <Route path='/otp' element={<OtpCode />} />
-          <Route path='/contractreview' element={<ContractReview />} />
+          <Route path="/contractreview" element={<PrivateRoute />}>
+            <Route path='/contractreview' element={<ContractReview />} />
+          </Route>
           <Route path='/contractaction' element={<ContractAction />} />
         </Routes>
     </Router>

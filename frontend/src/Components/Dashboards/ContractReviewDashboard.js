@@ -1,5 +1,9 @@
 import React from "react";
+import {useState} from "react";
 import { Link } from "react-router-dom";
+import Popup from "reactjs-popup";
+
+
 import DashboardFooter from "./DashboardFooter";
 
 
@@ -11,6 +15,10 @@ function ContractReviewDashboard() {
     } catch (e) {}
   };
 
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [isActive , setIsActive] = useState(true);
+  
   return (
     <div class="w-screen">
       <div class="flex flex-col mt-14 p-5">
@@ -83,11 +91,37 @@ function ContractReviewDashboard() {
                             <td>2080-01-20</td>
                             <td>Active</td>
                             <td>
-                                <Link to="/contractaction   ">
-                                <button class=" bg-gray-200  py-2 px-2 w-auto rounded border hover:bg-green-400 hover:shadow-lg hover:text-slate-100">
+                              <button onClick={() => setIsOpen(true)} class=" bg-gray-200  py-2 px-2 w-auto rounded border hover:bg-green-400 hover:shadow-lg hover:text-slate-100">
                                    <img class="w-6 h-6 align-center" src={require(`../../images/icons/eyebutton.png`)} alt="Button"/>
-                                </button>
-                                </Link>
+                                </button> 
+                                  <Popup open={isOpen} onClose={() => setIsOpen(false)} contentStyle={{
+                                  position: 'fixed',
+                                  top: '5rem',
+                                  left: '50%',
+                                  transform: 'translateX(-50%)',
+                                  width :"70%",
+                                  height:"80%",
+                                  }}>
+                                    <div class="grid grid-cols-2 p-3 place-items-center shadow-lg bg-white align-top space-x-3 ">
+                                      <div class="justify-self-start space-x-5">
+                                      <button class=" p-3 shadow rounded-lg shadow-lg hover:bg-sky-700 bg-sky-500">
+                                          Contracts
+                                        </button>
+                                        <button class=" p-3 shadow rounded-lg shadow-lg hover:bg-violet-700 bg-violet-500">
+                                          Details
+                                        </button>
+                                        
+                                      </div>
+                                     
+                                      <div class="justify-self-end">
+                                      <button class=" w-7 h-7 rounded-lg shadow-lg hover:bg-red-700 bg-red-500" onClick={() =>setIsOpen(false)}>
+                                        &times;  
+                                      </button>
+                                          <h1 class="text-xl underline decoration-2">Review and Edit Details</h1>
+                                        </div>
+                                        
+                                      </div>
+                                  </Popup>
                             </td>
                         </tr>
                     </tbody>

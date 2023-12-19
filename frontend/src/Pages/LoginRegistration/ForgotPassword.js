@@ -1,8 +1,52 @@
 import React from 'react'
 import Logo from "../../images/Abnw.png"
-import {Link} from 'react-router-dom'
+import {Link , useNavigate} from 'react-router-dom'
+
+
+import {useState} from 'react'
+
 
 function ForgotPassword() {
+  const navigate = useNavigate()
+  const [isEmail , setIsEmail] = useState("");
+  const [isPassword , setIsPassword] = useState("");
+  const [isConfirmPassword , setIsConfirmPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const userData = {
+    email : isEmail , 
+    password : isPassword ,
+  }
+  
+  const handleForgotPassword = async (e) =>{
+    e.preventDefault();
+    if(isPassword === isConfirmPassword){ 
+      console.log(userData);
+      try{
+        const response = await fetch('http://127.0.0.1:8000/app/forgotpassword/',{
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json'
+        },
+        body:JSON.stringify(userData)
+      }
+      )
+      if(response.ok){
+        navigate('/login');
+      }
+    }
+      catch(e){
+        setError("Error: Invalid Credentials" + e.message);
+      }
+    }
+    else{
+      setError("Invalid Credentials");
+      console.log("Invalid Credentials");
+    }
+    
+  }
+  
+
   return (
     <div>
       <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
@@ -27,7 +71,7 @@ function ForgotPassword() {
             </span>
           </div>
           <div class="grid grid-rows-2 grid-flow-row gap-4 max-w-xl">
-            <form class="md:flex flex-col space-y-4 p-8  justify-center">
+            <form class="md:flex flex-col space-y-4 p-8  justify-center" onSubmit={handleForgotPassword}>
               <div class="mb-4">
                 <label
                   class="block text-gray-700 text-m font-medium mb-2"
@@ -41,6 +85,8 @@ function ForgotPassword() {
                   name="email"
                   type="email"
                   placeholder="example@gmail.com"
+                  onChange = {(e)=>setIsEmail(e.target.value)}
+                  required
                 />
               </div>
               <div class="mb-6">
@@ -56,6 +102,8 @@ function ForgotPassword() {
                   name="password"
                   type="password"
                   placeholder="***********"
+                  onChange = {(e)=>setIsPassword(e.target.value)}
+                  required
                 />
               </div>
               <div class="mb-6">
@@ -69,17 +117,20 @@ function ForgotPassword() {
                   class="shadow appearance-none rounded border border-gray-200 w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none invalid:border-red-500  focus:shadow-outline"
                   id="confirmpassword"
                   name="confirmpassword"
-                  type="confirmpassword"
+                  type="password"
                   placeholder="***********"
+                  onChange = {(e)=>setIsConfirmPassword(e.target.value)}
+                  required
                 />
               </div>
               <div class="flex  items-center w-full py-4 justify-center p-5 ">
                 <button
                   class="flex flex-col bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
-                  type="button"
+                  type="submit"
                 >
                   Reset Password
                 </button>
+                {error && <p style={{color : 'red'}} >{error}</p>}
               </div>
 
               <div class="flex flex-col justify-center items-center p-3">

@@ -1,8 +1,8 @@
 import React from "react";
-import axios from 'axios';
 import {useNavigate} from  'react-router-dom';
 import {useState} from "react"; 
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import Logo from "../../images/Abnw.png"
 import { Link } from "react-router-dom";
 
@@ -13,20 +13,24 @@ function LoginPage() {
   const [userpassword, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+  // const[rem , setRem] = useState(false);
+
+  const [token , setToken] = useState(localStorage.getItem("token") || "");
 
   const loginData = {
     email : useremail , 
     password : userpassword , 
   }
 
+  // const handleRem = ()=>{
+  //   setRem(!rem);
+  // }
+
+  // console.log(rem);
+
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      console.log(loginData);
-      // if ( email == "admin@admin.com" && password == "ronaldofan123"){
-      //   navigate("/dashboard");
-      // }
-
       const response = await fetch("http://127.0.0.1:8000/app/login/",{
         method:"POST",
         headers:{
@@ -34,18 +38,18 @@ function LoginPage() {
         },
         body:JSON.stringify(loginData)
       })
-
-      if (response.ok) {
-        const responseData = await response.json();
-        console.log('Data inserted successfully:', responseData);
-        navigate('/otp');
-      } else {
-        const errorData = await response.json();
-        console.error('Error inserting data. Server responded with:', response.status, errorData);
-        setError('Invalid Credentials')
-        // setNavigateError("Err.. something went wrong");
-
-      } 
+      if(response.ok){
+        const data = await response.json();
+        setToken(data.token);
+        localStorage.setItem('token', data.token);
+        alert("Success!"); 
+        navigate('/dashboard');
+      }
+      else{
+        toast.error("Invalid credentials", {
+          position: toast.POSITION.TOP_CENTER
+        });
+      }
     } catch (error) {
       console.log('Error occured:', error);
     }
@@ -68,6 +72,7 @@ function LoginPage() {
                 {" "}
                 Register Now!
               </Link>
+              
             </span>
           </div>
           <div class="grid grid-rows-2 grid-flow-row gap-4 max-w-xl">
@@ -86,6 +91,7 @@ function LoginPage() {
                   type="email"
                   placeholder="example@gmail.com"
                   onChange={(e) => setEmail(e.target.value)}
+                  required
                 />
               </div>
               <div class="mb-6">
@@ -102,15 +108,15 @@ function LoginPage() {
                   type="password"
                   placeholder="***********"
                   onChange={(e) => setPassword(e.target.value)}
+                  required
                 />
               </div>
               <div class="flex flex-row mb-6">
-                <input class="h-4 w-4 mt-1" type="checkbox" value="isRemembered" />
-                <span class=" ml-3 align-top text-sm">Remember me</span>
+                <input class="h-4 w-4 mt-1" type="checkbox"  value="isRemembered"/>
+                <span class=" ml-3 align-top text-sm">Remember Me?</span>
                 <Link 
                 to='/forgotPassword'
-                  class="ml-60 inline-block align-baseline font-medium text-sm text-blue-500 hover:text-blue-800 hover:underline "
-                                  >
+                  class="ml-60 inline-block align-baseline font-medium text-sm text-blue-500 hover:text-blue-800 hover:underline ">
                   Forgot Password?
                 </Link>
               </div>

@@ -20,7 +20,11 @@ class UserRegisterSerializer(serializers.ModelSerializer):
         return instance
 
 
-
 class UserLoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+    rememberme = serializers.BooleanField(default=False)
+
+class UserForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
