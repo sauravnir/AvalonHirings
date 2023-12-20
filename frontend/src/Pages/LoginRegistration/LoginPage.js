@@ -1,10 +1,9 @@
 import React from "react";
 import {useNavigate} from  'react-router-dom';
-import {useState} from "react"; 
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+import {useState} from "react";
 import Logo from "../../images/Abnw.png"
 import { Link } from "react-router-dom";
+import { Button, notification, Space } from 'antd';
 
 
 function LoginPage() {
@@ -14,6 +13,15 @@ function LoginPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
   // const[rem , setRem] = useState(false);
+
+
+  const [notificationApi , contextHolder] = notification.useNotification();
+  const errorNotify = (type) =>{
+    notificationApi[type]({
+      message:"Incorrect credentials / error occured!",
+      description:"This is a test!",
+    });
+  };
 
   const [token , setToken] = useState(localStorage.getItem("token") || "");
 
@@ -42,16 +50,15 @@ function LoginPage() {
         const data = await response.json();
         setToken(data.token);
         localStorage.setItem('token', data.token);
-        alert("Success!"); 
+        // errorNotify('success!');
         navigate('/dashboard');
       }
       else{
-        toast.error("Invalid credentials", {
-          position: toast.POSITION.TOP_CENTER
-        });
+       errorNotify('error')
       }
     } catch (error) {
       console.log('Error occured:', error);
+      errorNotify('error');
     }
 };
 
@@ -122,6 +129,7 @@ function LoginPage() {
               </div>
               <div class="flex flex-row items-center w-full py-4 justify-center p-5 ">
                 {/* <Link to='/otp'> */}
+                {contextHolder}
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
                   type="submit"

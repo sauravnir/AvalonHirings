@@ -3,14 +3,17 @@ from django.contrib.auth import authenticate , login
 from rest_framework.response import Response
 from .serializers import UserRegisterSerializer, UserLoginSerializer , UserForgotPasswordSerializer 
 from rest_framework import status
-from .models import Users
+from rest_framework.authentication import TokenAuthentication
+from rest_framework.permissions import IsAuthenticated
 from django.contrib.auth.hashers import make_password , check_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
 from rest_framework.authtoken.models import Token
 from datetime import timedelta
 from django.utils import timezone
+import uuid
 
+from app.models import Users , CustomToken
 
 class UserLoginView(APIView):
     def post(self, request):
@@ -25,23 +28,21 @@ class UserLoginView(APIView):
             if user:
                 login(request, user)
 
-                # if remember_me:
-                #     expiration_time = timezone.now() + timedelta(days=2)
-                # else:
-                #     expiration_time = timezone.now() + timedelta(hours=1)
-
-
-                token, created = Token.objects.get_or_create(user=user)
-                # token.created = timezone.now();
-                # print(token.created);
-                # token.expires = expiration_time 
-                # print(token.expires);
+                token, created  = CustomToken.objects.get_or_create(user=user)
+                unique_key = str(uuid.uuid4())
+                token.key = unique_key
+                token.created = timezone.now(); 
+                expiration_time = timezone.now() + timedelta(days=1)
+                token.expires = expiration_time 
+                if (token.expires < timezone.now()):
+                    token.delete();
+                    return Response({"Error":"Token Has Expired" } , status = status.HTTP_401_UNAUTHORIZED)    
+                # Saving the token 
                 token.save();
-                print(token.key);
+
                 return Response({
                     'token' : token.key , 
                     'message' : 'Login Successfull'} , status = status.HTTP_200_OK)
-
             else:
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
         
@@ -82,3 +83,37 @@ class UserForgotPasswordView(APIView):
                 return Response({"detail": "Email does not exist"}, status=404)
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+
+# class UserLogoutView(APIView):
+#     class UserLogoutView(APIView):
+#         def post(self, request):
+#             token = self.get_token(request)
+            
+#             if token:
+#                 return self.logout_user(request.user, token)
+
+#             return Response({"detail": "Token not provided"}, status=status.HTTP_400_BAD_REQUEST)
+
+#     def get_token(self, request):
+#         authorization_header = request.headers.get('Authorization', '')
+#         try:
+#             auth_type, token = authorization_header.split()
+#             if auth_type.lower() != 'bearer':
+#                 raise ValueError('Invalid Authorization header format')
+#             return token
+#         except ValueError:
+#             return None
+
+#     def logout_user(self, user, token):
+#         try:
+#             custom_token = CustomToken.objects.get(user=user, key=token)
+#             custom_token.delete()
+#             return Response({"detail": "Successfully logged out"}, status=status.HTTP_201_CREATED)
+#         except CustomToken.DoesNotExist:
+#             return Response({"detail": "Token not found"}, status=status.HTTP_404_NOT_FOUND)
+#         except Exception as e:
+#             print('Error:', e)
+#             return Response({"detail": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+# Sending OTP To The user 

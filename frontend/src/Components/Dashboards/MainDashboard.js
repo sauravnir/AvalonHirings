@@ -79,20 +79,20 @@ const renderBarChart=(
 function MainDashboard() {
   return (
     <div class="w-screen">
-      <div class="flex flex-col mt-14 w-10/14  p-5">
-        <div class="flex mb-5">
-        <h1 class="text-3xl text-white font-base">Dashboard</h1>
+      <div class="flex flex-col mt-14 w-10/14 p-2">
+        <div class="flex">
+        <h1 class="text-3xl font-base">Dashboard</h1>
         </div>
         <div class='flex h-50 justify-between'>
           {MainDashboardObject.map(info=>(
             <div class='flex p-3'>
               {/* Props To Be Passed */}
               <Link to='/dashboard'>
-              <div class={`flex h-40 w-72 bg-blue-200 hover:bg-white shadow-lg rounded-xl shadow-gray-900`}>
-                <div class="flex flex-col p-5 items-start">
+              <div class={`flex w-72 bg-sky-700 shadow-sm shadow-gray-900`}>
+                <div class="flex flex-row p-3 space-x-5 items-center">
                     <img class="h-auto w-12" src={require(`../../images/${info.img}`)}></img>
-                    <span class="text-4xl font-bold mt-5">{info.number}</span>
-                    <h1 class="">{info.title}</h1>
+                    <span class="text-4xl text-white font-bold ">{info.number}</span>
+                    <h1 class="items-center text-white">{info.title}</h1>
                 </div>
               </div>
               </Link>

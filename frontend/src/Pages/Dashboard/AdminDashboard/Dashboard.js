@@ -5,8 +5,9 @@ import NavigationDashboard from '../../../Components/Dashboards/NavigationDashbo
 import MainDashboard from '../../../Components/Dashboards/MainDashboard'
 
 function Dashboard() {
+
   return (
-    <div class='bg-sky-900 flex'>
+    <div class='bg-gray-50 flex'>
         <NavigationDashboard/>
         <Sidebar />
         <MainDashboard />

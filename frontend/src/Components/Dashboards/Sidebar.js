@@ -18,51 +18,52 @@ function Sidebar() {
           <h1 class="text-gray-900 text-2xl font-medium">Avalon Hirings</h1>
           {/* <button onClick={sidebarToggle}><img src={ToggleMenu} alt="toggleMenu" style={{marginLeft: isOpen?"20px":"0px"}} class="flex h-auto w-8 ml-3 shadow"></img></button> */}
         </div>
-        <div class="p-5 text-lg">
+        <div class="p-5 text-base">
           <Link to="/dashboard">
-            <div class="flex overflow-hidden mt-5 p-2 relative hover:bg-violet-100 rounded ">
+            <div class="flex overflow-hidden mt-5 p-2 relative hover:bg-sky-700 rounded ">
               <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
-                <img src={dashboard} alt="Dashboard"></img>
-                <h1 class="text-dark-900  font-medium">Dashboard</h1>
+                <img src={dashboard} alt="Dashboard" class="w-4"></img>
+                <h1 class="text-dark-900">Dashboard</h1>
               </div>
             </div>
           </Link>
 
           <Link to="/dashboard">
-            <div class="flex overflow-hidden  p-2 relative hover:bg-violet-100 rounded ">
+            <div class="flex overflow-hidden  p-2 relative hover:bg-sky-700 rounded ">
               <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
-                <img src={payment} alt="Payment"></img>
+                <img src={payment} alt="Payment" class="w-4"></img>
                 <h1 class="text-dark-900 font-medium">Payment</h1>
               </div>
             </div>
           </Link>
 
           <Link to="/contractreview">
-            <div class="flex overflow-hidden  p-2 relative hover:bg-violet-100 rounded ">
+            <div class="flex overflow-hidden  p-2 relative hover:bg-sky-700 rounded ">
               <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
-                <img src={contract} alt="Contract"></img>
-                <h1 class="text-dark-900  font-medium">Contract / Review</h1>
+                <img src={contract} alt="Contract" class="w-4"></img>
+                <h1 class="text-dark-900  font-medium">Contracts</h1>
               </div>
             </div>
           </Link>
 
           <Link to="/dashboard">
-            <div class="flex overflow-hidden  p-2 relative hover:bg-violet-100 rounded ">
+            <div class="flex overflow-hidden  p-2 relative hover:bg-sky-700 rounded ">
               <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
-                <img src={rating} alt="rating"></img>
+                <img src={rating} alt="rating" class="w-4"></img>
                 <h1 class="text-dark-900  font-medium">Rating</h1>
               </div>
             </div>
           </Link>
 
           <Link to="/dashboard">
-            <div class="flex overflow-hidden  p-2 relative hover:bg-violet-100 rounded ">
+            <div class="flex overflow-hidden  p-2 relative hover:bg-sky-700 rounded ">
               <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
-                <img src={report} alt="report"></img>
+                <img src={report} alt="report" class="w-4"></img>
                 <h1 class="text-dark-900  font-medium">Report</h1>
               </div>
             </div>
           </Link>
+
         </div>
       </div>
     </div>

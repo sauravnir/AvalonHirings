@@ -1,7 +1,9 @@
 import React from "react";
 import {useState} from 'react';
 import { Link , useNavigate } from "react-router-dom";
-import axios from 'axios';
+import { Alert } from 'antd';
+import {DatePicker} from "antd";
+
 import Logo from "../../images/Abnw.png";
 
 function Registration() {
@@ -16,6 +18,7 @@ function Registration() {
   const [userName , setUserName] = useState("");
   const [navigateError , setNavigateError] = useState("");
 
+  
   const registeredData = {
       fullname:fullName,
       user_type:userType,
@@ -33,7 +36,7 @@ function Registration() {
         const response = await fetch('http://127.0.0.1:8000/app/register/',{
           method : 'POST',
           headers : {
-            'Content-Type': 'application/json',
+           'Content-T ype': 'application/json',
           },
           body: JSON.stringify(registeredData),
         })
@@ -41,6 +44,7 @@ function Registration() {
         if (response.ok) {
           const responseData = await response.json();
           console.log('Data inserted successfully:', responseData);
+          // <Alert message="Success Text" type="success" />;
           navigate('/login');
         } else {
           const errorData = await response.json();
@@ -167,11 +171,13 @@ function Registration() {
                   >
                     Date of Birth
                   </label>
+                  
                   <div
                     data-te-datepicker-init
                     data-te-input-wrapper-init
                     class="mb-1"
                   >
+                    {/* <DatePicker format="YYYY-MM-DD" onChange={(value)=>setDateOfBirth(value)}/> */}
                     <input
                       class="shadow appearance-none border border-gray-200 rounded w-half  py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
                       type="text"

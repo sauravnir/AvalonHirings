@@ -1,11 +1,10 @@
 import React from "react";
-import {useState} from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
-import Popup from "reactjs-popup";
-
+import { Space, Table, Tag, Button, Modal, Avatar, Select, DatePicker } from "antd";
+import { EyeOutlined, UserOutlined } from "@ant-design/icons";
 
 import DashboardFooter from "./DashboardFooter";
-
 
 function ContractReviewDashboard() {
   const ContractSearch = async (e) => {
@@ -15,18 +14,170 @@ function ContractReviewDashboard() {
     } catch (e) {}
   };
 
+  const [open, setOpen] = useState(false);
+  // Radio Button handle change 
+  const handleContractChange=(value) =>{
+    console.log(value)
+  }
 
-  const [isOpen, setIsOpen] = useState(false);
-  const [isActive , setIsActive] = useState(true);
-  
+  // Date Picker 
+  const { RangePicker } = DatePicker;
+
+  const contents = [
+    {
+      title: "Contract ID",
+      dataIndex: "contract_id",
+      key: "contract",
+      render: (text) => <a>{text}</a>,
+    },
+    {
+      title: "User's Name",
+      dataIndex: "user_name",
+      key: "user_name",
+    },
+    {
+      title: "User Type",
+      dataIndex: "user_type",
+      key: "user_type",
+    },
+    {
+      title: "Created Date",
+      dataIndex: "created_date",
+      key: "created_date",
+    },
+    {
+      title: "Contract Status",
+      dataIndex: "contract_status",
+      key: "contract_status",
+      render: (_, { contract_status }) => (
+        <>
+          {contract_status &&
+            contract_status.map((tag) => {
+              let color = tag.length > 5 ? "geekblue" : "green";
+              if (tag === "Active") {
+                color = "green";
+              } else if (tag === "Inactive") {
+                color = "gray";
+              } else if (tag === "Pending") {
+                color = "yellow";
+              } else {
+                color = "red";
+              }
+              return (
+                <Tag color={color} key={tag}>
+                  {tag}
+                </Tag>
+              );
+            })}
+        </>
+      ),
+    },
+    {
+      title: "Actions",
+      key: "actions",
+      render: (_, record) => (
+        <Space size="medium">
+          <Button onClick={() => setOpen(true)}>
+            <EyeOutlined style={{ fontSize: "20px" }} />
+          </Button>
+          <Modal
+            title="User Profile / Contracts"
+            okText="Confirm Edit"
+            okType="default"
+            open={open}
+            onOk={() => setOpen(false)}
+            onCancel={() => setOpen(false)}
+            width={700}
+          >
+            <div class="w-full h-0.5 bg-gray-500 border"></div>
+            <div class="grid grid-cols-2 p-5">
+              <div class="shadow-xl p-3 shadow-zinc-300 justify-self-center rounded">
+                <div class="justify-self-center">
+                  <div class="flex items-center justify-center space-x-2">
+                  <Avatar size={100} icon={<UserOutlined />}/>
+                  </div>
+                  <div class="flex flex-col p-2 mt-2 space-y-2 text-base items-center justify-center">
+                    <h1 class='text-xs text-sky-500 hover:underline'>207412</h1>
+                    <h1>Name: Saurav Niraula</h1>
+                    <h1>User Type: Client</h1>
+                    <h1>Date of Birth: 20202022</h1>
+                    <h1>Email: niraulasaurav2@gmail.com</h1>
+                  </div>
+                </div>
+              </div>
+
+              <div class="shadow-xl shadow-zinc-300 p-3 justify-self-center rounded">
+                <div class="place-items-center">
+                  <div class="flex flex-col p-2 mt-2 space-y-4 text-base">
+                    <h1>Contract ID: <span class="hover:underline text-sky-500">207412</span> </h1>
+                    <h1>Created Date: 20202022</h1>
+                    <h1>Renewal Date: <DatePicker></DatePicker></h1>
+                    <h1>Contract Duration: <RangePicker size={"small"}></RangePicker></h1>
+                    <h1>
+                      Contract Status: 
+                       <Select
+                        defaultValue="Active"
+                        style={{
+                          width: 120,
+                        }}
+                        onChange={(handleContractChange)}
+                        options={[
+                          {
+                            value: 'Active',
+                            label: 'Active',
+                          },
+                          {
+                            value: 'Pending',
+                            label: 'Pending',
+                          },
+                          {
+                            value: 'Inactive',
+                            label: 'Inactive',
+                          },
+                          {
+                            value: 'Terminated',
+                            label: 'Terminated',  
+                          },
+                        ]}
+                      ></Select>
+                    </h1>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </Modal>
+        </Space>
+      ),
+    },
+  ];
+
+  const data = [
+    {
+      key: "1",
+      contract_id: "1123",
+      user_name: "John",
+      user_type: "user",
+      created_date: "2015-10-20",
+      contract_status: ["Terminated"],
+    },
+    {
+      key: "1",
+      contract_id: "1123",
+      user_name: "John",
+      user_type: "user",
+      created_date: "2015-10-20",
+      contract_status: ["Terminated"],
+    },
+  ];
+
   return (
     <div class="w-screen">
-      <div class="flex flex-col mt-14 p-5">
-        <div class="flex mb-5">
-          <h1 class="text-3xl text-white font-base">Contract/Review</h1>
+      <div class="flex flex-col mt-14 p-3">
+        <div class="flex">
+          <h1 class="text-3xl font-base">Contract/Review</h1>
         </div>
 
-        <div class="grid p-3 mt-2 bg-white rounded shadow-xl">
+        <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
           <div class="grid p-3 grid-cols-2">
             <div>
               <form class="space-x-5" onSubmit={ContractSearch}>
@@ -37,7 +188,7 @@ function ContractReviewDashboard() {
                   name="SearchBarForContracts"
                 />
                 <button
-                  class="bg-sky-500  py-2 px-2 rounded border hover:bg-sky-600 hover:shadow-lg hover:text-slate-100 text-sm"
+                  class="bg-green-500 py-2 px-2 rounded border text-white hover:bg-green-600 hover:shadow-lg text-sm"
                   type="submit"
                 >
                   Submit
@@ -47,88 +198,30 @@ function ContractReviewDashboard() {
             <div class="justify-self-end">
               <div>
                 <form class="space-x-5 " onSubmit={ContractSearch}>
-                    <select class="rounded border border-gray-200 text-sm text-gray-500 px-2 py-2" type="text" >
+                  <select
+                    class="rounded border border-gray-200 text-sm text-gray-500 px-2 py-2"
+                    type="text"
+                  >
                     <option class="">Choose From The List Below</option>
                     <option>Test</option>
                     <option>Test</option>
                   </select>
                   <button
-                    class="bg-sky-500  py-2 px-2 rounded border hover:bg-sky-600 hover:shadow-lg hover:text-slate-100 text-sm"
+                    class="bg-violet-500 py-2 px-2 rounded border text-white hover:bg-violet-800 hover:shadow-lg text-sm"
                     type="submit"
                   >
                     Filter Search
                   </button>
-
-                  
                 </form>
               </div>
             </div>
           </div>
-            {/* Horiziontal Line */}
-           <div class="w-full h-0.5 bg-gray-500 border">
-            </div>
+          {/* Horiziontal Line */}
+          <div class="w-full h-0.5 bg-gray-500 border"></div>
 
-            <div class="grid grid-row pt-3"> 
-                <table class="table-fixed w-full text-sm text-center ">
-                    <thead class="uppercase text-gray-900">
-                        <tr>
-                            <th>S.N</th>
-                            <th>Contract ID</th>
-                            <th>User Name</th>
-                            <th>User Type</th>
-                            <th>Created Date</th>
-                            <th>Contract Status</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    
-                    <tbody>
-                        <tr class="">
-                            <td>1</td>
-                            <td>A123</td>
-                            <td>Saurav Niraula</td>
-                            <td>Employee</td>
-                            <td>2080-01-20</td>
-                            <td>Active</td>
-                            <td>
-                              <button onClick={() => setIsOpen(true)} class=" bg-gray-200  py-2 px-2 w-auto rounded border hover:bg-green-400 hover:shadow-lg hover:text-slate-100">
-                                   <img class="w-6 h-6 align-center" src={require(`../../images/icons/eyebutton.png`)} alt="Button"/>
-                                </button> 
-                                  <Popup open={isOpen} onClose={() => setIsOpen(false)} contentStyle={{
-                                  position: 'fixed',
-                                  top: '5rem',
-                                  left: '50%',
-                                  transform: 'translateX(-50%)',
-                                  width :"70%",
-                                  height:"80%",
-                                  }}>
-                                    <div class="grid grid-cols-2 p-3 place-items-center shadow-lg bg-white align-top space-x-3 ">
-                                      <div class="justify-self-start space-x-5">
-                                      <button class=" p-3 shadow rounded-lg shadow-lg hover:bg-sky-700 bg-sky-500">
-                                          Contracts
-                                        </button>
-                                        <button class=" p-3 shadow rounded-lg shadow-lg hover:bg-violet-700 bg-violet-500">
-                                          Details
-                                        </button>
-                                        
-                                      </div>
-                                     
-                                      <div class="justify-self-end">
-                                      <button class=" w-7 h-7 rounded-lg shadow-lg hover:bg-red-700 bg-red-500" onClick={() =>setIsOpen(false)}>
-                                        &times;  
-                                      </button>
-                                          <h1 class="text-xl underline decoration-2">Review and Edit Details</h1>
-                                        </div>
-                                        
-                                      </div>
-                                  </Popup>
-                            </td>
-                        </tr>
-                    </tbody>
-                    
-                </table>
-            </div>
-
+          <div class="grid grid-row pt-3">
+            <Table columns={contents} dataSource={data} />
+          </div>
         </div>
         <DashboardFooter />
       </div>
