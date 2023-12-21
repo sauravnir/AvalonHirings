@@ -17,8 +17,8 @@ export default function Navbar() {
         <Hlink to="#reviews" class='hover:text-sky-700'>Reviews</Hlink>
        </div>
        <div   > 
-        <button class="bg-sky-900 w-40 h-10 rounded-sm text-white hover:bg-sky-700">
-          <Link to="/login">Login Here!</Link>
+        <button class="bg-green-600 w-20 h-10 shadow-lg rounded-sm border border-lg text-white hover:bg-green-900">
+          <Link  to="/login" ><h1>LOGIN</h1></Link>
         </button>
       </div>
     </div>

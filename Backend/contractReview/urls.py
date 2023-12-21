@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
+from .views import ContractList
 
 urlpatterns = [
-    path("contract/", views.Test, name="contractreview")
+    path("contract/", ContractList.as_view(), name="contractreview")
 ]

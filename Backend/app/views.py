@@ -27,21 +27,26 @@ class UserLoginView(APIView):
             user = authenticate(request, email=email, password=password)
             if user:
                 login(request, user)
-
+                user_type = user.user_type
+                user_name = user.username 
+                print(user_type)
                 token, created  = CustomToken.objects.get_or_create(user=user)
                 unique_key = str(uuid.uuid4())
                 token.key = unique_key
                 token.created = timezone.now(); 
-                expiration_time = timezone.now() + timedelta(days=1)
-                token.expires = expiration_time 
-                if (token.expires < timezone.now()):
-                    token.delete();
+                expiration_time = timezone.now() + timedelta(seconds=10);
+                print(expiration_time);
+                token.expiration = expiration_time 
+                if (token.expiration < timezone.now()):
+                    token.delete(); 
                     return Response({"Error":"Token Has Expired" } , status = status.HTTP_401_UNAUTHORIZED)    
                 # Saving the token 
                 token.save();
 
                 return Response({
                     'token' : token.key , 
+                    'user_type' : user_type,
+                    'username': user_name, 
                     'message' : 'Login Successfull'} , status = status.HTTP_200_OK)
             else:
                 return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)

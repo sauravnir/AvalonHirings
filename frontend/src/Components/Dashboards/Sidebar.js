@@ -28,7 +28,7 @@ function Sidebar() {
             </div>
           </Link>
 
-          <Link to="/dashboard">
+          <Link to="/payment">
             <div class="flex overflow-hidden  p-2 relative hover:bg-sky-700 rounded ">
               <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
                 <img src={payment} alt="Payment" class="w-4"></img>

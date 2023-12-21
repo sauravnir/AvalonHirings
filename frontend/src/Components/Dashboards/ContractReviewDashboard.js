@@ -1,18 +1,35 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Space, Table, Tag, Button, Modal, Avatar, Select, DatePicker } from "antd";
 import { EyeOutlined, UserOutlined } from "@ant-design/icons";
+import axios from 'axios';
 
 import DashboardFooter from "./DashboardFooter";
 
 function ContractReviewDashboard() {
-  const ContractSearch = async (e) => {
-    e.preventDefault();
-    try {
-      console.log("Hello Word!");
-    } catch (e) {}
-  };
+  const [contractDetails , setContractDetails] = useState([]);
+  
+  // API DATA STORAGE
+  const [contractDuration , setContractDuration] = useState([]);
+  const [contractID , setContractID] = useState([]);
+  const [constractStatus , setContractStatus] = useState([]);
+  const [contractKey , setContractKey] = useState([]);
+  const [renewalDate , setRenewalDate] = useState([]);
+  const [dateOfBirth, setdateOfBirth] = useState([]);
+  const [email,setEmail] = useState([]);
+  const [fullName , setFullName] = useState([]);
+  const [userType , setUserType] = useState([]);
+  const [userName , setUserName] = useState([]);
+  
+
+  console.log(contractDetails.user);
+
+  useEffect(() =>{
+        axios.get("http://127.0.0.1:8000/contract/")
+        .then(res =>setContractDetails(res.data))
+        .catch(err => console.log(err));  
+  },[]);
 
   const [open, setOpen] = useState(false);
   // Radio Button handle change 
@@ -56,8 +73,6 @@ function ContractReviewDashboard() {
               let color = tag.length > 5 ? "geekblue" : "green";
               if (tag === "Active") {
                 color = "green";
-              } else if (tag === "Inactive") {
-                color = "gray";
               } else if (tag === "Pending") {
                 color = "yellow";
               } else {
@@ -151,24 +166,15 @@ function ContractReviewDashboard() {
     },
   ];
 
-  const data = [
-    {
-      key: "1",
-      contract_id: "1123",
-      user_name: "John",
-      user_type: "user",
-      created_date: "2015-10-20",
-      contract_status: ["Terminated"],
-    },
-    {
-      key: "1",
-      contract_id: "1123",
-      user_name: "John",
-      user_type: "user",
-      created_date: "2015-10-20",
-      contract_status: ["Terminated"],
-    },
-  ];
+  const data = contractDetails.map(contractDetail => ({
+    key: contractDetail.id,
+    contract_id: contractDetail.contract_id,
+    user_name: contractDetail.user.fullname,
+    user_type: contractDetail.user.user_type,
+    created_date: contractDetail.created_date,
+    contract_status: [contractDetail.contract_status],
+  }));
+
 
   return (
     <div class="w-screen">
@@ -180,7 +186,7 @@ function ContractReviewDashboard() {
         <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
           <div class="grid p-3 grid-cols-2">
             <div>
-              <form class="space-x-5" onSubmit={ContractSearch}>
+              <form class="space-x-5" >
                 <input
                   class="shadow rounded border border-gray-200 w-60 py-2 px-3 text-gray-700 text-sm mb-3 leading-tight invalid:border-red-500  focus:shadow-outline"
                   type="text"
@@ -197,7 +203,7 @@ function ContractReviewDashboard() {
             </div>
             <div class="justify-self-end">
               <div>
-                <form class="space-x-5 " onSubmit={ContractSearch}>
+                <form class="space-x-5 ">
                   <select
                     class="rounded border border-gray-200 text-sm text-gray-500 px-2 py-2"
                     type="text"

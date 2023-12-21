@@ -19,7 +19,6 @@ function LoginPage() {
   const errorNotify = (type) =>{
     notificationApi[type]({
       message:"Incorrect credentials / error occured!",
-      description:"This is a test!",
     });
   };
 
@@ -46,12 +45,27 @@ function LoginPage() {
         },
         body:JSON.stringify(loginData)
       })
+
+      // console.log(await response.json());
       if(response.ok){
         const data = await response.json();
         setToken(data.token);
         localStorage.setItem('token', data.token);
-        // errorNotify('success!');
-        navigate('/dashboard');
+        console.log(data.username); 
+        switch (data.user_type) {
+          case 'Admin':
+            navigate('/dashboard');
+            break;
+          case 'Employee':
+            navigate('/employee-dashboard');
+            break;
+          case 'Client':
+            navigate('/client-dashboard');
+            break;
+          default:
+            // Handle other roles or navigate to a default route
+            navigate('/login');
+        }
       }
       else{
        errorNotify('error')
