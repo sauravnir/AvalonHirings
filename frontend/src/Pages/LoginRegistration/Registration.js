@@ -1,72 +1,89 @@
 import React from "react";
-import {useState} from 'react';
-import { Link , useNavigate } from "react-router-dom";
-import { Alert } from 'antd';
-import {DatePicker} from "antd";
+import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { DatePicker, Input, notification, Button } from "antd";
+import { DownloadOutlined } from "@ant-design/icons";
 
 import Logo from "../../images/Abnw.png";
 
 function Registration() {
-  
   const navigate = useNavigate();
-  const [fullName , setFullName] = useState("");
-  const [userType , setUserType] = useState("");
-  const [dateOfBirth , setDateOfBirth] = useState("");
-  const [email , setEmail] = useState("");
-  const [password , setPassword] = useState("");
-  const [confirmPassword , setConfirmPassword] = useState("");
-  const [userName , setUserName] = useState("");
-  const [navigateError , setNavigateError] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [userType, setUserType] = useState("");
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [userName, setUserName] = useState("");
+  const [navigateError, setNavigateError] = useState("");
 
-  
+  const [notificationApi, contextHolder] = notification.useNotification();
+  const errorNotify = (type) => {
+    notificationApi[type]({
+      message: "Incorrect credentials / error occured!",
+    });
+  };
+
   const registeredData = {
-      fullname:fullName,
-      user_type:userType,
-      date_of_birth:dateOfBirth,
-      email:email,
-      password:password,
-      username:userName
-  }
-  const handleRegister = async(e) => {
+    fullname: fullName,
+    user_type: userType,
+    date_of_birth: dateOfBirth,
+    email: email,
+    password: password,
+    username: userName,
+  };
+  const handleRegister = async (e) => {
     e.preventDefault();
-    if (password === confirmPassword){
-      console.log(registeredData);
-      try{
-
-        const response = await fetch('http://127.0.0.1:8000/app/register/',{
-          method : 'POST',
-          headers : {
-           'Content-Type': 'application/json',
+    if (password === confirmPassword) {
+      try {
+        const response = await fetch("http://127.0.0.1:8000/app/register/", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(registeredData),
-        })
-        
+        });
+
         if (response.ok) {
           const responseData = await response.json();
-          console.log('Data inserted successfully:', responseData);
+          console.log("Data inserted successfully:", responseData);
           // <Alert message="Success Text" type="success" />;
-          navigate('/login');
+          navigate("/login");
         } else {
-          const errorData = await response.json();
-          console.error('Error inserting data. Server responded with:', response.status, errorData);
-          setNavigateError("Err.. something went wrong");
-        } 
+          // const errorData = await response.json();
+          // console.error('Error inserting data. Server responded with:', response.status, errorData);
+          errorNotify("error");
+        }
+      } catch (error) {
+        console.log("Error", error);
       }
-      catch(error) 
-      {
-        console.log('Error',error);
-      }
-    }
-    else {
+    } else {
       window.location.reload();
     }
-    
-  }
+  };
+
+  // File Download
+
+  const downloadFile = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/app/downloadfile/");
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(new Blob([blob]));
+      const link = document.createElement("a");
+      link.href = url;
+      link.setAttribute("download", "TermsAndConditions.txt");
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } catch (error) {
+      console.error("Error downloading file:", error);
+    }
+  };
 
   return (
     <div>
       <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
-      {navigateError && <p style={{ color: 'red' }}>{navigateError}</p>}
+        {navigateError && <p style={{ color: "red" }}>{navigateError}</p>}
         <div class="h-screen w-2/3 shadow-lg bg-white justify-start p-10">
           <div class="flex flex-col items-start py-5 pb-2 md:mb-0">
             <span class="text-3xl font-medium whitespace-nowrap dark:text-dark-900">
@@ -74,18 +91,17 @@ function Registration() {
             </span>
             <span class="text-sm mt-2 dark:text-dark-900">
               Already have an account?{" "}
-              <Link to='/login'
+              <Link
+                to="/login"
                 href="#"
                 class="font-medium text-blue-500 hover:text-blue-800 hover:underline"
               >
-                {" "}
                 Login here
               </Link>
             </span>
           </div>
 
           <div class="grid grid-rows-2 grid-flow-row gap-4 max-w-xl justify-between ">
-          
             <form
               class="md:flex flex-col space-y-3  pt-4 pb-2 justify-center"
               onSubmit={handleRegister}
@@ -94,7 +110,7 @@ function Registration() {
             >
               {/* Full Name */}
               <div class="mb-1">
-                <label  
+                <label
                   class="block text-gray-700 text-m font-medium mb-2"
                   for="Fullname"
                 >
@@ -107,7 +123,8 @@ function Registration() {
                   type="text"
                   placeholder="John Smith"
                   onChange={(e) => setFullName(e.target.value)}
-                  required/>
+                  required
+                />
               </div>
               {/* Email Address */}
               <div class="mb-1">
@@ -154,9 +171,10 @@ function Registration() {
                   >
                     User-type
                   </label>
-                  <select class="shadow appearance-none border border-gray-200 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                  onChange={(e) => setUserType(e.target.value)}
-                  required
+                  <select
+                    class="shadow appearance-none border border-gray-200 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
+                    onChange={(e) => setUserType(e.target.value)}
+                    required
                   >
                     <option>******</option>
                     <option>Client</option>
@@ -171,7 +189,7 @@ function Registration() {
                   >
                     Date of Birth
                   </label>
-                  
+
                   <div
                     data-te-datepicker-init
                     data-te-input-wrapper-init
@@ -184,7 +202,7 @@ function Registration() {
                       name="dateofbirth"
                       id="dateofbirth"
                       placeholder="XXXX-XX-XX"
-                      onChange={(e)=>setDateOfBirth(e.target.value)}
+                      onChange={(e) => setDateOfBirth(e.target.value)}
                       required
                     />
                   </div>
@@ -199,14 +217,9 @@ function Registration() {
                   >
                     Password
                   </label>
-                  <input
-                    class="shadow appearance-none border border-gray-200 rounded w-half  py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                    id="password"
-                    name="password"
-                    type="password"
-                    placeholder="**********"
-                    onChange={(e)=> setPassword(e.target.value)}
-                    required
+
+                  <Input.Password
+                    onChange={(e) => setPassword(e.target.value)}
                   />
                 </div>
 
@@ -217,13 +230,8 @@ function Registration() {
                   >
                     Confirm Password
                   </label>
-                  <input
-                    class="shadow appearance-none border border-gray-200 rounded w-half  py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                    id="confirmpassword"
-                    name="confirmpassword"
-                    type="password"
-                    placeholder="**********"
-                    onChange={(e)=> setConfirmPassword(e.target.value)}
+                  <Input.Password
+                    onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                   />
                 </div>
@@ -249,7 +257,7 @@ function Registration() {
                 </div> 
               </div> */}
 
-              <div class="flex flex-row items-center w-full py-2 justify-center p-5 ">
+              <div class="flex flex-col space-y-20 items-center w-full py-2 justify-center items-center p-5 ">
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
                   type="submit"
@@ -257,7 +265,14 @@ function Registration() {
                 >
                   Create Account
                 </button>
-                
+                <span>
+                  Download Terms and Conditions:{" "}
+                  <span>
+                    <Button onClick={downloadFile} icon={<DownloadOutlined />}>
+                      Click Here
+                    </Button>
+                  </span>
+                </span>
               </div>
             </form>
           </div>

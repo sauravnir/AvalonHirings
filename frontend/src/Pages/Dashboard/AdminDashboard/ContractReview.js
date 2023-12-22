@@ -7,7 +7,7 @@ import ContractReviewDashboard from '../../../Components/Dashboards/ContractRevi
 function ContractReview() {
   return (
     <div class='bg-gray-50 flex'>
-      <NavigationDashboard/>
+
         <Sidebar />
       <ContractReviewDashboard />
     </div>

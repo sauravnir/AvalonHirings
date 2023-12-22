@@ -6,7 +6,7 @@ import Sidebar from '../../../Components/Dashboards/Sidebar';
 function Payment(){
     return(
         <div class='bg-gray-50 flex'>
-        <NavigationDashboard/>
+        
             <Sidebar />
          <PaymentDashboard /> 
     </div>

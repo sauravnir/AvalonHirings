@@ -12,6 +12,7 @@ import PrivateRoute from "../src/Routes/PrivateRoute.js";
 import Payment from "./Pages/Dashboard/AdminDashboard/Payment.js";
 import ClientDashboard from "./Pages/Dashboard/ClientDashboard/ClientDashboard.js";
 import EmployeeDashboard from "./Pages/Dashboard/EmployeeDashboard/EmployeeDashboard.js";
+import ReportandIssues from "./Pages/Dashboard/AdminDashboard/ReportandIssues.js";
 
 function App() {
   return (
@@ -38,6 +39,10 @@ function App() {
 
         <Route path="/employee-dashboard" element={<PrivateRoute />}>
           <Route path="/employee-dashboard" element={<EmployeeDashboard />} />
+        </Route>
+
+        <Route path="/admin-view-reports" element={<PrivateRoute />}>
+          <Route path="/admin-view-reports" element={<ReportandIssues />}></Route>
         </Route>
       </Routes>
     </Router>

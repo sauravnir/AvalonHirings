@@ -77,11 +77,12 @@ const renderBarChart=(
 
 
 function MainDashboard() {
+  
   return (
     <div class="w-screen">
-      <div class="flex flex-col mt-14 w-10/14 p-2">
+      <div class="flex flex-col mt-2 w-10/14 p-2">
         <div class="flex">
-        <h1 class="text-3xl font-base">Dashboard</h1>
+        <h1 class="text-xl font-base">Dashboard</h1>
         </div>
         <div class='flex h-50 justify-between'>
           {MainDashboardObject.map(info=>(

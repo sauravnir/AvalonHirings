@@ -3,7 +3,7 @@ import {useNavigate} from  'react-router-dom';
 import {useState} from "react";
 import Logo from "../../images/Abnw.png"
 import { Link } from "react-router-dom";
-import { Button, notification, Space } from 'antd';
+import { notification, Input } from 'antd';
 
 
 function LoginPage() {
@@ -45,36 +45,34 @@ function LoginPage() {
         },
         body:JSON.stringify(loginData)
       })
-
+      
       // console.log(await response.json());
       if(response.ok){
         const data = await response.json();
         setToken(data.token);
         localStorage.setItem('token', data.token);
-        console.log(data.username); 
-        switch (data.user_type) {
-          case 'Admin':
-            navigate('/dashboard');
-            break;
-          case 'Employee':
-            navigate('/employee-dashboard');
-            break;
-          case 'Client':
+        console.log(data);
+        if(data.user_type =='Admin' && data.otp == 0){
+          navigate('/dashboard');
+        }else if (data.otp !== undefined && data.otp !== null){
+          const userType = data.user_type;
+          if(userType == 'Client'){
             navigate('/client-dashboard');
-            break;
-          default:
-            // Handle other roles or navigate to a default route
-            navigate('/login');
+          }else{
+            navigate('/employee-dashboard');
+          }
+        }
+        else{
+          errorNotify('error')
+         }
         }
       }
-      else{
-       errorNotify('error')
-      }
-    } catch (error) {
+       catch (error) {
       console.log('Error occured:', error);
       errorNotify('error');
     }
-};
+  }
+
 
   return (
     <div>
@@ -122,7 +120,8 @@ function LoginPage() {
                 >
                   Password
                 </label>
-                <input
+                <Input.Password onChange={(e) => setPassword(e.target.value)} required/>
+                {/* `<input
                   class="shadow appearance-none rounded border border-gray-200 w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none invalid:border-red-500  focus:shadow-outline"
                   id="password"
                   name="password"
@@ -130,7 +129,7 @@ function LoginPage() {
                   placeholder="***********"
                   onChange={(e) => setPassword(e.target.value)}
                   required
-                />
+                />` */}
               </div>
               <div class="flex flex-row mb-6">
                 <input class="h-4 w-4 mt-1" type="checkbox"  value="isRemembered"/>

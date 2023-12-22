@@ -28,3 +28,6 @@ class UserLoginSerializer(serializers.Serializer):
 class UserForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
+
+class OTPTransactionSerializer(serializers.Serializer):
+    otp_pin = serializers.IntegerField();

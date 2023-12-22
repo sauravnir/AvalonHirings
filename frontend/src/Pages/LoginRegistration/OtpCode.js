@@ -1,8 +1,42 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Logo from "../../images/Abnw.png"
-import { Link } from "react-router-dom";
+import { Link , useNavigate } from "react-router-dom";
+import { notification } from 'antd';
+
+
 
 function OtpCode() {
+  const[otp , setotp] = useState('');
+  const navigate = useNavigate();
+
+  const [notificationApi , contextHolder] = notification.useNotification();
+  const errorNotify = (type) =>{
+    notificationApi[type]({
+      message:"Incorrect credentials / error occured!",
+    });
+  };
+
+  const handleOTPLogin = async(e) =>{
+    e.preventDefault();
+    try{
+      const response = await fetch('http://127.0.0.1:8000/app/otp/' ,{
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
+        body:JSON.stringify({otp_pin : otp}), 
+    })
+    if(response.ok){
+      const data = await response.json();
+      console.log(data);
+      navigate('/client-dashboard')
+    }
+    else {
+      console.log("Error:Occured");
+    }
+}
+    catch(error){
+      console.error(error);
+    }
+  }
   return (
     <div>
     <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
@@ -23,7 +57,7 @@ function OtpCode() {
             </span>
           </div>
           <div class="grid grid-rows-2 grid-flow-row gap-4 max-w-xl">
-            <form class="md:flex flex-col space-y-4 p-8 ">
+            <form class="md:flex flex-col space-y-4 p-8 " onSubmit={handleOTPLogin}>
               <div class="mb-4 flex justify-center space-x-4 mt-10">
                 <label
                   class="block text-gray-700 text-m font-medium mb-2"
@@ -31,40 +65,23 @@ function OtpCode() {
                 >
                 </label>
                 <input
-                  class="shadow appearance-none border  border-gray-200 rounded w-14 h-14 py-2 px-3 text-gray-700 text-2xl leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
+                  class="shadow appearance-none border  border-gray-200 rounded h-14 py-2 px-3 text-gray-700 text-2xl leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
                   id="otp1"
                   name="otp1"
-                  type="text"
-                />
-                <input
-                  class="shadow appearance-none border border-gray-200 rounded w-14 h-14 py-2 px-3 text-gray-700 text-2xl leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                  id="otp2"
-                  name="otp2"
-                  type="text"
-                />
-                <input
-                  class="shadow appearance-none border border-gray-200 rounded w-14 h-14 py-2 px-3 text-gray-700 text-2xl leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                  id="otp3"
-                  name="otp3"
-                  type="text"
-                />
-                <input
-                  class="shadow appearance-none border border-gray-200 rounded w-14 h-14 py-2 px-3 text-gray-700 text-2xl leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                  id="otp4"
-                  name="otp4"
-                  type="text"
+                  type="number"
+                  onChange={(e) => setotp(e.target.value)}
                 />
               </div>
               
               <div class="flex flex-row items-center w-full py-4 justify-center p-5 ">
-                <Link to='/dashboard'>
+                
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
-                  type="button"
+                  type="submit"
                 >
                   Submit
                 </button>
-                </Link>
+    
               </div>
 
               <div class="flex flex-col justify-center items-center p-3">

@@ -8,8 +8,9 @@ function Dashboard() {
 
   return (
     <div class='bg-gray-50 flex'>
-        <NavigationDashboard/>
+        
         <Sidebar />
+        {/* <NavigationDashboard/> */}
         <MainDashboard />
     </div>
   )

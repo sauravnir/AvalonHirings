@@ -67,7 +67,7 @@ INSTALLED_APPS = [
     'contractreview',
     'rest_framework.authtoken',
     'payment',
-
+    'reports'
 ]
 
 MIDDLEWARE = [
@@ -160,3 +160,5 @@ AUTHENTICATION_BACKENDS = [
 
 
 AUTH_USER_MODEL = 'app.Users'
+
+

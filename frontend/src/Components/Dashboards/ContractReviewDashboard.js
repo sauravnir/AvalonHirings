@@ -178,7 +178,7 @@ function ContractReviewDashboard() {
 
   return (
     <div class="w-screen">
-      <div class="flex flex-col mt-14 p-3">
+      <div class="flex flex-col mt-2 p-3">
         <div class="flex">
           <h1 class="text-3xl font-base">Contract/Review</h1>
         </div>
