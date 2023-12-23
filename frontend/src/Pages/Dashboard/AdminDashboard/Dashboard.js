@@ -10,9 +10,8 @@ function Dashboard() {
     <div class='bg-gray-50 flex'>
         
         <Sidebar />
-        {/* <NavigationDashboard/> */}
         <MainDashboard />
-    </div>
+    </div>  
   )
 }
 

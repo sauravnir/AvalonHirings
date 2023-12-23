@@ -1,6 +1,5 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import DashboardFooter from "./DashboardFooter";
-import { useState } from "react";
 // import {  } from 'react-router-dom';
 import { useNavigate } from "react-router-dom";
 import { Table, Tabs, Tag, Modal, Space, Button, Dropdown } from "antd";
@@ -342,9 +341,6 @@ function PaymentDashboard() {
         </div>
 
         <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
-          <h1 class="text-sm p-2 text-sky-700 hover:underline">
-            *Make or Request Payments*
-          </h1>
           <div class="grid p-3 grid-cols-2">
             <div>
               <form class="space-x-5" onSubmit={ContractSearch}>

@@ -1,8 +1,9 @@
 import React from 'react'
+import Sidebar from '../../../Components/Dashboards/Sidebar';
 
 function ClientDashboard(){
     return(
-        <div>Client Dashboard</div>
+        <div><Sidebar /></div>
     )
 }
 

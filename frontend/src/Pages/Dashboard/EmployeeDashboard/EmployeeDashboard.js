@@ -1,8 +1,10 @@
 import React from 'react'
+import Sidebar from '../../../Components/Dashboards/Sidebar';
+
 
 function EmployeeDashboard(){
     return(
-        <div>Employee Dashboard</div>
+        <div><Sidebar /></div>
     )
 }
 

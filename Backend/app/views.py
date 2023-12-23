@@ -22,7 +22,6 @@ from app.models import Users , CustomToken
 class UserLoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
-        print(serializer)
         if serializer.is_valid():
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
@@ -69,7 +68,7 @@ class UserLoginView(APIView):
                 token.save();
 
                 return Response({
-                    'token' : token.key , 
+                    'token' : token.key, 
                     'user_type' : user_type,
                     'username': user_name, 
                     'otp': user.otp,
@@ -138,6 +137,28 @@ class UserDownloadFileView(APIView):
         file_path = "../WebsiteFiles/TermsAndConditions/TermsAndConditions.txt"
 
         return FileResponse(open(file_path , 'rb'))
+    
+
+# Fetch User Data 
+    
+
+class UserProfileData(APIView):
+    def get(self, request):
+        user_token_key = request.GET.get('token',None)
+        if user_token_key:
+            try:
+                custom_token = CustomToken.objects.get(key=user_token_key)
+
+                user = custom_token.user    
+
+                serializer = UserRegisterSerializer(user)
+
+                return Response(serializer.data)
+            except CustomToken.DoesNotExist:
+                return Response({'error': 'CustomToken not found'}, status=404)
+        else:
+            return Response({'error': 'Token Not Provided'}, status=400)
+
 # class UserLogoutView(APIView):
 #     class UserLogoutView(APIView):
 #         def post(self, request):

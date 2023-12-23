@@ -1,33 +1,31 @@
-import React from "react";
-import {useNavigate} from  'react-router-dom';
-import {useState} from "react";
-import Logo from "../../images/Abnw.png"
-import { Link } from "react-router-dom";
-import { notification, Input } from 'antd';
+import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
+import Logo from "../../images/Abnw.png";
+import { Link } from "react-router-dom";
+import { notification, Input } from "antd";
 
 function LoginPage() {
-
-  const [useremail , setEmail] = useState("");
+  const [useremail, setEmail] = useState("");
   const [userpassword, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-  // const[rem , setRem] = useState(false);
 
+  
 
-  const [notificationApi , contextHolder] = notification.useNotification();
-  const errorNotify = (type) =>{
+  const [notificationApi, contextHolder] = notification.useNotification();
+  const errorNotify = (type) => {
     notificationApi[type]({
-      message:"Incorrect credentials / error occured!",
+      message: "Incorrect credentials / error occured!",
     });
   };
 
-  const [token , setToken] = useState(localStorage.getItem("token") || "");
+  const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   const loginData = {
-    email : useremail , 
-    password : userpassword , 
-  }
+    email: useremail,
+    password: userpassword,
+  };
 
   // const handleRem = ()=>{
   //   setRem(!rem);
@@ -38,41 +36,39 @@ function LoginPage() {
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
-      const response = await fetch("http://127.0.0.1:8000/app/login/",{
-        method:"POST",
-        headers:{
-          'Content-Type': 'application/json'
+      const response = await fetch("http://127.0.0.1:8000/app/login/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
         },
-        body:JSON.stringify(loginData)
-      })
-      
+        body: JSON.stringify(loginData),
+      });
+
       // console.log(await response.json());
-      if(response.ok){
+      if (response.ok) {
         const data = await response.json();
         setToken(data.token);
-        localStorage.setItem('token', data.token);
-        console.log(data);
-        if(data.user_type =='Admin' && data.otp == 0){
-          navigate('/dashboard');
-        }else if (data.otp !== undefined && data.otp !== null){
+        localStorage.setItem("token", data.token);
+        const userData = JSON.stringify(data);
+        localStorage.setItem("userData", userData);
+        if (data.user_type == "Admin" && data.otp == 0) {
+          navigate("/admin-dashboard");
+        } else if (data.otp !== undefined && data.otp !== null) {
           const userType = data.user_type;
-          if(userType == 'Client'){
-            navigate('/client-dashboard');
-          }else{
-            navigate('/employee-dashboard');
+          if (userType == "Client") {
+            navigate("/client-dashboard");
+          } else {
+            navigate("/employee-dashboard");
           }
-        }
-        else{
-          errorNotify('error')
-         }
+        } else {
+          errorNotify("error");
         }
       }
-       catch (error) {
-      console.log('Error occured:', error);
-      errorNotify('error');
+    } catch (error) {
+      console.log("Error occured:", error);
+      errorNotify("error");
     }
-  }
-
+  };
 
   return (
     <div>
@@ -84,18 +80,20 @@ function LoginPage() {
             </span>
             <span class="text-sm mt-2 dark:text-dark-900">
               Dont't have an account yet?{" "}
-              <Link to="/register"
-                
+              <Link
+                to="/register"
                 class="font-medium text-blue-500 hover:text-blue-800 hover:underline"
               >
                 {" "}
                 Register Now!
               </Link>
-              
             </span>
           </div>
           <div class="grid grid-rows-2 grid-flow-row gap-4 max-w-xl">
-            <form class="md:flex flex-col space-y-4 p-8  justify-center" onSubmit={handleLogin}>
+            <form
+              class="md:flex flex-col space-y-4 p-8  justify-center"
+              onSubmit={handleLogin}
+            >
               <div class="mb-4">
                 <label
                   class="block text-gray-700 text-m font-medium mb-2"
@@ -120,7 +118,10 @@ function LoginPage() {
                 >
                   Password
                 </label>
-                <Input.Password onChange={(e) => setPassword(e.target.value)} required/>
+                <Input.Password
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                />
                 {/* `<input
                   class="shadow appearance-none rounded border border-gray-200 w-full py-2 px-3 text-gray-700 mb-3 leading-tight focus:outline-none invalid:border-red-500  focus:shadow-outline"
                   id="password"
@@ -132,11 +133,16 @@ function LoginPage() {
                 />` */}
               </div>
               <div class="flex flex-row mb-6">
-                <input class="h-4 w-4 mt-1" type="checkbox"  value="isRemembered"/>
+                <input
+                  class="h-4 w-4 mt-1"
+                  type="checkbox"
+                  value="isRemembered"
+                />
                 <span class=" ml-3 align-top text-sm">Remember Me?</span>
-                <Link 
-                to='/forgotPassword'
-                  class="ml-60 inline-block align-baseline font-medium text-sm text-blue-500 hover:text-blue-800 hover:underline ">
+                <Link
+                  to="/forgotPassword"
+                  class="ml-60 inline-block align-baseline font-medium text-sm text-blue-500 hover:text-blue-800 hover:underline "
+                >
                   Forgot Password?
                 </Link>
               </div>
@@ -146,16 +152,19 @@ function LoginPage() {
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
                   type="submit"
-                  
                 >
                   Sign In
                 </button>
                 {/* </Link> */}
-                {error && <p style={{ color: 'red' }}>{error}</p>}
+                {error && <p style={{ color: "red" }}>{error}</p>}
               </div>
 
               <div class="flex flex-col justify-center items-center p-3">
-                <Link to='/' class="text-lg text-red-500 hover:text-red-800 hover:underline mt-5" href="#">
+                <Link
+                  to="/"
+                  class="text-lg text-red-500 hover:text-red-800 hover:underline mt-5"
+                  href="#"
+                >
                   Go back to site?
                 </Link>
                 <div class="sm:flex sm:items-center sm:justify-center mt-10 ">
@@ -173,17 +182,17 @@ function LoginPage() {
         </div>
 
         <div class="flex flex-row  w-screen justify-center items-center ">
-        <div class="mb-6 md:mb-0 items-center ">
-              <a href="#" class="flex flex-row items-center">
-                  <img src={Logo} class="h-20 mr-2" alt="FlowBite Logo" />
-                  <span class="self-center text-6xl font-semibold whitespace-nowrap dark:text-white align-center">Avalon Hirings</span>
-              </a>
+          <div class="mb-6 md:mb-0 items-center ">
+            <a href="#" class="flex flex-row items-center">
+              <img src={Logo} class="h-20 mr-2" alt="FlowBite Logo" />
+              <span class="self-center text-6xl font-semibold whitespace-nowrap dark:text-white align-center">
+                Avalon Hirings
+              </span>
+            </a>
           </div>
         </div>
-
-      </div>    
+      </div>
     </div>
-    
   );
 }
 

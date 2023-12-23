@@ -1,6 +1,5 @@
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { Link } from "react-router-dom";
 import { Space, Table, Tag, Button, Modal, Avatar, Select, DatePicker } from "antd";
 import { EyeOutlined, UserOutlined } from "@ant-design/icons";
 import axios from 'axios';
@@ -9,7 +8,7 @@ import DashboardFooter from "./DashboardFooter";
 
 function ContractReviewDashboard() {
   const [contractDetails , setContractDetails] = useState([]);
-  
+  const [loading , setLoading] = useState(true);
   // API DATA STORAGE
   const [contractDuration , setContractDuration] = useState([]);
   const [contractID , setContractID] = useState([]);
@@ -27,7 +26,8 @@ function ContractReviewDashboard() {
 
   useEffect(() =>{
         axios.get("http://127.0.0.1:8000/contract/")
-        .then(res =>setContractDetails(res.data))
+        .then(res =>setContractDetails(res.data),
+        setLoading(false))
         .catch(err => console.log(err));  
   },[]);
 
@@ -226,7 +226,7 @@ function ContractReviewDashboard() {
           <div class="w-full h-0.5 bg-gray-500 border"></div>
 
           <div class="grid grid-row pt-3">
-            <Table columns={contents} dataSource={data} />
+            <Table columns={contents} dataSource={data} loading={loading}/>
           </div>
         </div>
         <DashboardFooter />

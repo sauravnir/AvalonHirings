@@ -8,7 +8,7 @@ class UserTableSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 class UserContractSerializer(serializers.ModelSerializer):
-    user =UserTableSerializer()
+    user = UserTableSerializer()
 
     class Meta:
         model = Contract

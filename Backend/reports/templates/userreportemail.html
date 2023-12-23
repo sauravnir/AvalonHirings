@@ -1,0 +1,40 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Report</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333;">
+
+    <div style="background-color: #f5f5f5; padding: 20px; text-align: center;">
+
+        <h2 style="color: #333333;">{{name}}</h2>
+        <!-- Job Application Status Content -->
+        <h1>Issued Date: {{current_time}}</h1>
+        <h1>Title:{{title}}</h1>
+        <p align="justify">
+            {{description}} 
+        </p>
+        <h1>
+        <!-- <a href="{% static 'templates/evidences' %}" download="{evidences}" alt="">Click here to download the evidence</a> -->
+        </h1>
+        
+       
+        
+                Regards,<br>{{name}}<br>Kathmandu , Nepal
+            
+
+    </div>
+
+    <!-- Footer Section -->
+    <div style=" text-align: center; background-color: #333333; padding: 10px; color: white;">
+        <p style="margin: 0;">Copyright&copy; 2023, Avalon Hirings. All Rights Reserved.</p>
+    </div>
+
+</body>
+
+</html>
