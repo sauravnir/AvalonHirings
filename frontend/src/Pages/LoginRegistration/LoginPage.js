@@ -5,13 +5,15 @@ import Logo from "../../images/Abnw.png";
 import { Link } from "react-router-dom";
 import { notification, Input } from "antd";
 
+import { ToastContainer, toast } from "react-toastify";
+
+import "react-toastify/dist/ReactToastify.css";
+
 function LoginPage() {
   const [useremail, setEmail] = useState("");
   const [userpassword, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
-
-  
 
   const [notificationApi, contextHolder] = notification.useNotification();
   const errorNotify = (type) => {
@@ -27,12 +29,6 @@ function LoginPage() {
     password: userpassword,
   };
 
-  // const handleRem = ()=>{
-  //   setRem(!rem);
-  // }
-
-  // console.log(rem);
-
   const handleLogin = async (e) => {
     e.preventDefault();
     try {
@@ -44,29 +40,29 @@ function LoginPage() {
         body: JSON.stringify(loginData),
       });
 
-      // console.log(await response.json());
       if (response.ok) {
         const data = await response.json();
         setToken(data.token);
         localStorage.setItem("token", data.token);
         const userData = JSON.stringify(data);
         localStorage.setItem("userData", userData);
-        if (data.user_type == "Admin" && data.otp == 0) {
+        if (data.user_type === "Admin") {
           navigate("/admin-dashboard");
-        } else if (data.otp !== undefined && data.otp !== null) {
-          const userType = data.user_type;
-          if (userType == "Client") {
-            navigate("/client-dashboard");
-          } else {
-            navigate("/employee-dashboard");
+        }
+        // Assuming you define userType somewhere
+        if (data.is_auth === true && data.otp !== null) {
+          if (data.user_type === "Client" || data.user_type === "Employee") {
+            navigate("/otp");
           }
         } else {
-          errorNotify("error");
+          {data.user_type === "Client" ? navigate('/client-dashboard') : navigate("/employee-dashboard")};
         }
+      }else{
+        toast.error("Failed To Authenticated")
       }
     } catch (error) {
-      console.log("Error occured:", error);
-      errorNotify("error");
+      console.log("Error occurred:", error);
+      toast.error("An error occurred. Please try again.");
     }
   };
 
@@ -132,13 +128,7 @@ function LoginPage() {
                   required
                 />` */}
               </div>
-              <div class="flex flex-row mb-6">
-                <input
-                  class="h-4 w-4 mt-1"
-                  type="checkbox"
-                  value="isRemembered"
-                />
-                <span class=" ml-3 align-top text-sm">Remember Me?</span>
+              <div class="">
                 <Link
                   to="/forgotPassword"
                   class="ml-60 inline-block align-baseline font-medium text-sm text-blue-500 hover:text-blue-800 hover:underline "
@@ -180,6 +170,7 @@ function LoginPage() {
             </form>
           </div>
         </div>
+        <ToastContainer position="top-center" autoClose={3000} />
 
         <div class="flex flex-row  w-screen justify-center items-center ">
           <div class="mb-6 md:mb-0 items-center ">

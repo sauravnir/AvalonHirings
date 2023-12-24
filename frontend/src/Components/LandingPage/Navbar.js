@@ -21,8 +21,8 @@ export default function Navbar() {
           <Link  to="/login" ><h1>LOGIN</h1></Link>
         </button>
         
-        <button class="bg-sky-600 w-20 h-10 shadow-lg rounded-sm border border-lg text-white hover:bg-sky-900">
-          <Link  to="/register" ><h1>SIGN-UP</h1></Link>
+        <button class="bg-sky-900 w-fit h-10 p-2 shadow-lg rounded-sm border border-lg text-white hover:bg-sky-900">
+          <Link  to="/register" ><h1>Interested? JOIN US</h1></Link>
         </button>
       </div>
     </div>

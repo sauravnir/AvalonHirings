@@ -21,16 +21,24 @@ import EmployeeReports from "./Pages/Dashboard/EmployeeDashboard/EmployeeReports
 import EmployeeReviews from "./Pages/Dashboard/EmployeeDashboard/EmployeeReviews.js";
 import ClientReports from "./Pages/Dashboard/ClientDashboard/ClientReports.js";
 
+import { ToastContainer } from "react-toastify";
 function App() {
   return (
+  
     <Router>
         <Routes>
+
+        
           <Route index element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Registration />} />
          
+
           <Route path="/forgotpassword" element={<ForgotPassword />} />
-          <Route path="/otp" element={<OtpCode />} />
+         <Route path="/otp" element={<PrivateRoute />}>
+         <Route path="/otp" element={<OtpCode />} />
+         </Route>
+          
           
         {/* Admin Routes */}
           <Route path="/admin-dashboard" element={<PrivateRoute allowedRoles={['Admin']}/>}>
@@ -80,8 +88,11 @@ function App() {
           <Route path="/client-reports" element={<PrivateRoute />}>
             <Route index element={<ClientReports />}></Route>
           </Route>
+          
+          
         </Routes>
     </Router>
+    
   );
 }
 

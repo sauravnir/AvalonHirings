@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import HttpResponse
-from .serializers import UserReportSerializer , UserModelSerializer , ReportsSerializer
+from .serializers import UserReportSerializer , UserModelSerializer , ReportsSerializer , ReportUpdateSerializer
 from .models import Reports
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView 
@@ -19,7 +19,6 @@ from django.template.loader import render_to_string
 class UserReportSubmitView(APIView):
     def post(self, request):
         user_name = request.data.get('username')
-        print(user_name)
         if user_name is not None:   
             user_details = get_object_or_404(Users, username=user_name)
             user_email = user_details.email
@@ -31,7 +30,7 @@ class UserReportSubmitView(APIView):
         if serializer.is_valid():
             title = serializer.validated_data['title']
             desc = serializer.validated_data['description']
-            current_time = timezone.now()
+            current_time = timezone.now().date()
 
             save_report = Reports(user=user_details,title=title, description=desc)
 
@@ -62,7 +61,54 @@ class UserReportSubmitView(APIView):
 
 
 class UserReportGetView(APIView):
-        def get(self , request):
-            reports  = Reports.objects.all()
-            serializer =ReportsSerializer(reports , many = True)
-            return Response(serializer.data , status = status.HTTP_200_OK)
+    def get(self , request):
+            reports = Reports.objects.all()
+            serializer = ReportsSerializer(reports, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+        
+class UserReportGetObjectView(APIView):
+    def get(self, request ,id = None):
+        reports  = get_object_or_404(Reports,id=id)
+        serializer =ReportsSerializer(reports)
+        return Response(serializer.data , status = status.HTTP_200_OK)
+
+class ApprovedReportView(APIView):
+    def put(self, request, id):
+        report = get_object_or_404(Reports, id=id)
+        serializer = ReportUpdateSerializer(data=request.data)
+        if serializer.is_valid():
+            report_action = serializer.validated_data.get('action');
+            fullname = report.user.fullname;
+            useremail = report.user.email
+            print(useremail)
+            if report_action == 'Approved':
+                report.report_action = 'Approved'
+                report.save()
+
+                email_data={
+                    "name" :fullname,
+                    "title": "Successful Review On Your Report",
+                }   
+
+                email_body= render_to_string('adminreportemail.html',email_data)
+                email = EmailMessage(
+                    'Report Registration',
+                    email_body,
+                    settings.EMAIL_HOST_USER,
+                    [useremail], 
+                )
+
+                email.content_subtype = "html"
+                email.send(fail_silently=False)
+                
+                return Response({'message': 'Report updated successfully'}, status=status.HTTP_200_OK)
+            elif report_action == 'Denied':
+                report.report_action = 'Denied'
+                report.save()
+
+                return Response({'message': 'Report updated successfully'}, status=status.HTTP_200_OK)
+
+           
+
+        return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+

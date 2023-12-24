@@ -1,45 +1,45 @@
-import React, { useState } from 'react'
-import Logo from "../../images/Abnw.png"
-import { Link , useNavigate } from "react-router-dom";
-import { notification } from 'antd';
+import React, { useState } from "react";
+import Logo from "../../images/Abnw.png";
+import { Link, useNavigate } from "react-router-dom";
 
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 function OtpCode() {
-  const[otp , setotp] = useState('');
+  const [otp, setotp] = useState("");
   const navigate = useNavigate();
 
-  const [notificationApi , contextHolder] = notification.useNotification();
-  const errorNotify = (type) =>{
-    notificationApi[type]({
-      message:"Incorrect credentials / error occured!",
-    });
-  };
-
-  const handleOTPLogin = async(e) =>{
+  const handleOTPLogin = async (e) => {
     e.preventDefault();
-    try{
-      const response = await fetch('http://127.0.0.1:8000/app/otp/' ,{
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
-        body:JSON.stringify({otp_pin : otp}), 
-    })
-    if(response.ok){
-      const data = await response.json();
-      console.log(data);
-      navigate('/client-dashboard')
-    }
-    else {
-      console.log("Error:Occured");
-    }
-}
-    catch(error){
+    try {
+      const response = await fetch("http://127.0.0.1:8000/app/otp/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ otp_pin: otp }),
+      });
+    
+      if (response.ok) {
+        const data = await response.json();
+        localStorage.getItem("user_name");
+        toast.success("Login Successful.");
+        if (data.user_type === "Client") {
+          navigate("/client-dashboard");
+        } else {
+          navigate("/employee-dashboard");
+        }
+      } else {
+        toast.error("Wrong OTP Code");
+        console.log("Error:Occured");
+      }
+    }catch (error) {
+      
+      toast.error("Unknown Error!");
       console.error(error);
     }
-  }
+  };
   return (
     <div>
-    <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
+      <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
         <div class="h-screen w-2/3 shadow-lg bg-white justify-start p-10">
           <div class="flex flex-col items-start mt-5 p-10 pb-2 md:mb-0">
             <span class="text-3xl font-medium whitespace-nowrap dark:text-dark-900">
@@ -47,8 +47,8 @@ function OtpCode() {
             </span>
             <span class="text-sm mt-2 dark:text-dark-900">
               or Go back?{" "}
-              <Link to="/login"
-                
+              <Link
+                to="/login"
                 class="font-medium text-blue-500 hover:text-blue-800 hover:underline"
               >
                 {" "}
@@ -57,31 +57,32 @@ function OtpCode() {
             </span>
           </div>
           <div class="grid grid-rows-2 grid-flow-row gap-4 max-w-xl">
-            <form class="md:flex flex-col space-y-4 p-8 " onSubmit={handleOTPLogin}>
+            <form
+              class="md:flex flex-col space-y-4 p-8 "
+              onSubmit={handleOTPLogin}
+            >
               <div class="mb-4 flex justify-center space-x-4 mt-10">
                 <label
                   class="block text-gray-700 text-m font-medium mb-2"
                   for="email"
-                >
-                </label>
+                ></label>
                 <input
                   class="shadow appearance-none border  border-gray-200 rounded h-14 py-2 px-3 text-gray-700 text-2xl leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
                   id="otp1"
                   name="otp1"
-                  type="number"
+                  type="text"
                   onChange={(e) => setotp(e.target.value)}
+                  maxLength={4}
                 />
               </div>
-              
+
               <div class="flex flex-row items-center w-full py-4 justify-center p-5 ">
-                
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
                   type="submit"
                 >
                   Submit
                 </button>
-    
               </div>
 
               <div class="flex flex-col justify-center items-center p-3">
@@ -100,17 +101,19 @@ function OtpCode() {
         </div>
 
         <div class="flex flex-row  w-screen justify-center items-center ">
-        <div class="mb-6 md:mb-0 items-center ">
-              <a href="#" class="flex flex-row items-center">
-                  <img src={Logo} class="h-20 mr-2" alt="FlowBite Logo" />
-                  <span class="self-center text-6xl font-semibold whitespace-nowrap dark:text-white align-center">Avalon Hirings</span>
-              </a>
+          <div class="mb-6 md:mb-0 items-center ">
+            <a href="#" class="flex flex-row items-center">
+              <img src={Logo} class="h-20 mr-2" alt="FlowBite Logo" />
+              <span class="self-center text-6xl font-semibold whitespace-nowrap dark:text-white align-center">
+                Avalon Hirings
+              </span>
+            </a>
           </div>
         </div>
-
-      </div>   
-      </div> 
-  )
+        <ToastContainer position="top-center" autoClose={3000} />
+      </div>
+    </div>
+  );
 }
 
-export default OtpCode
+export default OtpCode;

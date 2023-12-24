@@ -13,8 +13,9 @@ class Users(AbstractBaseUser , PermissionsMixin):
     user_type = models.CharField(max_length=255)
     password = models.CharField(max_length=255)
     date_of_birth = models.DateField()
-    otp = models.IntegerField(default = None)
-
+    otp = models.CharField(max_length=255)
+    is_auth = models.BooleanField(default = False)
+    contact = models.CharField(max_length=255)
 
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()

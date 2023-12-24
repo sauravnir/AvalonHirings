@@ -4,7 +4,7 @@ from .models import Users
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
-        fields = ('fullname', 'user_type','date_of_birth','email','password','username')
+        fields = ('fullname', 'user_type','date_of_birth','email','password','username','contact')
 
         extra_kwargs = {
             'password': {'write_only': True}, 
@@ -23,11 +23,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
-    rememberme = serializers.BooleanField(default=False)
 
 class UserForgotPasswordSerializer(serializers.Serializer):
     email = serializers.EmailField()
     password = serializers.CharField(write_only=True)
 
 class OTPTransactionSerializer(serializers.Serializer):
-    otp_pin = serializers.IntegerField();
+    otp_pin = serializers.CharField();

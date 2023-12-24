@@ -6,13 +6,7 @@ import logo from "../../images/A.png";
 
 
 const { useToken } = theme;
-const items = [
-  {
-    key: "1",
-    label:<Link to='/dashboard'><h1>User Profile</h1></Link>,
-  },
 
-];
 function Sidebar() {
 
   //Retrieving stored data from the local Storage
@@ -28,16 +22,8 @@ function Sidebar() {
     navigate("/login");
   };
 
-  const { token } = useToken();
-  const contentStyle = {
-    backgroundColor: token.colorBgElevated,
-    borderRadius: token.borderRadiusSM,
-    boxShadow: token.boxShadowSecondary,
-  };
-  const menuStyle = {
-    boxShadow: "0",
-
-  };
+  
+  
   return (
     <div class="sticky">
       <aside class="flex sticky flex-col w-64 h-screen px-4 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
@@ -84,7 +70,7 @@ function Sidebar() {
                 </a>
               </Link>
   
-              <Link to="/admin-contractreview">
+              <Link to="/admin-dashboard">
                 <a
                   class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
@@ -94,18 +80,18 @@ function Sidebar() {
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
-                    viewBox="0 0 14 18"
+                    viewBox="0 0 21 20"
                   >
                     <path
                       stroke="currentColor"
                       stroke-linecap="round"
                       stroke-linejoin="round"
                       stroke-width="2"
-                      d="M7 8a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-2 3h4a4 4 0 0 1 4 4v2H1v-2a4 4 0 0 1 4-4Z"
+                      d="m11.479 1.712 2.367 4.8a.532.532 0 0 0 .4.292l5.294.769a.534.534 0 0 1 .3.91l-3.83 3.735a.534.534 0 0 0-.154.473l.9 5.272a.535.535 0 0 1-.775.563l-4.734-2.49a.536.536 0 0 0-.5 0l-4.73 2.487a.534.534 0 0 1-.775-.563l.9-5.272a.534.534 0 0 0-.154-.473L2.158 8.48a.534.534 0 0 1 .3-.911l5.294-.77a.532.532 0 0 0 .4-.292l2.367-4.8a.534.534 0 0 1 .96.004Z"
                     />
                   </svg>
   
-                  <span class="mx-4 font-medium">User Contracts</span>
+                  <span class="mx-4 font-medium">Ratings and Services</span>
                 </a>
               </Link>
   
@@ -134,30 +120,7 @@ function Sidebar() {
                 </a>
               </Link>
   
-              <Link to="/admin-dashboard">
-                <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
-                  href="#"
-                >
-                  <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 21 20"
-                  >
-                    <path
-                      stroke="currentColor"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                      stroke-width="2"
-                      d="m11.479 1.712 2.367 4.8a.532.532 0 0 0 .4.292l5.294.769a.534.534 0 0 1 .3.91l-3.83 3.735a.534.534 0 0 0-.154.473l.9 5.272a.535.535 0 0 1-.775.563l-4.734-2.49a.536.536 0 0 0-.5 0l-4.73 2.487a.534.534 0 0 1-.775-.563l.9-5.272a.534.534 0 0 0-.154-.473L2.158 8.48a.534.534 0 0 1 .3-.911l5.294-.77a.532.532 0 0 0 .4-.292l2.367-4.8a.534.534 0 0 1 .96.004Z"
-                    />
-                  </svg>
-  
-                  <span class="mx-4 font-medium">Ratings and Services</span>
-                </a>
-              </Link>
+              
   
               <Link to="/admin-view-reports">
                 <a
@@ -180,6 +143,31 @@ function Sidebar() {
                   </svg>
   
                   <span class="mx-4 font-medium">Reports and Issues</span>
+                </a>
+              </Link>
+
+              <Link to="/admin-contractreview">
+                <a
+                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  href="#"
+                >
+                  <svg
+                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 14 18"
+                  >
+                    <path
+                      stroke="currentColor"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M7 8a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-2 3h4a4 4 0 0 1 4 4v2H1v-2a4 4 0 0 1 4-4Z"
+                    />
+                  </svg>
+  
+                  <span class="mx-4 font-medium">Requests</span>
                 </a>
               </Link>
   

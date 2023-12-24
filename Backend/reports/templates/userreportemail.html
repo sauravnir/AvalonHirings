@@ -1,39 +1,43 @@
 {% load static %}
-<!DOCTYPE html>
 <html lang="en">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Report</title>
+    <!-- Include Tailwind CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
 
-<body style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333;">
+<body class="font-sans text-base leading-normal  text-gray-700 ">
 
-    <div style="background-color: #f5f5f5; padding: 20px; text-align: center;">
+    <div class="bg-gray-200 p-8 justify-self-start">
+        <h1 class="font-bold text-gray-600">Issued Date: {{current_time}}</h1>
 
-        <h2 style="color: #333333;">{{name}}</h2>
+        <h2 class="font-bold text-gray-800">Name:{{name}}</h2>
+
         <!-- Job Application Status Content -->
-        <h1>Issued Date: {{current_time}}</h1>
-        <h1>Title:{{title}}</h1>
-        <p align="justify">
-            {{description}} 
+        <h1 class="font-bold text-gray-600">Title:{{title}}</h1>
+        <p class="text-justify mt-4">
+            Dear Sir / Maam , <br><br> 
+                {{description}}
+
+            <br><br>
+            I hope you take necessary actions.
         </p>
-        <h1>
-        <!-- <a href="{% static 'templates/evidences' %}" download="{evidences}" alt="">Click here to download the evidence</a> -->
-        </h1>
-        
-       
-        
-                Regards,<br>{{name}}<br>Kathmandu , Nepal
-            
+        <!-- Signature and Greeting -->
+        <div class="mt-8 text-left">
+            <p class="text-base text-gray-700">
+                Regards,<br>{{name}}<br>Kathmandu, Nepal
+            </p>
+        </div>
 
     </div>
 
     <!-- Footer Section -->
-    <div style=" text-align: center; background-color: #333333; padding: 10px; color: white;">
-        <p style="margin: 0;">Copyright&copy; 2023, Avalon Hirings. All Rights Reserved.</p>
-    </div>
+    <!-- <div class="text-center bg-gray-800 text-white p-4">
+        <p class="m-0">Copyright&copy; 2023, Avalon Hirings. All Rights Reserved.</p>
+    </div> -->
 
 </body>
 

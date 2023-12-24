@@ -1,8 +1,10 @@
 import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { DatePicker, Input, notification, Button } from "antd";
+import { DatePicker, Input, Button } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 import Logo from "../../images/Abnw.png";
 
@@ -12,23 +14,18 @@ function Registration() {
   const [userType, setUserType] = useState("");
   const [dateOfBirth, setDateOfBirth] = useState("");
   const [email, setEmail] = useState("");
+  const [contact , setContact] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userName, setUserName] = useState("");
   const [navigateError, setNavigateError] = useState("");
-
-  const [notificationApi, contextHolder] = notification.useNotification();
-  const errorNotify = (type) => {
-    notificationApi[type]({
-      message: "Incorrect credentials / error occured!",
-    });
-  };
 
   const registeredData = {
     fullname: fullName,
     user_type: userType,
     date_of_birth: dateOfBirth,
     email: email,
+    contact : contact ,
     password: password,
     username: userName,
   };
@@ -45,20 +42,16 @@ function Registration() {
         });
 
         if (response.ok) {
-          const responseData = await response.json();
-          console.log("Data inserted successfully:", responseData);
-          // <Alert message="Success Text" type="success" />;
+          toast.success("Registration in verification.")
           navigate("/login");
         } else {
-          // const errorData = await response.json();
-          // console.error('Error inserting data. Server responded with:', response.status, errorData);
-          errorNotify("error");
+          toast.error("Credentials with the account is already registered!") ; 
         }
       } catch (error) {
         console.log("Error", error);
       }
     } else {
-      window.location.reload();
+      toast.error("Please match the passwords!") ; 
     }
   };
 
@@ -85,7 +78,8 @@ function Registration() {
       <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
         {navigateError && <p style={{ color: "red" }}>{navigateError}</p>}
         <div class="h-screen w-2/3 shadow-lg bg-white justify-start p-10">
-          <div class="flex flex-col items-start py-5 pb-2 md:mb-0">
+          <div class="flex flex-col items-start pb-2 md:mb-0">
+          
             <span class="text-3xl font-medium whitespace-nowrap dark:text-dark-900">
               Create your account
             </span>
@@ -99,8 +93,16 @@ function Registration() {
                 Login here
               </Link>
             </span>
+            <span class="mt-2">
+                  Before you register , go through all the terms and conditions properly:{" "}
+                  <span>
+                    <Button onClick={downloadFile} icon={<DownloadOutlined />}>
+                      Click Here
+                    </Button>
+                  </span>
+                </span>
           </div>
-
+          <ToastContainer position="top-center"/>
           <div class="grid grid-rows-2 grid-flow-row gap-4 max-w-xl justify-between ">
             <form
               class="md:flex flex-col space-y-3  pt-4 pb-2 justify-center"
@@ -141,6 +143,25 @@ function Registration() {
                   type="email"
                   placeholder="example@gmail.com"
                   onChange={(e) => setEmail(e.target.value)}
+                  required
+                />
+              </div>
+
+              <div class="mb-1">
+                <label
+                  class="block text-gray-700 text-m font-medium mb-2"
+                  for="Contact Number"
+                >
+                  Contact Number
+                </label>
+                <input
+                  class="shadow appearance-none border border-gray-200 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
+                  id="contact"
+                  name="contact"
+                  type="text"
+                  placeholder="980000000000"
+                  onChange={(e) => setContact(e.target.value)}
+                  maxLength={10}
                   required
                 />
               </div>
@@ -209,7 +230,7 @@ function Registration() {
                 </div>
               </div>
 
-              <div class="flex flex-row justify-between space-x-5 max-w-xl">
+              <div class="flex flex-row justify-start space-x-5 max-w-xl">
                 <div class="mb-1">
                   <label
                     class="block text-gray-700 text-m font-medium mb-2"
@@ -265,14 +286,7 @@ function Registration() {
                 >
                   Create Account
                 </button>
-                <span>
-                  Download Terms and Conditions:{" "}
-                  <span>
-                    <Button onClick={downloadFile} icon={<DownloadOutlined />}>
-                      Click Here
-                    </Button>
-                  </span>
-                </span>
+                
               </div>
             </form>
           </div>

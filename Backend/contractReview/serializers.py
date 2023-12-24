@@ -14,3 +14,5 @@ class UserContractSerializer(serializers.ModelSerializer):
         model = Contract
         fields = '__all__'
 
+class ContractUpdateSerializer(serializers.Serializer):
+    action = serializers.CharField()

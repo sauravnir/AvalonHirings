@@ -3,12 +3,11 @@ from django.contrib.auth import authenticate , login
 from rest_framework.response import Response
 from .serializers import UserRegisterSerializer, UserLoginSerializer , UserForgotPasswordSerializer  , OTPTransactionSerializer
 from rest_framework import status
-from rest_framework.authentication import TokenAuthentication
-from rest_framework.permissions import IsAuthenticated
+
 from django.contrib.auth.hashers import make_password , check_password
 from django.core.exceptions import ObjectDoesNotExist
 from django.shortcuts import get_object_or_404
-from rest_framework.authtoken.models import Token
+
 from datetime import timedelta
 from django.utils import timezone
 from django.core.mail import send_mail
@@ -18,6 +17,7 @@ from django.http import FileResponse
 import uuid
 
 from app.models import Users , CustomToken
+from reports.models import Reports
 
 class UserLoginView(APIView):
     def post(self, request):
@@ -25,57 +25,53 @@ class UserLoginView(APIView):
         if serializer.is_valid():
             email = serializer.validated_data['email']
             password = serializer.validated_data['password']
-            # rememberme = serializer.validated_data.get'rememberme',False]
-            # print(rememberme);
             user = authenticate(request, email=email, password=password)
-            if user:
-                login(request, user)
-                user_type = user.user_type
-                user_name = user.username 
-                token, created  = CustomToken.objects.get_or_create(user=user)
-                unique_key = str(uuid.uuid4())
-                token.key = unique_key
-                token.created = timezone.now(); 
-                expiration_time = timezone.now() + timedelta(seconds=10);
-                token.expiration = expiration_time 
 
-                # Generating OTP and storing into database
+            if user.is_auth is True:
+                if user:
+                    login(request, user)
+                    user_type = user.user_type
+                    user_name = user.username 
+                    token, created  = CustomToken.objects.get_or_create(user=user)
+                    unique_key = str(uuid.uuid4())
+                    token.key = unique_key
+                    token.created = timezone.now(); 
+                    expiration_time = timezone.now() + timedelta(seconds=10);
+                    token.expiration = expiration_time 
 
-                otp_digits = "123456789"
-                OTP = ""
-                
-
-                for i in range(4):
-                    OTP += otp_digits[math.floor(random.random() * 9)]
-                
-                print(OTP);
-
-
-                subject = "One Transaction Pin";
-                message = f"Here is your One Time Transaction PIN. Use it to login into the system : {OTP}";
-                recipient_list = [user.email];
-
-                if user.otp is None:
-                    user.otp = OTP;
-                    user.save();
-                    send_mail(subject , message ,settings.EMAIL_HOST_USER, recipient_list);
-
-                # Sending Email To The User:
-                if (token.expiration < timezone.now()):
-                    token.delete(); 
-                    return Response({"Error":"Token Has Expired" } , status = status.HTTP_401_UNAUTHORIZED)    
-                # Saving the token 
-                token.save();
-
-                return Response({
-                    'token' : token.key, 
-                    'user_type' : user_type,
-                    'username': user_name, 
-                    'otp': user.otp,
-                    'message' : 'Login Successfull'} , status = status.HTTP_200_OK)
+                    # Saving the token 
+                    token.save();
+                    is_auth =  user.is_auth;
+                    user_id = user.id;
+                    employees_count = Users.objects.filter(user_type = 'Employee').count();
+                    clients_count = Users.objects.filter(user_type='Client').count()
+                    total_reports = Reports.objects.all().count();
+                    if (user_type == "Admin"):
+                        return Response({
+                        'token' : token.key, 
+                        'user_type' : user_type,
+                        'username': user_name, 
+                        # 'otp': user.otp,
+                        'employee_count' : employees_count,
+                        'clients_count' : clients_count,
+                        'total_reports' : total_reports,
+                        'user_id': user_id,
+                        'is_auth':is_auth,
+                        'message' : 'Login Successfull'} , status = status.HTTP_200_OK)
+                    else:
+                        return Response({
+                            'token' : token.key, 
+                            'user_type' : user_type,
+                            'username': user_name, 
+                            'otp': user.otp,
+                            'user_id': user_id,
+                            'is_auth':is_auth,
+                            'message' : 'Login Successfull'} , status = status.HTTP_200_OK)
+                else:
+                    return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
             else:
-                return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
-        
+                print("Chirna diyena!")        
+                return Response({'Error' : 'User is not authenticated!'},status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
         
@@ -143,17 +139,22 @@ class UserDownloadFileView(APIView):
     
 
 class UserProfileData(APIView):
-    def get(self, request):
+    def post(self, request):
         user_token_key = request.GET.get('token',None)
+        user_otp = request.GET.get('otp_pin', None)
+        print(user_otp)
         if user_token_key:
             try:
                 custom_token = CustomToken.objects.get(key=user_token_key)
-
                 user = custom_token.user    
-
-                serializer = UserRegisterSerializer(user)
-
-                return Response(serializer.data)
+                if user_otp and user.otp == user_otp:
+                    login(request , user)
+                    user_otp = ""
+                    user.save()
+                    serializer = UserRegisterSerializer(user)
+                    return Response(serializer.data)
+                else:
+                    return Response({'error': 'OTP does not match'}, status=status.HTTP_400_BAD_REQUEST)
             except CustomToken.DoesNotExist:
                 return Response({'error': 'CustomToken not found'}, status=404)
         else:

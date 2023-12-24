@@ -21,3 +21,6 @@ class ReportsSerializer(serializers.ModelSerializer):
     class Meta:
         model = Reports
         fields = '__all__'
+
+class ReportUpdateSerializer(serializers.Serializer):
+    action = serializers.CharField()        
