@@ -1,11 +1,7 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { theme, Popconfirm } from "antd";
-//importing images/logos
-import logo from "../../images/A.png";
-
-
-const { useToken } = theme;
+import { Popconfirm } from "antd";
+import {LogoutOutlined} from "@ant-design/icons"
 
 function Sidebar() {
 
@@ -26,23 +22,23 @@ function Sidebar() {
   
   return (
     <div class="sticky">
-      <aside class="flex sticky flex-col w-64 h-screen px-4 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
-        <a href="#" class="mx-auto">
-          <img class="w-auto h-6 sm:h-7" src="" alt=""></img>
-        </a>
-
-            <div class="flex flex-col items-center  -mx-2">
-            <img
+      <aside class="flex sticky flex-col w-64 h-screen px-2 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-gray-900 dark:border-gray-700">
+            <div class="flex flex-col items-start p-1 px-6 mt-1 -mx-2">
+            {/* <img
               class="object-cover w-12 h-12 mx-2 rounded-full"
               src={logo}
               alt="avatar"
-            ></img>
-            <h4 class="mx-2 mt-2 font-medium text-gray-800 dark:text-gray-200">
+            ></img> */}
+            
+            <h4 class=" mt-2 text-2xl font-medium text-gray-800 dark:text-gray-200">
+             Avalon Hirings
+            </h4>
+            {/* <h4 class="mx-2 mt-2 font-medium text-gray-800 dark:text-gray-200">
              {userData.username}
             </h4>
             <p class="mx-2 mt-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:underline">
               {userData.user_type}
-            </p>
+            </p> */}
           </div>
         
         <div class="flex flex-col justify-between flex-1 mt-6">
@@ -50,7 +46,7 @@ function Sidebar() {
             {userData.user_type ==='Admin' && (
                <nav>
                 <Link to="/admin-dashboard">
-                <a class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700">
+                <a class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700 active:bg-violet-700">
                   <svg
                     class="w-5 h-5"
                     viewBox="0 0 24 24"
@@ -76,7 +72,7 @@ function Sidebar() {
                   href="#"
                 >
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="w-5 h-5"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -102,7 +98,7 @@ function Sidebar() {
                 >
                   {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> */}
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="w-5 h-5 "
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -128,7 +124,7 @@ function Sidebar() {
                   href="#"
                 >
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="w-5 h-5 "
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -152,7 +148,7 @@ function Sidebar() {
                   href="#"
                 >
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="w-5 h-5"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -177,7 +173,7 @@ function Sidebar() {
                   href="#"
                 >
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="w-5 h-5 "
                     aria-hidden="true"
                     viewBox="0 0 20 18"
                     fill="none"
@@ -242,7 +238,7 @@ function Sidebar() {
                   href="#"
                 >
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="w-5 h-5"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -268,7 +264,7 @@ function Sidebar() {
                 >
                   {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> */}
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="w-5 h-5 "
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -292,7 +288,7 @@ function Sidebar() {
                   href="#"
                 >
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="w-5 h-5 "
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -317,7 +313,7 @@ function Sidebar() {
                   href="#"
                 >
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="w-5 h-5 "
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     fill="none"
@@ -341,7 +337,7 @@ function Sidebar() {
                   href="#"
                 >
                   <svg
-                    class="w-5 h-5 text-gray-800 dark:text-white"
+                    class="w-5 h-5 "
                     aria-hidden="true"
                     viewBox="0 0 20 18"
                     fill="none"
@@ -403,7 +399,7 @@ function Sidebar() {
                 href="#"
               >
                 <svg
-                  class="w-5 h-5 text-gray-800 dark:text-white"
+                  class="w-5 h-5 "
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -429,7 +425,7 @@ function Sidebar() {
               >
                 {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> */}
                 <svg
-                  class="w-5 h-5 text-gray-800 dark:text-white"
+                  class="w-5 h-5 "
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -453,7 +449,7 @@ function Sidebar() {
                 href="#"
               >
                 <svg
-                  class="w-5 h-5 text-gray-800 dark:text-white"
+                  class="w-5 h-5 "
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -478,7 +474,7 @@ function Sidebar() {
                 href="#"
               >
                 <svg
-                  class="w-5 h-5 text-gray-800 dark:text-white"
+                  class="w-5 h-5"
                   aria-hidden="true"
                   xmlns="http://www.w3.org/2000/svg"
                   fill="none"
@@ -502,7 +498,7 @@ function Sidebar() {
                 href="#"
               >
                 <svg
-                  class="w-5 h-5 text-gray-800 dark:text-white"
+                  class="w-5 h-5 "
                   aria-hidden="true"
                   viewBox="0 0 20 18"
                   fill="none"
@@ -543,65 +539,12 @@ function Sidebar() {
                       okType="default"
                       danger
                       onConfirm={handleLogout}>
-                        <button>Logout</button>
+                       <LogoutOutlined /><button class="ml-4">Logout</button>
                     </Popconfirm>
                 </a>
         </div>
       </aside>
-      {/* <div class="flex flex-col overflow-hidden h-screen w-[230px] bg-white relative shadow-2xl sticky top-0">
-        <div class="flex w-full justify-center space-x-1 items-end mt-5">
-          <img src={logo} alt="userprofile" class="h-auto w-8"></img>
-          <h1 class="text-gray-900 text-2xl font-medium">Avalon Hirings</h1>
-          
-        </div>
-        <div class="p-5 text-base">
-          <Link to="/dashboard">
-            <div class="flex overflow-hidden mt-5 p-2 relative hover:bg-sky-700 rounded ">
-              <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
-                <img src={dashboard} alt="Dashboard" class="w-4"></img>
-                <h1 class="text-dark-900">Dashboard</h1>
-              </div>
-            </div>
-          </Link>
-
-          <Link to="/payment">
-            <div class="flex overflow-hidden  p-2 relative hover:bg-sky-700 rounded ">
-              <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
-                <img src={payment} alt="Payment" class="w-4"></img>
-                <h1 class="text-dark-900 font-medium">Payment</h1>
-              </div>
-            </div>
-          </Link>
-
-          <Link to="/contractreview">
-            <div class="flex overflow-hidden  p-2 relative hover:bg-sky-700 rounded ">
-              <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
-                <img src={contract} alt="Contract" class="w-4"></img>
-                <h1 class="text-dark-900  font-medium">Contracts</h1>
-              </div>
-            </div>
-          </Link>
-
-          <Link to="/dashboard">
-            <div class="flex overflow-hidden  p-2 relative hover:bg-sky-700 rounded ">
-              <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
-                <img src={rating} alt="rating" class="w-4"></img>
-                <h1 class="text-dark-900  font-medium">Rating</h1>
-              </div>
-            </div>
-          </Link>
-
-          <Link to="/dashboard">
-            <div class="flex overflow-hidden  p-2 relative hover:bg-sky-700 rounded ">
-              <div class="flex space-x-4 m-3 h-fit active items-center justify-start rounded-sm ">
-                <img src={report} alt="report" class="w-4"></img>
-                <h1 class="text-dark-900  font-medium">Report</h1>
-              </div>
-            </div>
-          </Link>
-
-        </div>
-      </div> */}
+     
     </div>
   );
 }

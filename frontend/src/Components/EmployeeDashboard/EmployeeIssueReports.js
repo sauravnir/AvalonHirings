@@ -196,7 +196,7 @@ function EmployeeIssueReports() {
                   </Form.Item>
                   <Form.Item label="Description">
                     <Input.TextArea
-                      rows={4}
+                      rows={4}    
                       onChange={(e) => setReportDesc(e.target.value)}
                     />
                   </Form.Item>

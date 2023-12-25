@@ -9,7 +9,7 @@ import KhaltiCheckout from "khalti-checkout-web";
 
 function PaymentDashboard() {
   const [paymentUrl, setPaymentUrl] = useState(null);
-  const [returnUrl, setReturnUrl] = useState("http://localhost:3000/dashboard");
+  const [returnUrl, setReturnUrl] = useState("http://localhost:3000/admin-dashboard");
   const [websiteUrl, setWebsiteUrl] = useState("http://localhost:3000");
   const [amount, setAmount] = useState(1000);
   const [purchaseOrderId, setPurchaseOrderId] = useState("Order01");

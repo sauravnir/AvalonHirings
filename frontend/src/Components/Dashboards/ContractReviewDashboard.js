@@ -353,7 +353,7 @@ function ContractReviewDashboard() {
                   class="bg-green-500 py-2 px-2 rounded border text-white hover:bg-green-600 hover:shadow-lg text-sm"
                   type="submit"
                 >
-                  Submit
+                  Search
                 </button>
               </form>
             </div>
@@ -369,7 +369,7 @@ function ContractReviewDashboard() {
                     <option>Test</option>
                   </select>
                   <button
-                    class="bg-violet-500 py-2 px-2 rounded border text-white hover:bg-violet-800 hover:shadow-lg text-sm"
+                    class="bg-green-500 py-2 px-2 rounded border text-white hover:bg-violet-800 hover:shadow-lg text-sm"
                     type="submit"
                   >
                     Filter Search

@@ -76,12 +76,11 @@ function Registration() {
   return (
     <div>
       <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
-        {navigateError && <p style={{ color: "red" }}>{navigateError}</p>}
         <div class="h-screen w-2/3 shadow-lg bg-white justify-start p-10">
           <div class="flex flex-col items-start pb-2 md:mb-0">
           
             <span class="text-3xl font-medium whitespace-nowrap dark:text-dark-900">
-              Create your account
+              Want to become a member ? 
             </span>
             <span class="text-sm mt-2 dark:text-dark-900">
               Already have an account?{" "}
