@@ -68,7 +68,8 @@ INSTALLED_APPS = [
     'contractreview',
     'rest_framework.authtoken',
     'payment',
-    'reports'
+    'reports',
+    'services'
 ]
 
 MIDDLEWARE = [

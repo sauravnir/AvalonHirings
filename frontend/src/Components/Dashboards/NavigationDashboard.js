@@ -11,8 +11,6 @@ import {
   theme,
   Popconfirm,
 } from "antd";
-// Importing static logos/images
-import logout from "../../images/icons/logout.png";
 
 // Dropdown for Profile Items
 const { useToken } = theme;
@@ -21,6 +19,11 @@ const { useToken } = theme;
 function NavigationDashboard() {
   const navigate = useNavigate();
 
+
+  const data = localStorage.getItem('userData');
+  console.log(data);
+  const userType = JSON.parse(data);
+  console.log(userType);
   // Handling the Logout Of The User
   const handleLogout = async (e) => {
     localStorage.removeItem("token");
@@ -75,40 +78,44 @@ function NavigationDashboard() {
   // Logout Pop-Confirm
   return (
     <nav class="z-50">
-      <div class="w-full fixed bg-gray-50 dark:bg-gray-50 p-2  shadow-lg">
-        <div class="flex justify-between">
-          <div class="flex flex-row space-x-3 items-center ">
-            <div class="w-5">
-              <img src={require(`../../images/notification.png`)}></img>
-            </div>
-            <Dropdown
-              menu={{
-                items,
-              }}
-              dropdownRender={(menu) => (
-                <div style={contentStyle}>
-                  {React.cloneElement(menu, {
-                    style: menuStyle,
-                  })}
-                  <Divider
-                    style={{
-                      margin: 0,
-                    }}
-                  />
-                </div>
-              )}
-              
-            >
-              <a onClick={(e) => e.preventDefault()}>
-                <Space>
-                  <Avatar size="medium" icon={<UserOutlined />} />
-                </Space>
-              </a>
-            </Dropdown>
-          </div>
+    <div class="w-full fixed bg-gray-50 dark:bg-gray-50 p-2  shadow-lg">
+  
+      <div class="grid grid-cols-2 space-x-3 items-center justify-between">
+        <div class="justify-self">
+          {userType.user_type === "Client" ? <Link to="/request-service"><button class="bordered shadow px-2 py-1 text-sm rounded hover:bg-sky-900 hover:text-white">REQUEST A SERVICE?</button></Link> : null}
         </div>
-      </div>
-    </nav>
+  
+        <div class="flex flex-row w-5 mx-20 items-center ">
+          <img src={require(`../../images/notification.png`)}></img>
+          <Dropdown
+            menu={{
+              items,
+            }}
+            dropdownRender={(menu) => (
+              <div style={contentStyle}>
+                {React.cloneElement(menu, {
+                  style: menuStyle,
+                })}
+                <Divider
+                  style={{
+                    margin: 0,
+                  }}
+                />
+              </div>
+            )}
+          >
+            <a onClick={(e) => e.preventDefault()}>
+              <Space>
+                <Avatar size="medium" icon={<UserOutlined />} />
+                </Space>
+                </a>
+          </Dropdown>
+        </div>
+  
+      </div> 
+  
+    </div>
+  </nav>
   );
 }
 

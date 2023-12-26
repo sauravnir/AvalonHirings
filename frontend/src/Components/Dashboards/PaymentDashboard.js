@@ -228,10 +228,10 @@ function PaymentDashboard() {
   ];
 
   const clientTable = (
-    <Table columns={clientTableContents} dataSource={clientData}></Table>
+    <Table columns={clientTableContents} dataSource={clientData} bordered></Table>
   );
   const employeeTable = (
-    <Table columns={employeeTableContents} dataSource={employeeData}></Table>
+    <Table columns={employeeTableContents} dataSource={employeeData} bordered></Table>
   );
 
   // Number of tabs
@@ -380,7 +380,7 @@ function PaymentDashboard() {
             </div>
           </div>
           <div class="m-1">
-            <Tabs onChange={onChange} type="card" items={TabList}></Tabs>
+            <Tabs onChange={onChange} type="card" items={TabList} ></Tabs>
           </div>
         </div>
         <DashboardFooter />

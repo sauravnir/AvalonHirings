@@ -20,6 +20,8 @@ import EmployeePayment from "./Pages/Dashboard/EmployeeDashboard/EmployeePayment
 import EmployeeReports from "./Pages/Dashboard/EmployeeDashboard/EmployeeReports.js";
 import EmployeeReviews from "./Pages/Dashboard/EmployeeDashboard/EmployeeReviews.js";
 import ClientReports from "./Pages/Dashboard/ClientDashboard/ClientReports.js";
+import CreateServiceAdmin from  "./Pages/Dashboard/AdminDashboard/CreateServiceAdmin.js";
+import RequestService from "./Pages/Dashboard/ClientDashboard/RequestService.js";
 
 import { ToastContainer } from "react-toastify";
 function App() {
@@ -62,6 +64,10 @@ function App() {
             <Route index element={<ReportandIssues />} />
           </Route>
 
+          <Route path="/create-service" element={<PrivateRoute />}>
+            <Route index element={<CreateServiceAdmin />}/>
+          </Route>
+
 
           {/* Employee Routes */}
           <Route path="/employee-work-schedule" element={<PrivateRoute />}>
@@ -87,6 +93,10 @@ function App() {
 
           <Route path="/client-reports" element={<PrivateRoute />}>
             <Route index element={<ClientReports />}></Route>
+          </Route>
+
+          <Route path='/request-service' elemet={<PrivateRoute />}>
+            <Route index element={<RequestService />}/>
           </Route>
           
           

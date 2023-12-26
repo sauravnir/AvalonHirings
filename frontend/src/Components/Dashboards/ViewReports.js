@@ -241,10 +241,13 @@ function ViewReports() {
   return (
     <div class="w-screen">
       <div class="flex flex-col mt-2 p-3">
+      <div className="flex mt-8 ">
+          <h1 className="text-2xl font-base">Reports and Issues</h1>
+        </div>
         <ToastContainer position="top-center" autoClose={5000} />
 
         <div class="p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
-          <Card title="REPORTS AND ISSUES">
+          
             <Card>
               <div style={{ maxHeight: "390px", overflowY: "auto" }}>
               <Tabs>{TabList.map((tab) => tab.children)}</Tabs>
@@ -311,7 +314,7 @@ function ViewReports() {
                 </div>
               </Modal>
             </Card>
-          </Card>
+        
         </div>
       </div>
       <DashboardFooter />

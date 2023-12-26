@@ -364,9 +364,11 @@ function ContractReviewDashboard() {
                     class="rounded border border-gray-200 text-sm text-gray-500 px-2 py-2"
                     type="text"
                   >
+
                     <option class="">Choose From The List Below</option>
-                    <option>Test</option>
-                    <option>Test</option>
+                    <option>Approved</option>
+                    <option>Pending</option>
+                    <option>Terminated</option>
                   </select>
                   <button
                     class="bg-green-500 py-2 px-2 rounded border text-white hover:bg-violet-800 hover:shadow-lg text-sm"

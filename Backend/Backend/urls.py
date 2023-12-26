@@ -22,5 +22,6 @@ urlpatterns = [
     path("app/",include("app.urls")),
     path("",include("contractreview.urls")),
     path("",include("payment.urls")),
-    path("",include("reports.urls"))
+    path("",include("reports.urls")),
+    path("",include("services.urls"))
 ]

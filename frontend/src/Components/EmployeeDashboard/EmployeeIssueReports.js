@@ -198,8 +198,7 @@ function EmployeeIssueReports() {
                     <Input.TextArea
                       rows={4}    
                       onChange={(e) => setReportDesc(e.target.value)}
-                    />
-                  </Form.Item>
+                    /></Form.Item>
                   <Form.Item>
                     <Button onClick={() => setOpenModal(true)}>Submit</Button>
                     <Modal
