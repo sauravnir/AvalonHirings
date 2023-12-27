@@ -24,8 +24,8 @@ function Sidebar() {
   };
 
   return (
-    <div class="sticky">
-      <aside class="flex sticky flex-col w-64 h-screen px-2 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-slate-900 dark:border-zinc-700">
+    <div class="xl-sticky top-0">
+      <aside class="flex sticky top-0 flex-col w-64 h-screen px-2 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-slate-900 dark:border-zinc-700">
         <div class="flex flex-col items-start p-1 px-6 mt-1 -mx-2">
           {/* <img
               class="object-cover w-12 h-12 mx-2 rounded-full"

@@ -14,8 +14,6 @@ from django.utils import timezone
 from django.template.loader import render_to_string
 
 
-
-
 class UserReportSubmitView(APIView):
     def post(self, request):
         user_name = request.data.get('username')

@@ -23,6 +23,8 @@ function CreateService() {
   const [serviceTarget, setServiceTarget] = useState("");
   const [servicePricing, setServicePricing] = useState("");
   const [serviceDescription, setServiceDescription] = useState("");
+  const [status,setStatus] = useState("Available");
+  const [serviceAvailable ,setServiceAvailable] = useState("");
   const navigate = useNavigate();
   const { TabPane } = Tabs;
 
@@ -38,10 +40,13 @@ function CreateService() {
     servicedesc: serviceDescription,
     servicetarget: serviceTarget,
     serviceprice: servicePricing,
+    status : status ,
+    serviceavailable:serviceAvailable,
   };
 
   //   GET Method to insert the data
   const handleFormSubmit = async () => {
+    
     try {
       // ServiceData.append("")
       const response = await fetch("http://127.0.0.1:8000/createservice/", {
@@ -52,10 +57,10 @@ function CreateService() {
 
         body: JSON.stringify(serviceData),
       });
-      const data = await response.json();
-      console.log(data);
+      // const data = await response.json();
+      // console.log(data);
       if (response.ok) {
-        navigate("../admin-dashboard");
+        navigate('../client-dashboard')  
       }
     } catch (error) {
       toast.error("Error in creating service!");
@@ -98,6 +103,11 @@ useEffect(()=>{
       key: "service_price",
     },
     {
+      title:"Status",
+      dataIndex: "status",
+      key:"status"
+    },
+    {
       title: "Actions",
       dataIndex: "action",
       key: "action",
@@ -124,7 +134,7 @@ useEffect(()=>{
     service_name: info.servicename,
     service_for: info.servicetarget,
     service_price: info.serviceprice,
-    // servicedesc: info.servicedesc,
+    status:info.status
   }));
 
   console.log(allServicesList);     
@@ -141,26 +151,33 @@ useEffect(()=>{
               <Form.Item label="Package Name">
                 <Input
                   onChange={(e) => setServiceName(e.target.value)}
-                  required
                   validationErrors={{
                     isDefaultRequiredValue: "Field is required",
                   }}
                 />
               </Form.Item>
-              <Form.Item label="Service For:">
+              <Form.Item label="Service For">
                 <Radio.Group
                   onChange={(e) => setServiceTarget(e.target.value)}
-                  defaultValue="Household"
-                >
+                > 
+                  <Radio.Button value="Select:" disabled>Select:</Radio.Button>
                   <Radio.Button value="Household">Household</Radio.Button>
                   <Radio.Button value="Business">Business</Radio.Button>
                 </Radio.Group>
-              </Form.Item>
+                </Form.Item>
               <Form.Item label="Service Description">
                 <Input.TextArea
                   rows={4}
                   onChange={(e) => setServiceDescription(e.target.value)}
                 />
+              </Form.Item>
+              <Form.Item label = "Select Service Available Days">
+              <select class="p-2 border rounded w-60" onChange={(e)=>setServiceAvailable(e.target.value)}>
+                <option>Select From Below</option>
+                <option>Hours</option>
+                <option>Months</option>
+                <option>Weeks</option>
+              </select>
               </Form.Item>
               <Form.Item label="Service Pricing">
                 <InputNumber
