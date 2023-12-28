@@ -27,7 +27,7 @@ class ServiceUse(models.Model):
     totalprice = models.IntegerField(default=None)
 
     def __str__(self):
-        return f"{self.user.username} - {', '.join(service.servicename for service in self.services.all())}"
+       return f"{self.user.username} - {self.services.servicename}"
 
 class AssignedEmployees(models.Model):
     service_request = models.OneToOneField(ServiceUse, on_delete=models.CASCADE)

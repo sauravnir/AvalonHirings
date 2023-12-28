@@ -8,6 +8,7 @@ from app.models import Users , CustomToken
 from django.conf import settings
 from django.core.mail import send_mail
 import math , random 
+from rest_framework.generics import RetrieveAPIView
 # Create your views here.
 
 class ContractList(APIView):
@@ -17,11 +18,9 @@ class ContractList(APIView):
         return Response(serializer.data , status = status.HTTP_200_OK)
 
 
-class ContractObjectView(APIView):
-    def get(self , request , id=None):
-        contracts = get_object_or_404(Contract,id=id)
-        serializer = UserContractSerializer(contracts)
-        return Response(serializer.data , status = status.HTTP_200_OK)
+class ContractObjectView(RetrieveAPIView):
+    queryset = Contract.objects.all()
+    serializer_class = UserContractSerializer
         
 
 class UpdatedContractView(APIView):

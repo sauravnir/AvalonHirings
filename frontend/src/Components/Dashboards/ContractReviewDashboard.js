@@ -7,6 +7,8 @@ import {
   Tag,
   Button,
   Popconfirm,
+  Modal,
+  Descriptions
 } from "antd";
 import {
   CheckOutlined,
@@ -20,21 +22,23 @@ import "react-toastify/dist/ReactToastify.css";
 import DashboardFooter from "./DashboardFooter";
 
 function ContractReviewDashboard() {
+
+  const [openModal , setOpenModal] = useState(false)
   const [contractDetails, setContractDetails] = useState([]);
   const [loading, setLoading] = useState(false);
-
+  const [singleData , setSingleData] = useState([])
   const navigate = useNavigate();
-  console.log(contractDetails);
 
-  const [tableAction, setTableAction] = useState("");
+  // console.log(contractDetails);
 
-  const onApproval = () => {
-    setTableAction("Approved");
-  };
+  // const onApproval = () => {
+  //   setTableAction("Approved");
+  // };
 
-  const onTerminate = () => {
-    setTableAction("Terminated");
-  };
+  // const onTerminate = () => {
+  //   setTableAction("Terminated");
+  // };
+
 
   // Fetching the data in the table
   useEffect(() => {
@@ -44,6 +48,7 @@ function ContractReviewDashboard() {
         const data1 = await response.json();
         const data = data1.slice(1);
         setContractDetails(data);
+        console.log(data)
       } catch (error) {
         toast.error(error.message);
       }
@@ -84,7 +89,29 @@ function ContractReviewDashboard() {
     }
   };
 
-  // Date Picker
+
+// Fetch Singular Data 
+
+// const fetchSingularData = async(id) => {
+//   try{
+//     const res = await fetch(`http://127.0.0.1:8000/contractinfo/${id}`);
+//     const data = await res.json();
+//     setSingleData(data)
+//   }
+//   catch(error){
+//     toast.error(error)
+//   }
+// }
+
+
+// const handleInfoClick =(id)=>{
+//   fetchSingularData(id);
+//   setOpenModal(true);
+// }
+
+
+
+// Table Contents
   const contents = [
     {
       title: "Request ID",
@@ -160,14 +187,32 @@ function ContractReviewDashboard() {
           </Button>
           </Popconfirm>
           
-          <Button>
+          <Button onClick={()=>toast.info("In Development")}>
             <QuestionCircleOutlined />
           </Button>
+          <Modal
+        title="Details:"
+        description
+        open={openModal}
+        okType="default"
+        onCancel={() => setOpenModal(false)}
+        cancelButtonProps={{
+          disabled: true,
+        }}
+        onOk={() =>setOpenModal(false)}
+        width={1000}
+        centered
+        >
+        <Descriptions  bordered>
+        {/* <Descriptions.Item label="User Name">{singleData.user.fullname}</Descriptions.Item> */}
+      </Descriptions>
+        </Modal>
         </Space>
       ),
     },
   ];
   
+  console.log(contractDetails);
   const data = contractDetails.map((contractDetail) => ({
     key: contractDetail.id,
     contract_id: contractDetail.contract_id,
@@ -180,157 +225,6 @@ function ContractReviewDashboard() {
   
   
 
-
-  // const contents = [
-  //   {
-  //     title: "Request ID",
-  //     dataIndex: "contract_id",
-  //     key: "contract",
-  //     render: (text) => <a>{text}</a>,
-  //   },
-  //   {
-  //     title: "Full Name",
-  //     dataIndex: "user_name",
-  //     key: "user_name",
-  //   },
-  //   {
-  //     title: "For User Type",
-  //     dataIndex: "user_type",
-  //     key: "user_type",
-  //   },
-  //   {
-  //     title: "Requested Date",
-  //     dataIndex: "created_date",
-  //     key: "created_date",
-  //   },
-  //   {
-  //     title: "Approval Status",
-  //     dataIndex: "contract_status",
-  //     key: "contract_status",
-  //     render: (_, { contract_status }) => (
-  //       <>
-  //         {contract_status &&
-  //           contract_status.map((tag) => {
-  //             let color = tag.length > 5 ? "geekblue" : "green";
-  //             if (tag === "Active") {
-  //               color = "green";
-  //             } else if (tag === "Pending") {
-  //               color = "yellow";
-  //             } else {
-  //               color = "red";
-  //             }
-  //             return (
-  //               <Tag color={color} key={tag}>
-  //                 {tag}
-  //               </Tag>
-  //             );
-  //           })}
-  //       </>
-  //     ),
-  //   },
-
-  //   {
-  //     title: "Actions",
-  //     key: "actions",
-  //     render: (_, { record }) => (
-  //       <Space>
-  //         <Button onClick={() => onApproval(record.key)}>
-  //           <CheckOutlined />
-  //         </Button>
-  //         <Button onClick={() => onTerminate(record.key)}>
-  //           <DeleteOutlined />
-  //         </Button>
-  //         <Button>
-  //           <QuestionCircleOutlined />
-  //         </Button>
-  //       </Space>
-  //     ),
-  //   },
-  // ];
-
-  // On Click Button contents
-
-  {
-    /* <Modal
-            title="User Profile / Contracts"
-            okText="Confirm Edit"
-            okType="default"
-            open={open}
-            onOk={() => setOpen(false)}
-            onCancel={() => setOpen(false)}
-            width={700}
-          >
-            <ToastContainer />
-            <div class="w-full h-0.5 bg-gray-500 border"></div>
-            <div class="grid grid-cols-2 p-5">
-              <div class="shadow-xl p-3 shadow-zinc-300 justify-self-center rounded">
-                <div class="justify-self-center">
-                  <div class="flex items-center justify-center space-x-2">
-                  <Avatar size={100} icon={<UserOutlined />}/>
-                  </div>
-                  <div class="flex flex-col p-2 mt-2 space-y-2 text-base items-center justify-center">
-                    <h1 class='text-xs text-sky-500 hover:underline'>207412</h1>
-                    <h1>Name: Saurav Niraula</h1>
-                    <h1>User Type: Client</h1>
-                    <h1>Date of Birth: 20202022</h1>
-                    <h1>Email: niraulasaurav2@gmail.com</h1>
-                  </div>
-                </div>
-              </div>
-
-              <div class="shadow-xl shadow-zinc-300 pq-3 justify-self-center rounded">
-                <div class="place-items-center">
-                  <div class="flex flex-col p-2 mt-2 space-y-4 text-base">
-                    <h1>Contract ID: <span class="hover:underline text-sky-500">207412</span> </h1>
-                    <h1>Requested Date: 20202022</h1>
-                    <h1>
-                      Contract Status: 
-                       <Select
-                        defaultValue="Active"
-                        style={{
-                          width: 120,
-                        }}
-                        onChange={(handleContractChange)}
-                        options={[
-                          {
-                            value: 'Active',
-                            label: 'Active',
-                          },
-                          {
-                            value: 'Terminated',
-                            label: 'Terminated',  
-                          },
-                        ]}
-                      ></Select>
-                    </h1>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </Modal> */
-  }
-
-  // const data = contractDetails.map((contractDetail) => ({
-  //   key: contractDetail.id,
-  //   contract_id: contractDetail.contract_id,
-  //   user_name: contractDetail.user.fullname,
-  //   user_type: contractDetail.user.user_type,
-  //   created_date: contractDetail.created_date,
-  //   contract_status: [contractDetail.contract_status],
-  //   actions: (
-  //     <Space>
-  //       <Button onClick={() => onApproval(contractDetail.id)}>
-  //         <CheckOutlined />
-  //       </Button>
-  //       <Button onClick={() => onTerminate(contractDetail.id)}>
-  //         <DeleteOutlined />
-  //       </Button>
-  //       <Button>
-  //         <QuestionCircleOutlined />
-  //       </Button>
-  //     </Space>
-  //   ),
-  // }));
 
   return (
     <div class="w-screen">

@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView
 from django.http import HttpResponse
-from .serializers import ServiceCreateSerializer , UserServiceRequestSerializer
+from .serializers import ServiceCreateSerializer , UserServiceRequestSerializer , ViewServiceRequesteSerializer , UpdateServiceStatusSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from .models import ServiceList , ServiceUse
@@ -38,7 +38,6 @@ class UserServiceRequestView(APIView):
         serializer = UserServiceRequestSerializer(data = request.data)
         
         if serializer.is_valid():
-            print(serializer)
             username = request.data.get('username')
             userdata = get_object_or_404(Users , username = username)
             user_id = userdata.id
@@ -58,6 +57,33 @@ class UserServiceRequestView(APIView):
         else:
                 print(serializer.errors)
                 return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# Viewing ALl Requested Services from the Client
+class ViewServiceRequestView(APIView):
+     def get(self ,request):
+            requestedservice = ServiceUse.objects.all()
+            serializer = ViewServiceRequesteSerializer(requestedservice , many=True)
+            return Response(serializer.data ,status=status.HTTP_200_OK)
+     
+# Fetching Single Request Service 
+class SingleRequestedServiceView(RetrieveAPIView):
+     queryset = ServiceUse.objects.all()
+     serializer_class = ViewServiceRequesteSerializer 
+
+# Updating the requested service 
+     
+class UpdateServiceRequestView(RetrieveAPIView):
+    def post(self,request,id):
+        service_use = get_object_or_404(ServiceUse , id = id)
+       
+        serializer =  UpdateServiceStatusSerializer(data = request.data)
+        
+        if serializer.is_valid():
+            serviceuse_status = serializer.validated_data.get('action')
+            service_use.status = serviceuse_status
+            service_use.save()
+            return Response({'message': 'Status updated!'}, status=status.HTTP_200_OK) 
+        return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 

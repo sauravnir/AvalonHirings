@@ -1,8 +1,11 @@
 from django.urls import path
-from .views import CreateServiceView,GetCreatedServiceView,GetSingleServiceView,UserServiceRequestView
+from .views import CreateServiceView,GetCreatedServiceView,GetSingleServiceView,UserServiceRequestView , ViewServiceRequestView,SingleRequestedServiceView, UpdateServiceRequestView
 urlpatterns=[
     path("createservice/" , CreateServiceView.as_view() , name="Services"),
     path("getservices/" ,GetCreatedServiceView.as_view() , name="Created Services"),
     path("getservice/<int:pk>" , GetSingleServiceView.as_view() , name="Single Service Items"),
-    path("postrequest/" , UserServiceRequestView.as_view() , name="Post Requests")
+    path("postrequest/" , UserServiceRequestView.as_view() , name="Post Requests"),
+    path('getrequestedservice/',ViewServiceRequestView.as_view() , name= "Get Requested Service"),
+    path('singlerequestedservice/<int:pk>',SingleRequestedServiceView.as_view() , name = "Single Requested Service"),
+    path("updateservicerequest/<int:id>" , UpdateServiceRequestView.as_view() , name="Update Service Request"),
 ]
