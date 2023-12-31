@@ -92,7 +92,7 @@ function Registration() {
                 Login here
               </Link>
             </span>
-            <span class="mt-2">
+            <span class="mt-2 text-red-600">
                   Before you register , go through all the terms and conditions properly:{" "}
                   <span>
                     <Button onClick={downloadFile} icon={<DownloadOutlined />}>

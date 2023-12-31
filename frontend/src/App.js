@@ -22,20 +22,17 @@ import EmployeeReviews from "./Pages/Dashboard/EmployeeDashboard/EmployeeReviews
 import ClientReports from "./Pages/Dashboard/ClientDashboard/ClientReports.js";
 import CreateServiceAdmin from  "./Pages/Dashboard/AdminDashboard/CreateServiceAdmin.js";
 import RequestService from "./Pages/Dashboard/ClientDashboard/RequestService.js";
+import UserProfile from "./Pages/ProfileSettings/UserProfile.js";
+import ViewServiceStatus from "./Pages/Dashboard/ClientDashboard/ViewServiceStatus.js";
 
-import { ToastContainer } from "react-toastify";
 function App() {
   return (
   
     <Router>
         <Routes>
-
-        
           <Route index element={<HomePage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<Registration />} />
-         
-
           <Route path="/forgotpassword" element={<ForgotPassword />} />
          <Route path="/otp" element={<PrivateRoute />}>
          <Route path="/otp" element={<OtpCode />} />
@@ -95,11 +92,19 @@ function App() {
             <Route index element={<ClientReports />}></Route>
           </Route>
 
-          <Route path='/request-service' elemet={<PrivateRoute />}>
+          <Route path='/request-service' element={<PrivateRoute />}>
             <Route index element={<RequestService />}/>
+          </Route>
+
+          <Route path='/client-view-service' element={<PrivateRoute />}>
+            <Route  index element={<ViewServiceStatus />} />
           </Route>
           
           
+          <Route path='/userprofile' element={<PrivateRoute />}>
+              <Route index element={<UserProfile />}/>
+
+          </Route>
         </Routes>
     </Router>
     

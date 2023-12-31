@@ -4,7 +4,7 @@ from .serializers import UserReportSerializer , UserModelSerializer , ReportsSer
 from .models import Reports
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView 
-from rest_framework import generics
+from rest_framework.generics import ListAPIView
 from rest_framework.response import Response
 from rest_framework import status
 from django.core.mail import send_mail , EmailMessage
@@ -64,11 +64,18 @@ class UserReportGetView(APIView):
             serializer = ReportsSerializer(reports, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
         
-class UserReportGetObjectView(APIView):
-    def get(self, request ,id = None):
-        reports  = get_object_or_404(Reports,id=id)
-        serializer =ReportsSerializer(reports)
-        return Response(serializer.data , status = status.HTTP_200_OK)
+class UserReportGetObjectView(ListAPIView):
+    serializer_class = ReportsSerializer
+    def get_queryset(self):
+        report_id= self.kwargs.get('id')
+        return Reports.objects.filter(id= report_id)
+    
+class ClientReportGetObject(ListAPIView):
+    serializer_class = ReportsSerializer
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        return Reports.objects.filter(user_id=user_id)    
+
 
 class ApprovedReportView(APIView):
     def put(self, request, id):

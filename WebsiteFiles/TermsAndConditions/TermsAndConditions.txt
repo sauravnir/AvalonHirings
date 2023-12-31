@@ -1,3 +1,71 @@
-This is a Test!
+1. Introduction
 
-I will be populating this field soon!
+1.1. These Terms and Conditions ("Terms") govern the use of the housemaid hiring system ("the Platform") provided by [Your Company Name] ("the Company") to both employees ("Candidates") and clients ("Clients"). By accessing or using the Platform, you agree to be bound by these Terms.
+
+2. Registration and Account
+
+2.1. To use the Platform, Clients and Candidates must register and create an account.
+
+2.2. Clients and Candidates must provide accurate and complete information during the registration process.
+
+2.3. Clients and Candidates are responsible for maintaining the confidentiality of their account credentials.
+
+3. Housemaid Hiring Process
+
+3.1. The Company acts as a platform connecting Clients seeking housemaid services with Candidates seeking employment.
+
+3.2. Clients must provide accurate information about their requirements, and Candidates must provide accurate information about their skills and qualifications.
+
+3.3. The Company does not guarantee the suitability, reliability, or performance of any Candidate, and Clients are encouraged to conduct their own due diligence before hiring.
+
+4. Payments and Fees
+
+4.1. Clients agree to pay the agreed-upon fees for the services provided by the Candidate.
+
+4.2. The Company may charge fees for the use of the Platform, and such fees will be communicated to Clients and Candidates.
+
+4.3. Payments made through the Platform are subject to the Company's payment policies.
+
+5. Responsibilities of Clients and Candidates
+
+5.1. Clients are responsible for providing a safe and suitable working environment for the hired Candidate.
+
+5.2. Candidates are responsible for performing their duties diligently and professionally.
+
+5.3. Any disputes between Clients and Candidates should be resolved directly between the parties involved.
+
+6. Code of Conduct
+
+6.1. Users must comply with all applicable laws and regulations.
+
+6.2. Users must not engage in any fraudulent, harmful, or illegal activities on the Platform.
+
+6.3. Users must respect the privacy and confidentiality of information shared on the Platform.
+
+7. Termination of Services
+
+7.1. The Company reserves the right to suspend or terminate the account of any user who violates these Terms.
+
+7.2. Clients and Candidates may terminate their use of the Platform at any time, following the procedures outlined on the Platform.
+
+8. Disclaimer and Limitation of Liability
+
+8.1. The Company is not responsible for any loss, injury, or damage arising from the use of the Platform.
+
+8.2. The Company is not liable for the actions or performance of Clients or Candidates.
+
+9. Governing Law and Jurisdiction
+
+9.1. These Terms are governed by and construed in accordance with the laws of [Your Jurisdiction].
+
+10. Changes to Terms
+
+10.1. The Company reserves the right to modify these Terms at any time. Users will be notified of any changes.
+
+11. Agreement
+
+11.1. By using the Platform, Clients and Candidates acknowledge that they have read, understood, and agree to be bound by these Terms.
+
+12. Contact Information
+
+12.1. For any questions or concerns regarding these Terms, please contact +977 9815977947.

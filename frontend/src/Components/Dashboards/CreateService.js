@@ -14,12 +14,9 @@ import {
   Tag,
   Popconfirm,
   Descriptions,
+  Divider,
 } from "antd";
-import {
-  CheckOutlined,
-  QuestionCircleOutlined,
-  CloseOutlined,
-} from "@ant-design/icons";
+
 import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
@@ -27,9 +24,7 @@ import DashboardFooter from "./DashboardFooter";
 
 function CreateService() {
   const [openModal, setOpenModal] = useState(false);
-  const [openModal1, setOpenModal1] = useState(false);
-  const [openModal2, setOpenModal2] = useState(false);
-
+  const [openModal1 , setOpenModal1] = useState(false);  
   const [serviceName, setServiceName] = useState("");
   const [serviceTarget, setServiceTarget] = useState("");
   const [servicePricing, setServicePricing] = useState("");
@@ -45,7 +40,22 @@ function CreateService() {
 
   const [viewRequestedServices, setViewRequestedServices] = useState([]);
 
-  const [singleRequestedService, setSingleRequestedService] = useState([]);
+  const [singleRequestedService, setSingleRequestedService] = useState({
+    fullname: "",
+    servicename: "",
+    requested_date: "",
+    expiry_date: "",
+    servicelocation: "",
+    totalprice: "",
+    servicevalue: "",
+    servicetarget: "",
+    contact: "",
+  });
+
+  // storing the free employee information
+
+  const [freeEmployees, setFreeEmployees] = useState([]);
+  const [assignedEmployees, setAssignedEmployee] = useState("");
 
   const handleInfoClick = (id) => {
     fetchRequestedService(id);
@@ -55,7 +65,6 @@ function CreateService() {
   // Store the fetched data for later use
 
   const [createdService, setCreatedService] = useState([]);
-
   // Setting the service data while creating
   const serviceData = {
     servicename: serviceName,
@@ -106,6 +115,7 @@ function CreateService() {
       try {
         const res = await fetch("http://127.0.0.1:8000/getrequestedservice/");
         const data = await res.json();
+        console.log("individual data", data);
         setViewRequestedServices(data);
       } catch (error) {
         toast.error("Failed to fetch services!");
@@ -122,13 +132,29 @@ function CreateService() {
         `http://127.0.0.1:8000/singlerequestedservice/${id}`
       );
       const data = await res.json();
-      setSingleRequestedService(data);
+      const {
+        user,
+        services,
+        approved_date,
+        expiry_date,
+        servicelocation,
+        totalprice,
+        servicevalue,
+      } = data;
 
-      if (res.ok) {
-        console.log(data);
-      } else {
-        console.log("Failed to fetch service");
-      }
+      const updateSingleRequestedService = {
+        fullname: user?.fullname || "",
+        servicename: services?.servicename || "",
+        requested_date: approved_date || "",
+        expiry_date: expiry_date || "",
+        servicelocation: servicelocation || "",
+        totalprice: totalprice || "",
+        servicevalue: servicevalue || "",
+        servicetarget: services?.servicetarget || "",
+        contact: user?.contact || "",
+      };
+
+      setSingleRequestedService(updateSingleRequestedService);
     } catch (error) {
       toast.error(error);
     }
@@ -138,22 +164,47 @@ function CreateService() {
 
   const updateServiceRequest = async (approvalType, serviceID) => {
     try {
-      const response = await fetch(
-        `http://127.0.0.1:8000/updateservicerequest/${serviceID}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ action: approvalType }),
-        }
-      );
+      const url = `http://127.0.0.1:8000/updateservicerequest/${serviceID}`;
+
+      const requestOptions = {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+      };
+
+      // Include assigned employee details only when approvalType is "Payment Required"
+      if (approvalType === "Payment Required") {
+        requestOptions.body = JSON.stringify({
+          action: approvalType,
+          assignedEmployee: assignedEmployees,
+        });
+      } else {
+        requestOptions.body = JSON.stringify({ action: approvalType });
+      }
+
+      const response = await fetch(url, requestOptions);
 
       if (response.ok) {
-        navigate("../admin-dashboard");
+        toast.success(response.ok);
+        navigate("/admin-dashboard");
+      } else {
+        toast.error("Failed to update status.");
       }
     } catch (error) {
-      toast.error(error);
+      toast.error(error.message);
     }
   };
+
+  // Loading the free-employees from AssignedEmployees model
+
+  useEffect(() => {
+    const getAssignedEmployees = async () => {
+      const res = await fetch("http://127.0.0.1:8000/freeemployees/");
+      const data = await res.json();
+      setFreeEmployees(data);
+    };
+
+    getAssignedEmployees();
+  }, []);
 
   //View Services
 
@@ -223,13 +274,12 @@ function CreateService() {
       render: (requestStatus) => {
         let color = requestStatus.length > 5 ? "geekblue" : "green";
         if (requestStatus === "On-Going") {
-          color = "yellow";
+          color = "orange";
         } else if (requestStatus === "Pending") {
-          color = "blue";
+          color = "yellow";
         } else {
           color = "red";
         }
-
         return (
           <Tag color={color} key={requestStatus}>
             {requestStatus}
@@ -243,31 +293,8 @@ function CreateService() {
       key: "action",
       render: (_, record) => (
         <Space>
-          <Button onClick={() => setOpenModal1(true)}>
-            <CheckOutlined />
-          </Button>
-          <Modal
-            title="Confirm Service Request?"
-            open={openModal1}
-            okType="default"
-            onCancel={() => setOpenModal1(false)}
-            onOk={() => updateServiceRequest("On-Going" , record.key)}
-          ></Modal>
+          <Button onClick={() => handleInfoClick(record.key)}>View</Button>
 
-          <Button onClick={() => setOpenModal2(true)}>
-            <CloseOutlined />
-          </Button>
-          <Modal
-            title="Terminate Service Request?"
-            open={openModal2}
-            okType="default"
-            danger
-            okCancel={() => setOpenModal2(false)}
-            onOk={() => updateServiceRequest("Terminated", record.key)} 
-          ></Modal>
-          <Button onClick={() => handleInfoClick(record.id)}>
-            <QuestionCircleOutlined />
-          </Button>
           <Modal
             title="Details:"
             description
@@ -278,21 +305,87 @@ function CreateService() {
               disabled: true,
             }}
             onOk={() => setOpenModal(false)}
-            width={1000}
+            width={1500}
             centered
+            footer={[
+              <Button key="back" onClick={() => setOpenModal(false)}>
+                Back
+              </Button>,
+// Conditionally rendering the buttons 
+              viewRequestedServices.status !== "Payment Required" ? (
+                <Button
+                  style={{ backgroundColor: "green", color: "white" }}
+                  onClick={() =>
+                    updateServiceRequest("Payment Required", record.key)
+                  }
+                  // onClick={()=>console.log("Clicked")}
+                  disabled
+                >
+                  Assign & Approve
+                </Button>
+              ) : (
+                <Button
+                  style={{ backgroundColor: "green", color: "white" }}
+                  onClick={() =>
+                    updateServiceRequest("Payment Required", record.key)
+                  }
+                  // onClick={()=>console.log("Clicked")}
+                >
+                  Assign & Approve
+                </Button>
+              ),
+            ]}
           >
-            <Descriptions bordered>
-              {/* <Descriptions.Item label="Client Name">{singleRequestedService.user.fullname}</Descriptions.Item> */}
-              {/* <Descriptions.Item label="Service Name">{singleRequestedService.services.servicename}</Descriptions.Item>
-        <Descriptions.Item label="Requested Date">
-          {moment(singleRequestedService.approved_date).format('YYYY-MM-DD')}
-        </Descriptions.Item>
-        <Descriptions.Item label="Total Price"><h1 class="text-green-700 text-lg">Rs.{singleRequestedService.totalprice}</h1></Descriptions.Item>
-        <Descriptions.Item label="Service For">{singleRequestedService.services.servicetarget}</Descriptions.Item>
-        <Descriptions.Item label="Expiry Date">
-          {moment(singleRequestedService.expiry_date).format('YYYY-MM-DD')}
-        </Descriptions.Item> */}
+            <Descriptions bordered layout="vertical">
+              <Descriptions.Item label="Client Name">
+                {singleRequestedService.fullname}
+              </Descriptions.Item>
+              <Descriptions.Item label="Service Name">
+                {singleRequestedService.servicename}
+              </Descriptions.Item>
+              <Descriptions.Item label="Requested Date">
+                {moment(singleRequestedService.approved_date).format(
+                  "YYYY-MM-DD"
+                )}
+              </Descriptions.Item>
+              <Descriptions.Item label="Total Price">
+                <h1 class="text-green-700 ">
+                  Rs.{singleRequestedService.totalprice}
+                </h1>
+              </Descriptions.Item>
+              <Descriptions.Item label="Service For">
+                {singleRequestedService.servicetarget}
+              </Descriptions.Item>
+              <Descriptions.Item label="Expiry Date">
+                {moment(singleRequestedService.expiry_date).format(
+                  "YYYY-MM-DD"
+                )}
+              </Descriptions.Item>
+              <Descriptions.Item label="Location">
+                {singleRequestedService.servicelocation}
+              </Descriptions.Item>
+              <Descriptions.Item label="Contact no:">
+                {singleRequestedService.contact}
+              </Descriptions.Item>
             </Descriptions>
+            <Divider></Divider>
+            <div class="flex flex-col items-center justify-center space-y-2">
+              <h1 class="items-center mt-4 font-bold">Assign a maid:</h1>
+              <select
+                class="border rounded h-8"
+                onChange={(e) => setAssignedEmployee(e.target.value)}
+                required
+              >
+                <option>Choose from the option below:</option>
+
+                {/* Fetching the employees from the database and then assigning to any of the requested services */}
+                {freeEmployees.map((info) => (
+                  <option key={info.id} value={info.assigned_employee.fullname}>
+                    {info.assigned_employee.fullname}
+                  </option>
+                ))}
+              </select>
+            </div>
           </Modal>
         </Space>
       ),
@@ -309,10 +402,9 @@ function CreateService() {
   }));
 
   // Data Source For Requested Services
-
   const allRequestedService = viewRequestedServices.map((info) => ({
     key: info.id,
-    client_name: info.user.fullname,  
+    client_name: info.user.fullname,
     service_name: info.services.servicename,
     requested_date: moment(info.approved_date).format("YYYY-MM-DD"),
     request_status: info.status,
@@ -372,16 +464,16 @@ function CreateService() {
               <Form.Item>
                 <Button
                   style={{ background: "green", color: "white" }}
-                  onClick={() => setOpenModal(true)}
+                  onClick={() => setOpenModal1(true)}
                 >
                   Create
                 </Button>
                 <Modal
                   title="Are you sure?"
                   description
-                  open={openModal}
+                  open={openModal1}
                   okText="Submit"
-                  onCancel={() => setOpenModal(false)}
+                  onCancel={() => setOpenModal1(false)}
                   onOk={handleFormSubmit}
                   okType="default"
                   width={400}
@@ -424,10 +516,10 @@ function CreateService() {
   ];
 
   return (
-    <div class="w-screen">
-      <div class="flex flex-col mt-2 p-3">
-        <div className="flex mt-8 ">
-          <h1 className="text-2xl font-base">Add/View Services</h1>
+    <div class="w-screen mt-14">
+      <div class="flex flex-col mt-2 p-6">
+        <div className="flex w-full bg-white  rounded shadow p-3">
+          <h1 className="text-2xl  font-bold">Add / View services</h1>
         </div>
         <ToastContainer position="top-center" autoClose={5000} />
 

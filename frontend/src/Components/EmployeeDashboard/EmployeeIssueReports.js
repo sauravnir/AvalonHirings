@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, Button, Modal, Form, Input, Tabs } from "antd";
+import { Card, Button, Modal, Form, Input, Tabs, Table , Tag } from "antd";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DashboardFooter from "../Dashboards/DashboardFooter.js";
@@ -15,14 +15,7 @@ function EmployeeIssueReports() {
   const [reportDesc, setReportDesc] = useState("");
   const navigate = useNavigate();
   const [reportDetails, setReportDetails] = useState([]);
-  const { TabPane } = Tabs;
-
-
-
-  const storedDataString = localStorage.getItem("userData");
-  const userData = JSON.parse(storedDataString);
-  const userID = userData.user_id;
-
+  
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -54,137 +47,84 @@ function EmployeeIssueReports() {
     }
   };
 
+
+  const userdata = localStorage.getItem("userData");
+  const userId = JSON.parse(userdata)
+  console.log(userId)
+ 
   // Fetching Reports from the database
-  // useEffect(() => {
-  //   const fetchReportDetails = async () => {
-  //     try {
-  //       const response = await fetch(`http://127.0.0.1:8000/getreport/${userID}`);
-  //       const contentType = response.headers.get("content-type");
-  //       console.log("Content-Type:", contentType);
-  //       const data = await response.json();
-  //       setReportDetails(data);
-  //     } catch (error) {
-  //       console.error("Error fetching report details:", error);
-  //     }
-  //   };
+  useEffect(() => {
+    const fetchReportDetails = async () => {
+      try {
+        const response = await fetch(`http://127.0.0.1:8000/getclientreport/${userId.user_id}`);
+        const data = await response.json();
+        setReportDetails(data);
+      } catch (error) {
+        console.error("Error fetching report details:", error);
+      }
+    };
 
-  //   fetchReportDetails();
-  // }, [userID]);
+    fetchReportDetails();
+  }, []);
 
-  // useEffect(() => {
-  //   const fetchReportDetails = async () => {
-  //     try {
-  //       if (!userID) {
-  //         console.error('User ID is missing.');
-  //         return;
-  //       }
+const contents = [
+  {
+    title: "Title",
+    dataIndex: "title",
+    key: "title",
+  },
+  {
+    title: "Issued Date",
+    dataIndex: "issued_date",
+    key: "issued_date",
+  },
+  {
+    title: "Status",
+    dataIndex: "report_status",
+    key: "report_status",
+    render: (_, { report_status }) => (
+      <>
+        {report_status &&
+          report_status.map((tag) => {
+            console.log("Tag:", tag);
+            let color;
+            if (tag === "Approved") {
+              color = "green";
+            } else if (tag === "Denied") {
+              color = "red";
+            } else {
+              color = "yellow";
+            }
+            return (
+              <Tag color={color} key={tag}>
+                {tag}
+              </Tag>
+            );
+          })}
+      </>
+    ),
+    
+  }
+]
 
-  //       const response = await fetch(`http://127.0.0.1:8000/getreport/${userID}`);
-  //       const contentType = response.headers.get('content-type');
-
-  //       if (!response.ok) {
-  //         console.error('Error fetching report details:', response.statusText);
-  //         return;
-  //       }
-
-  //       if (contentType && contentType.includes('application/json')) {
-  //         const data = await response.json();
-  //         setReportDetails(data);
-  //       } else {
-  //         console.error('Invalid content type:', contentType);
-  //       }
-  //     } catch (error) {
-  //       console.error('Error fetching report details:', error.message);
-  //     }
-  //   };
-
-  //   fetchReportDetails();
-  // }, []);
-  // Tabs Contents
-
-  // const pendingReports = () => {
-  //   return reportDetails.map(
-  //     (report) =>
-  //       report.report_action === "Pending" &&
-  //       report.user.id === userID && (
-  //         <div className="mb-3" key={report.id}>
-  //           <Card hoverable>
-  //             <div className="flex flex-row items-center place-content-between">
-  //               <h1>User Name: {report.user.fullname} {console.log(report.user.fullname)}</h1>
-  //               <h1>User Type: {report.user.user_type}</h1>
-  //               <h1>Title: {report.title}</h1>
-  //               <h1>
-  //                 Status:
-  //                 {report.report_action === "Pending" ? (
-  //                   <button className="bg-yellow-300 border p-1 rounded">
-  //                     Pending
-  //                   </button>
-  //                 ) : report.report_action === "Approved" ? (
-  //                   <button className="bg-green-300 border p-1 rounded">
-  //                     Approved
-  //                   </button>
-  //                 ) : (
-  //                   <button className="bg-red-300 border p-1 rounded">
-  //                     Declined
-  //                   </button>
-  //                 )}
-  //               </h1>
-  //               {/* <Button
-  //                 danger
-  //                 onClick={() => showReportClient(report.id)}
-  //                 disabled={
-  //                   report.report_action === "Approved" ||
-  //                   report.report_action === "Denied"
-  //                 }
-  //               >
-  //                 View details
-  //               </Button> */}
-  //             </div>
-  //           </Card>
-  //         </div>
-  //       )
-  //   );
-  // };
-
-  // const TabList = [
-  //   {
-  //     key: "1",
-  //     label: "Pending",
-  //     children: (
-  //       <TabPane tab="Pending" key="1">
-  //         {pendingReports()}
-  //       </TabPane>
-  //     ),
-  //   },
-  //   {
-  //     key: "2",
-  //     label: "Approved",
-  //     children:(
-  //       <TabPane tab="Approved" key="2">
-  //         {pendingReports()}
-  //       </TabPane>
-  //     ),
-  //   },
-  //   // {
-  //   //   key: "3",
-  //   //   label: "Denied",
-  //   //   children:(
-  //   //     <TabPane tab="Denied" key="3">
-  //   //       {approvedReports()}
-  //   //     </TabPane>
-  //   //   ),
-  //   // },
-  // ];
+// table datasource 
+console.log(reportDetails)
+const data = reportDetails.map((info)=>({
+  key : info.id,
+  title : info.title, 
+  issued_date : info.issue_date,    
+  report_status : [info.report_action]
+}));
 
   return (
-    <div className="w-screen">
-      <div className="flex flex-col mt-2 p-3">
-        <div className="flex">
-          <h1 className="text-xl font-base">ISSUE REPORTS / REQUESTS</h1>
+    <div className="w-screen mt-14 ">
+      <div className="flex flex-col mt-2 p-6">
+        <div className="flex w-full bg-white  rounded shadow p-3">
+          <h1 className="text-2xl font-bold">Issue Reports / Requests</h1>
         </div>
 
-        <div className="p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
-          <Card>
+        <div className=" flex flex-col p-3 mt-5 bg-white rounded shadow-xl shadow-gray-350">
+          
             <Card>
               <div className="text-red-600">
                 *Fill with necessary and valid information!*
@@ -200,9 +140,11 @@ function EmployeeIssueReports() {
                       onChange={(e) => setReportDesc(e.target.value)}
                     /></Form.Item>
                   <Form.Item>
-                    <Button onClick={() => setOpenModal(true)}>Submit</Button>
+                    <Button style={{background:"green" , borderColor :"green"}} onClick={() => setOpenModal(true)}><span class="text-white">Submit</span></Button>
+                    {/* <button onClick={() => setOpenModal(true)} class="bg-green-500 w-1/4 text-white items-center p-2 rounded border border-green-700 hover:bg-green-700" >Submit</button> */}
                     <Modal
                       title="Are you sure you want to submit?"
+                      centered
                       open={openModal}
                       okText="Submit"
                       onCancel={() => setOpenModal(false)}
@@ -214,14 +156,22 @@ function EmployeeIssueReports() {
                 </Form>
               </form>
             </Card>
-          </Card>
+          
           <div>
             {/* <Tabs>{TabList.map((tab) => tab.children)}</Tabs> */}
           </div>
 
           <ToastContainer position="top-center" autoClose={4000} />
+
+          
         </div>
+        <div class="mt-12 p-3 bg-white rounded shadow-lg">
+            <h1 class="text-lg p-2 font-bold hover:underline">View Reports</h1>
+            <h1 class="text-sm p-2 mb-4 text-red-500">Note: Once approved , the related department will contact you for further processing.</h1>
+            <Table columns={contents} dataSource={data}></Table>
+          </div>
       </div>
+      
       <DashboardFooter />
     </div>
   );

@@ -109,7 +109,7 @@ class UserForgotPasswordView(APIView):
 
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
+# Checking OTP
 class OTPTransactionView(APIView):
     def post(self , request):
         serializer = OTPTransactionSerializer(data = request.data)
@@ -136,7 +136,6 @@ class UserDownloadFileView(APIView):
 
 # Fetch User Data 
     
-
 class UserProfileData(APIView):
     def post(self, request):
         user_token_key = request.GET.get('token',None)

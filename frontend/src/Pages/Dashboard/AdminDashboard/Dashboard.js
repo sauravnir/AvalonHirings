@@ -7,9 +7,10 @@ import MainDashboard from '../../../Components/Dashboards/MainDashboard'
 function Dashboard() {
 
   return (
-    <div class='bg-gray-50 flex'>
+    <div class='bg-zinc-100 flex'>
+      <NavigationDashboard />
         <Sidebar />
-        <NavigationDashboard />
+        
         <MainDashboard />
     </div>  
   )

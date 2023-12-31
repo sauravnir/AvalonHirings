@@ -2,8 +2,9 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Popconfirm } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
-
+import Logo from "../../images/Abnw.png";
 function Sidebar() {
+
   //Retrieving stored data from the local Storage
   const storedDataString = localStorage.getItem("userData");
   const userData = JSON.parse(storedDataString);
@@ -17,6 +18,13 @@ function Sidebar() {
     navigate("/login");
   };
 
+  const [isOpen1 , setIsOpen1] = useState(false);
+
+  const toggleDropdown1 =  () =>{
+    setIsOpen1(!isOpen1);
+  }
+
+
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleDropdown = () => {
@@ -25,31 +33,13 @@ function Sidebar() {
 
   return (
     <div class="xl-sticky top-0">
-      <aside class="flex sticky top-0 flex-col w-64 h-screen px-2 overflow-y-auto bg-white border-r rtl:border-r-0 rtl:border-l dark:bg-slate-900 dark:border-zinc-700">
-        <div class="flex flex-col items-start p-1 px-6 mt-1 -mx-2">
-          {/* <img
-              class="object-cover w-12 h-12 mx-2 rounded-full"
-              src={logo}
-              alt="avatar"
-            ></img> */}
-
-          <h4 class=" mt-2 text-2xl font-medium text-gray-800 dark:text-gray-200">
-            Avalon Hirings
-          </h4>
-          {/* <h4 class="mx-2 mt-2 font-medium text-gray-800 dark:text-gray-200">
-             {userData.username}
-            </h4>
-            <p class="mx-2 mt-1 text-sm font-medium text-gray-600 dark:text-gray-400 hover:underline">
-              {userData.user_type}
-            </p> */}
-        </div>
-
-        <div class="flex flex-col justify-between flex-1 mt-6">
+      <aside class=" container flex sticky top-0 flex-col w-60  h-screen p-2 overflow-y-auto bg-white  ">
+        <div class="flex flex-col justify-between flex-1 ">
           {/* For Admin user type */}
           {userData.user_type === "Admin" && (
-            <nav>
+            <nav class="text-sm mt-16">
               <Link to="/admin-dashboard">
-                <a class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700">
+                <a class="flex items-center px-4 py-2 mt-5 transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700 ">
                   <svg
                     class="w-5 h-5"
                     viewBox="0 0 24 24"
@@ -73,7 +63,7 @@ function Sidebar() {
                 <button
                   type="button"
                   onClick={toggleDropdown}
-                  className="flex items-center  px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  className="flex items-center  px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                 >
                   <svg
                     className="w-5 h-5"
@@ -98,31 +88,26 @@ function Sidebar() {
                   <div className="flex  items-center px-4 py-2 mt-5 text-gray-600 ">
                     {/* Dropdown content goes here */}
                     <div className="py-1">
-                    <Link to='/create-service'>
-                    <a
-                        className="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                      >
-                        View and Create Services
-                      </a>
+                      <Link to="/create-service">
+                        <a className="block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                          View and Create Services
+                        </a>
                       </Link>
-                      
-                    <Link to='/admin-dashboard'>
-                    <a
-                        className="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                      >
-                        View Ratings
-                      </a>
 
-                    </Link>
-                     
-                                          </div>
+                      <Link to="/admin-dashboard">
+                        {/* <img src={require(``)}></img> */}
+                        <a className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                          View Ratings
+                        </a>
+                      </Link>
+                    </div>
                   </div>
                 )}
               </div>
 
               <Link to="/admin-payment">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> */}
@@ -147,7 +132,7 @@ function Sidebar() {
 
               <Link to="/admin-view-reports">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5 transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   <svg
@@ -168,11 +153,13 @@ function Sidebar() {
                   <span class="mx-4 font-medium">Reports and Issues</span>
                 </a>
               </Link>
-
-              <Link to="/admin-contractreview">
-                <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
-                  href="#"
+              
+                
+              <div className="relative inline-block text-left">
+                <button
+                  type="button"
+                  onClick={toggleDropdown1}
+                  className="flex items-center  px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                 >
                   <svg
                     class="w-5 h-5"
@@ -189,14 +176,40 @@ function Sidebar() {
                       d="M7 8a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Zm-2 3h4a4 4 0 0 1 4 4v2H1v-2a4 4 0 0 1 4-4Z"
                     />
                   </svg>
+                  <span className="mx-4 font-medium">Users & Requests</span>
+                </button>
 
-                  <span class="mx-4 font-medium">Requests</span>
-                </a>
-              </Link>
+                {isOpen1 && (
+                  <div className="flex  items-center px-4 py-2 mt-5 text-gray-600 ">
+                    {/* Dropdown content goes here */}
+                    <div className="py-1">
+                      <Link to="/admin-contractreview">
+                        <a className="block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                          User Requests
+                        </a>
+                      </Link>
+
+                      <Link to="/admin-dashboard">
+                        {/* <img src={require(``)}></img> */}
+                        <a className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                          All Users
+                        </a>
+                      </Link>
+                    </div>
+                  </div>
+                )}
+              </div>
+
+
+
+
+
+
+              
 
               <Link to="/admin-dashboard">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   <svg
@@ -234,9 +247,9 @@ function Sidebar() {
 
           {/* For Employee User Type */}
           {userData.user_type === "Employee" && (
-            <nav>
+            <nav class="text-sm mt-16">
               <Link to="/employee-dashboard">
-                <a class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700">
+                <a class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700">
                   <svg
                     class="w-5 h-5"
                     viewBox="0 0 24 24"
@@ -256,9 +269,9 @@ function Sidebar() {
                 </a>
               </Link>
 
-              <Link to="/employee-work-schedules">
+              <Link to="/employee-dashboard">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   <svg
@@ -281,9 +294,9 @@ function Sidebar() {
                 </a>
               </Link>
 
-              <Link to="/employee-payment">
+              <Link to="/employee-dashboard">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> */}
@@ -306,9 +319,9 @@ function Sidebar() {
                 </a>
               </Link>
 
-              <Link to="/employee-review-ratings">
+              <Link to="/employee-dashboard">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   <svg
@@ -333,7 +346,7 @@ function Sidebar() {
 
               <Link to="/employee-reports">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   <svg
@@ -355,9 +368,9 @@ function Sidebar() {
                 </a>
               </Link>
 
-              <Link to="/dashboard">
+              {/* <Link to="/employee-dashboard">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5 transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   <svg
@@ -389,14 +402,15 @@ function Sidebar() {
 
                   <span class="mx-4 font-medium">Settings</span>
                 </a>
-              </Link>
+              </Link> */}
             </nav>
           )}
 
           {userData.user_type === "Client" && (
-            <nav>
+            <nav class="text-sm mt-16 ">
               <Link to="/client-dashboard">
-                <a class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700">
+                <a class="flex items-center px-4 py-2 mt-5 transition-colors duration-300 transform rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700 active:bg-violet-700 active:text-white">
+                  {" "}
                   <svg
                     class="w-5 h-5"
                     viewBox="0 0 24 24"
@@ -411,18 +425,15 @@ function Sidebar() {
                       stroke-linejoin="round"
                     />
                   </svg>
-
                   <span class="mx-4 font-medium">Dashboard</span>
                 </a>
               </Link>
 
-             
-
-<div className="relative inline-block text-left w-full">
+              <div className="relative inline-block text-left w-full">
                 <button
                   type="button"
                   onClick={toggleDropdown}
-                  className="flex items-center w-full px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  className="flex items-center w-full px-4 py-2 mt-5 transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                 >
                   <svg
                     class="w-5 h-5 "
@@ -446,30 +457,24 @@ function Sidebar() {
                   <div className="flex  items-center px-4 py-2 mt-5 text-gray-600 ">
                     {/* Dropdown content goes here */}
                     <div className="py-1">
-                    <Link to='/request-service'>
-                    <a
-                        className="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                      >
-                        Request For A Service
-                      </a>
+                      <Link to="/request-service">
+                        <a className="block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                          Request For A Service
+                        </a>
                       </Link>
-                      
-                    <Link to='/client-dashboard'>
-                    <a
-                        className="block px-4 py-2 rounded-lg text-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200"
-                      >
-                        View Progress / Status
-                      </a>
 
-                    </Link>
-                     
-                                          </div>
+                      <Link to="/client-view-service">
+                        <a className="block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                          View Progress / Status
+                        </a>
+                      </Link>
+                    </div>
                   </div>
                 )}
               </div>
               <Link to="/client-dashboard">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   {/* <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" /> */}
@@ -488,13 +493,13 @@ function Sidebar() {
                       d="M5 2a1 1 0 0 1 1-1h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1M2 5h12a1 1 0 0 1 1 1v8a1 1 0 0 1-1 1H2a1 1 0 0 1-1-1V6a1 1 0 0 1 1-1Zm8 5a2 2 0 1 1-4 0 2 2 0 0 1 4 0Z"
                     />
                   </svg>
-                  <span class="mx-4 font-medium">Payments</span>
+                  <span class="mx-4 font-medium">Payment Details</span>
                 </a>
               </Link>
 
               <Link to="/client-dashboard">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   <svg
@@ -519,7 +524,7 @@ function Sidebar() {
 
               <Link to="/client-reports">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   <svg
@@ -541,9 +546,9 @@ function Sidebar() {
                 </a>
               </Link>
 
-              <Link to="/client-dashboard">
+              {/* <Link to="/client-dashboard">
                 <a
-                  class="flex items-center px-4 py-2 mt-5 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
+                  class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
                 >
                   <svg
@@ -575,11 +580,11 @@ function Sidebar() {
 
                   <span class="mx-4 font-medium">Settings</span>
                 </a>
-              </Link>
+              </Link> */}
             </nav>
           )}
 
-          <a class="flex items-center px-4 py-2 mb-10 text-gray-600 transition-colors duration-300 transform rounded-lg dark:text-gray-400 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700">
+          <button class="flex items-center px-4 py-2 mb-10 text-sm transition-colors duration-300 transform rounded-lg hover:bg-red-800 dark:hover:bg-red-800 dark:hover:text-gray-200 hover:text-gray-700">
             <Popconfirm
               title="Logout?"
               description="Are you sure?"
@@ -592,7 +597,7 @@ function Sidebar() {
               <LogoutOutlined />
               <button class="ml-4">Logout</button>
             </Popconfirm>
-          </a>
+          </button>
         </div>
       </aside>
     </div>

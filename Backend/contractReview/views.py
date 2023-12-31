@@ -9,6 +9,7 @@ from django.conf import settings
 from django.core.mail import send_mail
 import math , random 
 from rest_framework.generics import RetrieveAPIView
+from services.models import AssignedEmployees
 # Create your views here.
 
 class ContractList(APIView):
@@ -32,6 +33,18 @@ class UpdatedContractView(APIView):
             contract_status = serializer.validated_data.get('action');
             if contract_status == "Approved":
                 contract.contract_status = "Approved"
+
+
+                # Populating the AssignedEmployee model 
+
+                if (user_data.user_type == "Employee"):
+                    assigned_employee = AssignedEmployees.objects.create(
+                        assigned_employee = user_data , 
+                        work_status = 'Free For Work',
+                        
+                    )
+                    assigned_employee.save();
+
                 user_data.is_auth = True 
                 print(user_data.is_auth)
                 otp_digits = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
@@ -61,6 +74,7 @@ class UpdatedContractView(APIView):
                 #     token = get_object_or_404(CustomToken , user_id = user_data.id)
                 #     destroy_token = token("");
                 
+                AssignedEmployees.objects.filter(assigned_employee = user_data).delete()
                 user_data.save()
                 # destroy_token.save()
                 contract.save()

@@ -15,8 +15,10 @@ function ServiceRequestClient() {
   const [expiryDate, setExpiryDate] = useState(moment().format("YYYY-MM-DD HH:mm:ss"));
   const [pickValue, setPickValue] = useState("");
   const [finalPrice, setFinalPrice] = useState("");
-  
-  console.log(finalPrice);
+  const [location, setLocation] = useState("");
+
+
+  console.log(location)
   const userdata = localStorage.getItem("userData");
   const username = JSON.parse(userdata);
   // Preparing data to be entered into the model
@@ -25,7 +27,8 @@ function ServiceRequestClient() {
     servicevalue: pickValue,
     totalprice: finalPrice,
     expiry_date: expiryDate,
-    serviceid : selectedItems.id
+    serviceid : selectedItems.id,
+    servicelocation : location
   };
 
   const navigate = useNavigate()
@@ -39,7 +42,7 @@ function ServiceRequestClient() {
   };
   // Contact Us Alert
   const infoAlert = () => {
-    toast.info("To know about the package, please call us at +977 9815977947.");
+    toast.info("For further inqueries, contact us at +977 9815977947.");
   };
 
   // Calculating the date value
@@ -116,12 +119,13 @@ function ServiceRequestClient() {
   };
 
   return (
-    <div className="w-screen my-8 px-2">
-      <div className="mt-2 w-10/14 p-4">
-        <div className="flex flex-col ">
-          <h1 className="text-2xl font-base">Request For Service</h1>
-          <div className="flex flex-row justify-between items-center">
-            <h1 className="text-lg mt-3 hover:underline text-sky-700">
+    <div className="w-screen mt-14">
+      <div className="mt-2 w-10/14 p-6">
+        <div className="flex flex-col py-3">
+        <div className="flex flex-row items-center justify-between w-full bg-white rounded shadow   p-3">
+          <h1 className="text-2xl font-bold">Request For Service</h1>
+          {/* <h1 className="text-2xl text-white font-base">Issue Reports / Requests</h1> */}
+            <h1 className=" hover:underline">
               {Object.keys(getServiceItems).length} Service/s Available
             </h1>
             <select class=" shadow-lg p-2 text-sm">
@@ -129,25 +133,25 @@ function ServiceRequestClient() {
               <option>For Households</option>
               <option>For Business / Enterprises</option>
             </select>
-          </div>
         </div>
-        <ToastContainer position="top-center" autoClose={6000} />
-        <div class="grid grid-cols-4 mt-10 space-x-4">
+        </div>
+        <ToastContainer position="bottom-center" autoClose={6000} />
+        <div class="grid grid-cols-4 space-x-4">
           {getServiceItems.map((info) => (
             <div
               key={info.id}
-              className="p-4 rounded shadow-lg bg-white flex flex-col justify-between"
+              className="p-4 rounded shadow-lg bg-white border flex flex-col justify-between"
             >
               <div className="space-y-5">
-                <button className="rounded-2xl w-1/3 bg-green-400 text-white shadow text-sm ">
+                <button className="rounded-2xl w-1/3 bg-green-400 text-white  shadow text-sm ">
                   {info.status}
                 </button>
-                <h1 className="mt-2 font-medium text-xl">{info.servicename}</h1>
-                <p className="mt-4 font-normal">{info.servicedesc}</p>
+                <h1 className="mt-2 font-bold text-xl">{info.servicename}</h1>
+                <p className="mt-4 text-sm font-normal">{info.servicedesc}</p>
                 <h1 className="mt-3 text-sm">
                   Service For:{" "}
                   {info.servicetarget === "Business" ? (
-                    <span className="bg-violet-200 px-3 py-1 rounded shadow border text-violet-700 border-violet-700">
+                    <span className="bg-violet-200 text-sm px-3 py-1 rounded shadow border text-violet-700 border-violet-700">
                       Business
                     </span>
                   ) : (
@@ -177,7 +181,7 @@ function ServiceRequestClient() {
                 {selectedItems && (
                   <Drawer
                     title="Request This Service?"
-                    placement="right"
+                    placement="left"
                     open={open}
                     closable={true}
                     onClose={onClose}
@@ -186,30 +190,31 @@ function ServiceRequestClient() {
                     <div class="flex flex-col">
                       <Form layout="vertical">
                         <Form.Item label="Service Name">
-                          <Input value={selectedItems.servicename} disabled />
+                          <Input value={selectedItems.servicename} defaultValue={selectedItems.servicename}/>
                         </Form.Item>
                         <Form.Item label="About the service:">
                           <Input.TextArea
                             value={selectedItems.servicedesc}
-                            disabled
+                            defaultValue={selectedItems.servicedesc}
+                            
                           />
                         </Form.Item>
                         <Form.Item label="Service for:">
-                          <Input value={selectedItems.servicetarget} disabled />
+                          <Input value={selectedItems.servicetarget} defaultValue={selectedItems.servicetarget}/>
                         </Form.Item>
 
                         <Form.Item label="Service Availability:">
                           <Input
                             value={selectedItems.serviceavailable}
-                            disabled
+                            defaultValue={selectedItems.serviceavailable}
                           />
                         </Form.Item>
 
                         <Form.Item
-                          label={`Set the value for ${selectedItems.serviceavailable} service:`}
+                          label={`Set the value for ${selectedItems.serviceavailable} service (required):`}
                         >
                           <input
-                            class="p-2 rounded border"
+                            class="p-2 rounded border w-full"
                             type="number"
                             placeholder={`For how many ${selectedItems.serviceavailable}`}
                             onChange={(e) => setPickValue(e.target.value)}
@@ -219,16 +224,28 @@ function ServiceRequestClient() {
                         </Form.Item>
 
                         <Form.Item label="Service will expire on:">
-                          <Input value={calculatedDate()} disabled />
+                          <Input value={calculatedDate()} defaultValue={calculatedDate()} />
                         </Form.Item>
 
+                        <Form.Item label="Provide the location of work:"
+                         >
+                          <input
+                            class="p-2 rounded border w-full"
+                            type="text"
+                            placeholder='Eg: Budhanilkanthan-2 , Bhangal , Nepal'
+                            onChange={(e) => setLocation(e.target.value)}
+                            required
+                          ></input>
+
+                         </Form.Item>
+
                         <Form.Item label="Service Price:">
-                          <Input value={finalPrice} disabled />
+                          <Input value={finalPrice} defaultValue={finalPrice} />
                         </Form.Item>
 
                         <div class="flex justify-center space-x-2 ">
                           <button
-                            class="w-full p-2 bg-green-700 rounded text-white hover:bg-green-600"
+                            class="w-full p-2 bg-sky-700 rounded text-white hover:bg-sky-600"
                             onClick={giveServiceDetails}
                           >
                             Request
@@ -257,7 +274,9 @@ function ServiceRequestClient() {
             </div>
           ))}
         </div>
-
+        <div>
+         
+        </div>
         <DashboardFooter />
       </div>
     </div>

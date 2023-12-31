@@ -76,7 +76,7 @@ function ViewReports() {
     try {
       const response = await fetch(`http://127.0.0.1:8000/getreportobject/${id}/`);
       const data = await response.json();
-      const { user, title, description, issue_date } = data;
+      const { user, title, description, issue_date } = data[0];
       console.log(data);
       setModalDetails({
         fullname: user?.fullname || "",
@@ -239,10 +239,10 @@ function ViewReports() {
   ];
 
   return (
-    <div class="w-screen">
-      <div class="flex flex-col mt-2 p-3">
-      <div className="flex mt-8 ">
-          <h1 className="text-2xl font-base">Reports and Issues</h1>
+    <div class="w-screen mt-14">
+      <div class="flex flex-col mt-2 p-6">
+      <div className="flex w-full bg-white  rounded shadow p-3">
+          <h1 className="text-2xl font-bold">Reports and Issues</h1>
         </div>
         <ToastContainer position="top-center" autoClose={5000} />
 

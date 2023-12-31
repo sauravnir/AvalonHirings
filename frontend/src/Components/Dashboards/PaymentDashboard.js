@@ -52,7 +52,7 @@ function PaymentDashboard() {
       client_name: "Saurav Niraula",
       payment_amount : 2000,
       payment_status: ["Paid"],
-    },
+    }, 
   ];
 
   //   Contents for Client Table
@@ -256,88 +256,88 @@ function PaymentDashboard() {
   }, [paymentUrl]);
 
   // Handling API Payment
-  // const handlePayment = async (e) => {
-  //   const config = {
-  //     publicKey: "test_public_key_131e7e0a988c4db9ae7d6a8937ccba3c",
-  //     productIdentity: "1234567890",
-  //     productName: "Drogon",
-  //     productUrl: "http://localhost:3000/",
-  //     eventHandler: {
-  //       onSuccess: (payload) => {
-  //         // Hit your merchant API for initiating verification
-  //         console.log(payload);
-  //       },
-  //       onError: (error) => {
-  //         // Handle errors
-  //         console.log(error);
-  //       },
-  //       onClose: () => {
-  //         navigate('/dashboard');
-  //       },
-  //     },
-  //     paymentPreference: [
-  //       "KHALTI",
-  //       "EBANKING",
-  //       "MOBILE_BANKING",
-  //       "CONNECT_IPS",
-  //       "SCT",
-  //     ],
-  //   };
-  //   try {
-  //     const checkout = new KhaltiCheckout(config); 
-  //     checkout.show({amount : 1000});
-  //   } catch (error) {
-  //     console.log(error);
-  //   }
-  // };
-
   const handlePayment = async (e) => {
-    console.log("test");
-    try {
-      const payload = {
-        return_url: returnUrl,
-        website_url: websiteUrl,
-        amount: amount,
-        purchase_order_id: purchaseOrderId,
-        purchase_order_name: purchaseOrderName,
-        customer_info: {
-          name: "Hari Kumar",
-          email: "test@khalti.com",
-          phone: "9800000001",
+    const config = {
+      publicKey: "test_public_key_fb53c47dfcf44808988bda227c018702",
+      productIdentity: "1234567890",
+      productName: "Drogon",
+      productUrl: "http://localhost:3000/",
+      eventHandler: {
+        onSuccess: (payload) => {
+          // Hit your merchant API for initiating verification
+          console.log(payload);
         },
-      };
-
-      const headers = {
-        Authorization: "key b42caed1ffbd4202b41b700a32e3a237",
-        "Content-Type": "application/json",
-      };
-      const response = await fetch(
-        "https://a.khalti.com/api/v2/epayment/initiate/",
-        {
-          method: "POST",
-          headers: headers,
-          body: JSON.stringify(payload),
-        }
-      );
-
-      // console.log(await response.json());
-
-      if (response.ok) {
-        const responseData = await response.json();
-        setPaymentUrl(responseData.payment_url);
-      } else {
-        console.error("Error:", response.statusText);
-      }
+        onError: (error) => {
+          // Handle errors
+          console.log(error);
+        },
+        onClose: () => {
+          navigate('/dashboard');
+        },
+      },
+      paymentPreference: [
+        "KHALTI",
+        "EBANKING",
+        "MOBILE_BANKING",
+        "CONNECT_IPS",
+        "SCT",
+      ],
+    };
+    try {
+      const checkout = new KhaltiCheckout(config); 
+      checkout.show({amount : 1000});
     } catch (error) {
-      console.log("error", error);
+      console.log(error);
     }
   };
 
+  // const handlePayment = async (e) => {
+  //   console.log("test");
+  //   try {
+  //     const payload = {
+  //       return_url: returnUrl,
+  //       website_url: websiteUrl,
+  //       amount: amount,
+  //       purchase_order_id: purchaseOrderId,
+  //       purchase_order_name: purchaseOrderName,
+  //       customer_info: {
+  //         name: "Hari Kumar",
+  //         email: "test@khalti.com",
+  //         phone: "9800000001",
+  //       },
+  //     };
+
+  //     const headers = {
+  //       Authorization: "key b42caed1ffbd4202b41b700a32e3a237",
+  //       "Content-Type": "application/json",
+  //     };
+  //     const response = await fetch(
+  //       "https://a.khalti.com/api/v2/epayment/initiate/",
+  //       {
+  //         method: "POST",
+  //         headers: headers,
+  //         body: JSON.stringify(payload),
+  //       }
+  //     );
+
+  //     // console.log(await response.json());
+
+  //     if (response.ok) {
+  //       const responseData = await response.json();
+  //       setPaymentUrl(responseData.payment_url);
+  //     } else {
+  //       console.error("Error:", response.statusText);
+  //     }
+  //   } catch (error) {
+  //     console.log("error", error);
+  //   }
+  // };
+
   return (
-    <div class="w-screen">
-      <div class="flex flex-col mt-2 p-3">
-        <div class="flex">
-          <h1 class="text-3xl font-base">Payment</h1>
+    <div class="w-screen mt-14">
+      <div class="flex flex-col mt-2 p-6">
+        <div class="flex py-3">
+          <h1 class="text-2xl font-bold">Payment</h1>
         </div>
 
         <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">

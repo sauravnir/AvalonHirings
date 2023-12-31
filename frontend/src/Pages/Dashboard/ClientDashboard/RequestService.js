@@ -5,9 +5,10 @@ import ServiceRequestClient from '../../../Components/ClientDashboard/ServiceReq
 
 function RequestService() {
   return (
-    <div class="bg-gray-50 flex">
+    <div class="bg-zinc-100 flex">
+      <NavigationDashboard />
         <Sidebar />
-        <NavigationDashboard />
+        
         <ServiceRequestClient />
 
     </div>

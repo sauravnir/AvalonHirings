@@ -1,13 +1,14 @@
 from time import timezone
 from django.shortcuts import get_object_or_404, render
 from rest_framework.views import APIView
-from rest_framework.generics import RetrieveAPIView
+from rest_framework.generics import RetrieveAPIView , ListAPIView
 from django.http import HttpResponse
-from .serializers import ServiceCreateSerializer , UserServiceRequestSerializer , ViewServiceRequesteSerializer , UpdateServiceStatusSerializer
+from .serializers import ServiceCreateSerializer , UserServiceRequestSerializer ,ViewServiceRequestedSerializer  , UpdateServiceStatusSerializer , AssignedEmployeesSerializer
 from rest_framework import status
 from rest_framework.response import Response
-from .models import ServiceList , ServiceUse
+from .models import ServiceList , ServiceUse , AssignedEmployees
 from app.models import Users 
+
 # Create your views here.
 # Creating Service By The Admin
 class CreateServiceView(APIView):
@@ -48,7 +49,8 @@ class UserServiceRequestView(APIView):
                  services_id =service_id , 
                  expiry_date = request.data.get('expiry_date'),
                  servicevalue = request.data.get('servicevalue'),
-                 totalprice = request.data.get('totalprice')
+                 totalprice = request.data.get('totalprice'),
+                 servicelocation = request.data.get('servicelocation')   
              )
 
             service_use.save();
@@ -62,29 +64,62 @@ class UserServiceRequestView(APIView):
 class ViewServiceRequestView(APIView):
      def get(self ,request):
             requestedservice = ServiceUse.objects.all()
-            serializer = ViewServiceRequesteSerializer(requestedservice , many=True)
+            serializer = ViewServiceRequestedSerializer(requestedservice , many=True)
             return Response(serializer.data ,status=status.HTTP_200_OK)
      
 # Fetching Single Request Service 
 class SingleRequestedServiceView(RetrieveAPIView):
      queryset = ServiceUse.objects.all()
-     serializer_class = ViewServiceRequesteSerializer 
+     serializer_class = ViewServiceRequestedSerializer 
+
 
 # Updating the requested service 
-     
+
 class UpdateServiceRequestView(RetrieveAPIView):
-    def post(self,request,id):
-        service_use = get_object_or_404(ServiceUse , id = id)
-       
-        serializer =  UpdateServiceStatusSerializer(data = request.data)
-        
+    def post(self, request, id):
+        service_use = get_object_or_404(ServiceUse, id=id)
+        serializer = UpdateServiceStatusSerializer(data=request.data)
+
         if serializer.is_valid():
             serviceuse_status = serializer.validated_data.get('action')
-            service_use.status = serviceuse_status
-            service_use.save()
-            return Response({'message': 'Status updated!'}, status=status.HTTP_200_OK) 
+            assigned_employee_fullname = serializer.validated_data.get('assignedEmployee')
+
+            assigned_employee_data = Users.objects.get(fullname=assigned_employee_fullname)
+
+            assigned_employee_id = assigned_employee_data.id
+            if serviceuse_status == "Payment Required":
+                if assigned_employee_id:
+                    assigned_employee_table = AssignedEmployees.objects.filter(assigned_employee=assigned_employee_id).first()
+                    if assigned_employee_table:
+                        assigned_employee_table.service_request = service_use
+                        assigned_employee_table.work_status = "Occupied"
+                        assigned_employee_table.save()
+
+                service_use.status = serviceuse_status
+                service_use.save()
+
+            elif serviceuse_status == "Declined":
+                service_use.status = serviceuse_status
+                service_use.save()
+
+            return Response({'message': 'Status updated!'}, status=status.HTTP_200_OK)
+
         return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
+# Getting the requested service for solo client
+class ClientServiceView(ListAPIView):
+    serializer_class = ViewServiceRequestedSerializer    
+    def get_queryset(self):
+        user_id = self.kwargs.get('user_id')
+        return ServiceUse.objects.filter(user_id = user_id)     
 
+
+# Fetching the free for work employees in the requested service panel in admin 
+class AssignedEmployeesView(APIView):
+    def get(self, request, format=None):
+        # Fetch AssignedEmployees data
+        assigned_employees = AssignedEmployees.objects.filter(work_status='Free For Work')
+        serializer = AssignedEmployeesSerializer(assigned_employees, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

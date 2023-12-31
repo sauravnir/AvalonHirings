@@ -11,7 +11,7 @@ import {
   theme,
   Popconfirm,
 } from "antd";
-
+import Logo from "../../images/Abnw.png";
 // Dropdown for Profile Items
 const { useToken } = theme;
 
@@ -19,8 +19,7 @@ const { useToken } = theme;
 function NavigationDashboard() {
   const navigate = useNavigate();
 
-
-  const data = localStorage.getItem('userData');
+  const data = localStorage.getItem("userData");
   console.log(data);
   const userType = JSON.parse(data);
   console.log(userType);
@@ -45,32 +44,9 @@ function NavigationDashboard() {
     {
       key: "1",
       label: (
-        <Link to="/dashboard">
+        <Link to="/userprofile">
           <h1>User Profile</h1>
         </Link>
-      ),
-    },
-    {
-      key: "2",
-      label: (
-        <Popconfirm
-          title="Logout?"
-          description="Are you sure?"
-          placement="bottomRight"
-          okText="Logout"
-          okType="default"
-          danger
-          onConfirm={handleLogout}
-          icon={
-            <QuestionCircleOutlined
-              style={{
-                color: "red",
-              }}
-            />
-          }
-        >
-          Logout?
-        </Popconfirm>
       ),
     },
   ];
@@ -78,44 +54,58 @@ function NavigationDashboard() {
   // Logout Pop-Confirm
   return (
     <nav class="z-50">
-    <div class="w-full fixed bg-gray-50 dark:bg-gray-50 p-2  shadow-lg">
-  
-      <div class="grid grid-cols-2 space-x-3 items-center justify-between">
-        <div class="justify-self">
-          {userType.user_type === "Client" ? <Link to="/request-service"><button class="bordered shadow px-2 py-1 text-sm rounded hover:bg-sky-900 hover:text-white">REQUEST A SERVICE?</button></Link> : null}
-        </div>
-  
-        <div class="flex flex-row w-5 mx-20 items-center ">
-          <img src={require(`../../images/notification.png`)}></img>
-          <Dropdown
-            menu={{
-              items,
-            }}
-            dropdownRender={(menu) => (
-              <div style={contentStyle}>
-                {React.cloneElement(menu, {
-                  style: menuStyle,
-                })}
-                <Divider
-                  style={{
-                    margin: 0,
-                  }}
-                />
-              </div>
-            )}
-          >
-            <a onClick={(e) => e.preventDefault()}>
-              <Space>
-                <Avatar size="medium" icon={<UserOutlined />} />
+      <div class="container fixed bg-sky-900 dark:bg-sky-900 p-7 py-1 shadow-lg ">
+        <div class="flex flex-row items-center justify-between h-8">
+          <div class="flex items-center justify-start space-x-1 ">
+            <img src={Logo} class="h-5" alt="FlowBite Logo" />
+            <h4 class=" text-sm font-medium text-gray-800 dark:text-gray-200">
+              Avalon Hirings
+            </h4>
+          </div>
+
+          <div class="justify-self">
+            {userType.user_type === "Client" ? (
+              <Link to="/request-service">
+                <button class="bordered shadow  py-1 bg-white w-60 text-xs hover:text-white font-bold ml-5 rounded hover:bg-sky-900 ">
+                  REQUEST A SERVICE?
+                </button>
+              </Link>
+            ) : null}
+          </div>
+
+          <div class="flex space-x-5 items-center">
+            {/* <img
+              class="w-5"
+              src={require(`../../images/notification.png`)}
+            ></img> */}
+            <h1 class="text-white text-sm ">{userType.username}</h1>
+            <Dropdown
+              menu={{
+                items,
+              }}
+              dropdownRender={(menu) => (
+                <div style={contentStyle}>
+                  {React.cloneElement(menu, {
+                    style: menuStyle,
+                  })}
+                  <Divider
+                    style={{
+                      margin: 0,
+                    }}
+                  />
+                </div>
+              )}
+            >
+              <a onClick={(e) => e.preventDefault()}>
+                <Space>
+                  <Avatar size="small" icon={<UserOutlined />} />
                 </Space>
-                </a>
-          </Dropdown>
+              </a>
+            </Dropdown>
+          </div>
         </div>
-  
-      </div> 
-  
-    </div>
-  </nav>
+      </div>
+    </nav>
   );
 }
 

@@ -25,13 +25,15 @@ class ServiceUse(models.Model):
     status = models.CharField(max_length=255, default="Pending")
     servicevalue = models.IntegerField(default=None)
     totalprice = models.IntegerField(default=None)
+    servicelocation = models.CharField(max_length=255, default=None)
 
     def __str__(self):
        return f"{self.user.username} - {self.services.servicename}"
 
 class AssignedEmployees(models.Model):
-    service_request = models.OneToOneField(ServiceUse, on_delete=models.CASCADE)
+    service_request = models.OneToOneField(ServiceUse, on_delete=models.CASCADE , null=True, blank=True)
     assigned_employee = models.ForeignKey(get_user_model(), on_delete=models.CASCADE)
+    work_status = models.CharField(max_length=255 , default='Free For Work')
 
     def __str__(self):
         return f"{self.service_request} - {self.assigned_employee.username}"

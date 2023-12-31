@@ -5,10 +5,11 @@ import Sidebar from '../../../Components/Dashboards/Sidebar';
 
 function Payment(){
     return(
-        <div class='bg-gray-50 flex'>
-        
+        <div class='bg-zinc-100 flex'>
+            <NavigationDashboard />
             <Sidebar />
-         <PaymentDashboard /> 
+            
+            <PaymentDashboard /> 
     </div>
     )
 }

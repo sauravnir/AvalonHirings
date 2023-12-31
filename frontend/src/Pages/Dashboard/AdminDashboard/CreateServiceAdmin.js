@@ -5,10 +5,10 @@ import CreateService from '../../../Components/Dashboards/CreateService'
 
 function CreateServiceAdmin() {
   return (
-    <div class="bg-gray-50 flex">
-
-        <Sidebar />
+    <div class="bg-zinc-100 flex">
         <NavigationDashboard />
+        <Sidebar />
+        
         <CreateService />
 
     </div>

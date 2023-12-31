@@ -5,9 +5,10 @@ import MainDashboard from '../../../Components/Dashboards/MainDashboard';
 
 function ClientDashboard(){
     return(
-        <div class="bg-gray-50 flex">
-            <Sidebar />
+        <div class="bg-zinc-100 flex">
             <NavigationDashboard />
+            <Sidebar />
+            
             </div>
     )
 }
