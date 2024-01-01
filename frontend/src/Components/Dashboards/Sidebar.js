@@ -269,7 +269,7 @@ function Sidebar() {
                 </a>
               </Link>
 
-              <Link to="/employee-dashboard">
+              <Link to="/employee-work-schedule">
                 <a
                   class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"

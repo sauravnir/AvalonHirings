@@ -1,16 +1,16 @@
 import React from 'react'
 import Sidebar from '../../../Components/Dashboards/Sidebar';
 import NavigationDashboard from '../../../Components/Dashboards/NavigationDashboard';
-import MainDashboard from '../../../Components/Dashboards/MainDashboard';
+import ClientDashboardObject from '../../../Components/ClientDashboard/ClientDashboardObject';
 
 function ClientDashboard(){
     return(
         <div class="bg-zinc-100 flex">
             <NavigationDashboard />
             <Sidebar />
-            
+            <ClientDashboardObject />
             </div>
     )
 }
 
-export default ClientDashboard;
+export default ClientDashboard; 

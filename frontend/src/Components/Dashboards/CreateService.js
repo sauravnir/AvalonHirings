@@ -274,7 +274,7 @@ function CreateService() {
       render: (requestStatus) => {
         let color = requestStatus.length > 5 ? "geekblue" : "green";
         if (requestStatus === "On-Going") {
-          color = "orange";
+          color = "green";
         } else if (requestStatus === "Pending") {
           color = "yellow";
         } else {
@@ -312,14 +312,14 @@ function CreateService() {
                 Back
               </Button>,
 // Conditionally rendering the buttons 
-              viewRequestedServices.status !== "Payment Required" ? (
+              viewRequestedServices.status === "Pending" ? (
                 <Button
                   style={{ backgroundColor: "green", color: "white" }}
                   onClick={() =>
                     updateServiceRequest("Payment Required", record.key)
                   }
                   // onClick={()=>console.log("Clicked")}
-                  disabled
+                  
                 >
                   Assign & Approve
                 </Button>
@@ -329,6 +329,7 @@ function CreateService() {
                   onClick={() =>
                     updateServiceRequest("Payment Required", record.key)
                   }
+                  disabled
                   // onClick={()=>console.log("Clicked")}
                 >
                   Assign & Approve
@@ -369,9 +370,11 @@ function CreateService() {
               </Descriptions.Item>
             </Descriptions>
             <Divider></Divider>
-            <div class="flex flex-col items-center justify-center space-y-2">
-              <h1 class="items-center mt-4 font-bold">Assign a maid:</h1>
-              <select
+            
+              {viewRequestedServices.status === "Pending" && (
+                <div class="flex flex-col items-center justify-center space-y-2">
+                <h1 class="items-center mt-4 font-bold">Assign a maid:</h1>
+                <select
                 class="border rounded h-8"
                 onChange={(e) => setAssignedEmployee(e.target.value)}
                 required
@@ -385,7 +388,10 @@ function CreateService() {
                   </option>
                 ))}
               </select>
-            </div>
+              </div>
+              )}
+               
+            
           </Modal>
         </Space>
       ),

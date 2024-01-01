@@ -54,11 +54,11 @@ function NavigationDashboard() {
   // Logout Pop-Confirm
   return (
     <nav class="z-50">
-      <div class="container fixed bg-sky-900 dark:bg-sky-900 p-7 py-1 shadow-lg ">
+      <div class="container fixed bg-sky-900 dark:bg-sky-900 p-7 py-3 shadow-lg ">
         <div class="flex flex-row items-center justify-between h-8">
           <div class="flex items-center justify-start space-x-1 ">
             <img src={Logo} class="h-5" alt="FlowBite Logo" />
-            <h4 class=" text-sm font-medium text-gray-800 dark:text-gray-200">
+            <h4 class=" text-lg font-medium text-gray-800 dark:text-gray-200">
               Avalon Hirings
             </h4>
           </div>

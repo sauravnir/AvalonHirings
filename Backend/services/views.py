@@ -1,9 +1,9 @@
-from time import timezone
+from django.utils import timezone
 from django.shortcuts import get_object_or_404, render
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView , ListAPIView
 from django.http import HttpResponse
-from .serializers import ServiceCreateSerializer , UserServiceRequestSerializer ,ViewServiceRequestedSerializer  , UpdateServiceStatusSerializer , AssignedEmployeesSerializer
+from .serializers import ServiceCreateSerializer , UserServiceRequestSerializer ,ViewServiceRequestedSerializer  , UpdateServiceStatusSerializer , AssignedEmployeesSerializer , ViewServiceRequestedEmployeeSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from .models import ServiceList , ServiceUse , AssignedEmployees
@@ -96,6 +96,7 @@ class UpdateServiceRequestView(RetrieveAPIView):
                         assigned_employee_table.save()
 
                 service_use.status = serviceuse_status
+                service_use.approved_date = timezone.now()
                 service_use.save()
 
             elif serviceuse_status == "Declined":
@@ -110,10 +111,14 @@ class UpdateServiceRequestView(RetrieveAPIView):
 
 # Getting the requested service for solo client
 class ClientServiceView(ListAPIView):
-    serializer_class = ViewServiceRequestedSerializer    
+    serializer_class = ViewServiceRequestedEmployeeSerializer    
     def get_queryset(self):
         user_id = self.kwargs.get('user_id')
-        return ServiceUse.objects.filter(user_id = user_id)     
+        service_uses = ServiceUse.objects.filter(user_id = user_id)
+        for service_use in service_uses:
+             assigned_employee =  AssignedEmployees.objects.filter(service_request = service_use).first()
+             service_use.assigned_employee = assigned_employee 
+        return service_uses     
 
 
 # Fetching the free for work employees in the requested service panel in admin 

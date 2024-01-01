@@ -1,7 +1,7 @@
 from django.urls import path
-from . import views
+from .views import ServicePaymentView
 
 
 urlpatterns = [
-    path("payment/", views.Test, name="Payment")
+    path("servicetransaction/", ServicePaymentView.as_view(), name="ServicePayment")
 ]

@@ -31,26 +31,27 @@ function ServiceStatus() {
   const userID = JSON.parse(userData);
   const navigate = useNavigate()
 
+
+
+  console.log("Print" , singleService)
+  
   const getPayment = (value) => {
     setPaymentMethod(value);
   };
 
 
   // Handling Khalti Payment
-
-
-  const khaltiPayment = async() => {
+  const khaltiPayment = async(id , serviceName , totalPrice) => {
     const config = {
       publicKey: "test_public_key_fb53c47dfcf44808988bda227c018702",
-      productIdentity: "1234567890",
-      productName: "Nothing" , 
+      productIdentity: id,
+      productName: serviceName , 
       productUrl: "http://localhost:3000/",
       eventHandler: {
         onSuccess: async (payload) => {
           
-          await sendPaymentToken(payload.token);
+          await sendPaymentToken(payload.token , payload.amount , payload.product_identity);
 
-          // Hit your merchant API for initiating verification
           console.log(payload);
         },
         onError: (error) => {
@@ -67,17 +68,29 @@ function ServiceStatus() {
     };
     try {
       const checkout = new KhaltiCheckout(config); 
-      checkout.show({amount : 1000});
+      checkout.show({amount : totalPrice / 100});
     } catch (error) {
       console.log(error);
     }
   }
 
-
-  // Sending Payment Token To The Khalti Server
-
-  const sendPaymentToken= async() =>{
-    const res = await fetch()
+  const sendPaymentToken= async(paymentToken , amount , serviceuseid) =>{
+    try{
+      
+      const res = await fetch("http://127.0.0.1:8000/servicetransaction/",{
+        method: "POST",
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body:JSON.stringify({payment_token : paymentToken , payment_amount : amount , serviceuseid :  serviceuseid})
+      });
+      if(res.ok){
+        navigate('/client-dashboard')
+        alert("Payment Completed!")
+      }
+    }catch(error){
+      toast.error(error)
+    }
   }
 
 
@@ -137,7 +150,7 @@ function ServiceStatus() {
               let color = tag.length > 5 ? "geekblue" : "green";
               if (tag === "Payment Required") {
                 color = "orange";
-              } else if (tag === "Active") {
+              } else if (tag === "On-Going") {
                 color = "green";
               } else if (tag === "Pending") {
                 color = "yellow";
@@ -164,7 +177,7 @@ function ServiceStatus() {
             disabled={
               record.service_status.includes("Pending") ||
               record.service_status.includes("Completed") ||
-              record.service_status.includes("Active")
+              record.service_status.includes("On-Going")
             }
             onClick={() => setOpenModal(true)}
             style={{ background: "green", color: "white" }}
@@ -180,7 +193,7 @@ function ServiceStatus() {
             onCancel={() => setOpenModal(false)}
             okText="Make Payment"
             centered
-            onOk={()=>paymentMethod === "Khalti" ? khaltiPayment(record.service_name): cashPayment()}
+            onOk={()=>paymentMethod === "Khalti" ? khaltiPayment(record.key , record.service_name , record.total_price): cashPayment()}
             width={1100}
           >
             <Descriptions bordered layout="vertical">

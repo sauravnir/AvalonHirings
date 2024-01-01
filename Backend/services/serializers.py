@@ -22,6 +22,20 @@ class ViewUserSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+class AssignedEmployeesSerializer(serializers.ModelSerializer):
+    assigned_employee= ViewUserSerializer()
+    class Meta : 
+        model = AssignedEmployees
+        fields = "__all__"
+
+    def get_assigned_employee_details(self , obj):
+        assigned_employee = obj.assigned_employee
+        user_details = {
+            'username': assigned_employee.username,
+            'fullname': assigned_employee.fullname,  
+        }
+        return user_details
+
 # Viewing all the combined service using the user and services instance
 class ViewServiceRequestedSerializer(serializers.ModelSerializer):
     user = ViewUserSerializer()
@@ -30,7 +44,14 @@ class ViewServiceRequestedSerializer(serializers.ModelSerializer):
         model = ServiceUse
         fields = "__all__"
 
-
+class ViewServiceRequestedEmployeeSerializer(serializers.ModelSerializer):
+    user = ViewUserSerializer()
+    services = ServiceCreateSerializer()
+    assigned_employee = AssignedEmployeesSerializer()
+    class Meta: 
+        model = ServiceUse
+        fields = "__all__"
+        
 # Updating the services status 
 class UpdateServiceStatusSerializer(serializers.Serializer):
     action = serializers.CharField(required=True)
@@ -45,16 +66,3 @@ class UpdateServiceStatusSerializer(serializers.Serializer):
         return data
 
 # Fetching the Employees Data from the Free Employees 
-class AssignedEmployeesSerializer(serializers.ModelSerializer):
-    assigned_employee= ViewUserSerializer()
-    class Meta : 
-        model = AssignedEmployees
-        fields = "__all__"
-
-    def get_assigned_employee_details(self , obj):
-        assigned_employee = obj.assigned_employee
-        user_details = {
-            'username': assigned_employee.username,
-            'fullname': assigned_employee.fullname,  
-        }
-        return user_details
