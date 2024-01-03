@@ -1,6 +1,7 @@
 import React from 'react'
 import Sidebar from '../../../Components/Dashboards/Sidebar';
 import NavigationDashboard from '../../../Components/Dashboards/NavigationDashboard';
+import EmployeeDashboardObject from '../../../Components/EmployeeDashboard/EmployeeDashboardObject';
 
 
 function EmployeeDashboard(){
@@ -9,6 +10,7 @@ function EmployeeDashboard(){
             
             <NavigationDashboard />
             <Sidebar />
+            <EmployeeDashboardObject />
             </div>  
     )
 }

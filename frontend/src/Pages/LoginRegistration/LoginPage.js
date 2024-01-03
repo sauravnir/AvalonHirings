@@ -15,13 +15,6 @@ function LoginPage() {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  const [notificationApi, contextHolder] = notification.useNotification();
-  const errorNotify = (type) => {
-    notificationApi[type]({
-      message: "Incorrect credentials / error occured!",
-    });
-  };
-
   const [token, setToken] = useState(localStorage.getItem("token") || "");
 
   const loginData = {
@@ -138,7 +131,7 @@ function LoginPage() {
               </div>
               <div class="flex flex-row items-center w-full py-4 justify-center p-5 ">
                 {/* <Link to='/otp'> */}
-                {contextHolder}
+                
                 <button
                   class="bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
                   type="submit"

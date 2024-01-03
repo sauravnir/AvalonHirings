@@ -20,7 +20,6 @@ function OtpCode() {
     
       if (response.ok) {
         const data = await response.json();
-        localStorage.getItem("user_name");
         toast.success("Login Successful.");
         if (data.user_type === "Client") {
           navigate("/client-dashboard");
@@ -29,7 +28,6 @@ function OtpCode() {
         }
       } else {
         toast.error("Wrong OTP Code");
-        console.log("Error:Occured");
       }
     }catch (error) {
       

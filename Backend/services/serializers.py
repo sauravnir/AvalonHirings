@@ -17,7 +17,7 @@ class UserServiceRequestSerializer(serializers.ModelSerializer):
 
 # Viewing all the services 
 class ViewUserSerializer(serializers.ModelSerializer):
-    class Meta : 
+    class Meta :        
         model = Users
         fields = "__all__"
 
@@ -27,14 +27,6 @@ class AssignedEmployeesSerializer(serializers.ModelSerializer):
     class Meta : 
         model = AssignedEmployees
         fields = "__all__"
-
-    def get_assigned_employee_details(self , obj):
-        assigned_employee = obj.assigned_employee
-        user_details = {
-            'username': assigned_employee.username,
-            'fullname': assigned_employee.fullname,  
-        }
-        return user_details
 
 # Viewing all the combined service using the user and services instance
 class ViewServiceRequestedSerializer(serializers.ModelSerializer):
@@ -65,4 +57,26 @@ class UpdateServiceStatusSerializer(serializers.Serializer):
 
         return data
 
-# Fetching the Employees Data from the Free Employees 
+
+
+class EmployeeAssignedServiceSerializer(serializers.ModelSerializer):
+    assigned_employee= ViewUserSerializer()
+    service_request = UserServiceRequestSerializer()
+    assigned_service_details = serializers.SerializerMethodField()
+    client_details = ViewUserSerializer(source='service_request.user' , read_only=True)
+    class Meta : 
+        model = AssignedEmployees
+        fields = "__all__"
+
+    def get_assigned_service_details(self, instance):
+        services_id = instance.service_request.services_id
+        assigned_service = ServiceList.objects.get(pk=services_id)
+        assigned_service_serializer = ServiceCreateSerializer(assigned_service)
+        
+        # Include approved_date from service_request
+        service_request_data = {
+            'approved_date': instance.service_request.approved_date,
+            **assigned_service_serializer.data
+        }
+        
+        return service_request_data

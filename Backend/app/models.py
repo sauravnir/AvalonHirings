@@ -6,6 +6,12 @@ from django.utils import timezone
 from django.dispatch import receiver
 from django.db.models.signals import post_save
 
+
+
+
+def default_profilepic_path(instance , filename):
+    return f"WebsiteFiles/UserProfile/"
+
 class Users(AbstractBaseUser , PermissionsMixin):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True)
@@ -16,12 +22,15 @@ class Users(AbstractBaseUser , PermissionsMixin):
     otp = models.CharField(max_length=255)
     is_auth = models.BooleanField(default = False)
     contact = models.CharField(max_length=255)
+    profilepic = models.ImageField(upload_to ="", default="WebsiteFiles/UserProfile/A.png")
 
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
 
     def __str__(self):
         return self.username
+
+
 
 @receiver(post_save, sender=Users)
 def insert_contract(sender, instance, created, **kwargs):

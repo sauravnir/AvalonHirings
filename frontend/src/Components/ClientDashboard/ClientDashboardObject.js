@@ -1,13 +1,13 @@
 import React , {useState , useEffect} from 'react'
 import { Link } from 'react-router-dom'
-import { Descriptions , Progress } from 'antd'
+import { Descriptions , Progress, Card } from 'antd'
 import DashboardFooter from '../Dashboards/DashboardFooter'
 
 function ClientDashboard() {
   const [getServiceItems , setGetServiceItems] = useState([])
   const [dashboardItems, setDashboardItems] = useState([]); 
   const [workDetails , setWorkDetails] = useState([])
-  console.log(workDetails)
+
   const userData = localStorage.getItem("userData");
   const userID = JSON.parse(userData);
 
@@ -29,7 +29,6 @@ function ClientDashboard() {
   // Displaying totol services
   useEffect(() => {
     const handleSubmit = async () => {
-      
         const res = await fetch("http://127.0.0.1:8000/getservices/");
         const data = await res.json();
         console.log(data);
@@ -59,6 +58,15 @@ function ClientDashboard() {
   return Math.round(progressPercentage);
   }
 
+  const totalDuration = (item) =>{
+    const startDate = new Date(item.approved_date)
+    const endDate  = new Date(item.expiry_date)
+
+    const timeDifference =( endDate.getTime() - startDate.getTime()) / (1000*3600*24)
+    
+    return timeDifference
+  }
+
 
   return (
     <div className="w-screen mt-14">
@@ -66,12 +74,12 @@ function ClientDashboard() {
         <div className=" flex-col py-3 ">
           <h1 className="text-2xl font-semibold ">Dashboard</h1>
         </div>
-        <div class="flex flex-row items-center justify-between bg-orange-400 rounded-lg font-medium shadow h-12 mt-5">
+        <div class="flex flex-row items-center justify-between bg-cyan-500 rounded-lg font-medium shadow h-12 mt-5">
             <h1 class="flex px-8 items-center text-white text-base">
               <img class="mr-2 w-5 h-5" src={require(`../../images/info.png`)}></img>{Object.keys(getServiceItems).length} Services Available 
             </h1>
             <Link to="/request-service">
-            <h1 class="flex px-8 text-white text-base">View More<img class="ml-2 w-5" src={require(`../../images/rightarrow.png`)}></img></h1>
+            <h1 class="flex px-8 text-white text-base hover:underline">View More</h1>
             </Link>
           </div>
         <div className="flex flex-col justify-between space-y-5">
@@ -103,30 +111,28 @@ function ClientDashboard() {
             </div>
           ))}
         </div>
-        <div class="w-full rounded border bg-white shadow-xl">
+        <div class="w-1/2 rounded border bg-white shadow-xl">
           <h1 class="font-bold p-5">Work Progress:</h1>
           <div class="p-4 justify-center">
             {workDetails.filter((item)=> item.status === "On-Going").map((item)=>(
                 <Link to="/client-view-service" key = {item.key}> 
                 <div class="mb-5">
-              <Progress   percent={progressPercent(item)} />
+              <Progress   percent={progressPercent(item)}  strokeColor={'green'} />
               </div>
-                <Descriptions bordered layout='vertical'>
-                  <Descriptions.Items label = "Helper Name:">
-                  {item.assigned_employee.assigned_employee.fullname}
-                  </Descriptions.Items>
-                  <Descriptions.Item label="Start Date:">
-                  {new Date(item.approved_date).toLocaleDateString()}
-                  </Descriptions.Item>
-                  <Descriptions.Items label="End Date:">
-                  {new Date(item.expiry_date).toLocaleDateString()}
-                  </Descriptions.Items>
-                    
-                </Descriptions>
+                <Card title="Assigned To:">
+                  {console.log(item)}
+                  <div class="flex flex-row items-center justify-center space-x-5">
+                    <img class="rounded-full w-10 h-10" src={item.assigned_employee.assigned_employee.profilepic} alt="Profile Pic"></img>
+                    <h1 class="text-sm ">Employee's Name: {item.assigned_employee.assigned_employee.fullname}</h1>
+                  <div class="flex flex-row item-center justify-between space-x-5">
+                    <h1>Start Date:  {new Date(item.approved_date).toLocaleDateString()}</h1>
+                    <h1>End Date: {new Date(item.expiry_date).toLocaleDateString()}</h1>
+                    <h1>Total Duration: {Math.round(totalDuration(item))} days</h1>
+                  </div>
+                  </div>
+                </Card>
                </Link>
             ))}
-           
-            
            
           </div>
         </div>

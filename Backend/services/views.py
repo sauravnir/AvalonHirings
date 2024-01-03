@@ -3,13 +3,13 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView , ListAPIView
 from django.http import HttpResponse
-from .serializers import ServiceCreateSerializer , UserServiceRequestSerializer ,ViewServiceRequestedSerializer  , UpdateServiceStatusSerializer , AssignedEmployeesSerializer , ViewServiceRequestedEmployeeSerializer
+from .serializers import ServiceCreateSerializer , UserServiceRequestSerializer ,ViewServiceRequestedSerializer  , UpdateServiceStatusSerializer , AssignedEmployeesSerializer , ViewServiceRequestedEmployeeSerializer , EmployeeAssignedServiceSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from .models import ServiceList , ServiceUse , AssignedEmployees
 from app.models import Users 
 
-# Create your views here.
+
 # Creating Service By The Admin
 class CreateServiceView(APIView):
     def post (self, request):
@@ -128,3 +128,9 @@ class AssignedEmployeesView(APIView):
         assigned_employees = AssignedEmployees.objects.filter(work_status='Free For Work')
         serializer = AssignedEmployeesSerializer(assigned_employees, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+    
+
+class EmployeeWorkScheduleView(RetrieveAPIView):
+    queryset = AssignedEmployees.objects.all()
+    serializer_class = EmployeeAssignedServiceSerializer
+    lookup_field = "assigned_employee_id"

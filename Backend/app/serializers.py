@@ -30,3 +30,23 @@ class UserForgotPasswordSerializer(serializers.Serializer):
 
 class OTPTransactionSerializer(serializers.Serializer):
     otp_pin = serializers.CharField();
+
+class ViewUserProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model =  Users 
+        fields = "__all__"
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['profilepic'] = instance.profilepic.url if instance.profilepic else None
+        return data 
+
+class UpdateUserProfileSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    password = serializers.CharField(write_only=True , required=False)
+   
+
+class UpdateProfilePictureSerializer(serializers.Serializer):
+    username = serializers.CharField(required=True)
+    profilepicture = serializers.ImageField()
+   

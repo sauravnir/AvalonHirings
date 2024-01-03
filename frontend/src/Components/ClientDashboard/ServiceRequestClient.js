@@ -185,7 +185,8 @@ function ServiceRequestClient() {
                     open={open}
                     closable={true}
                     onClose={onClose}
-                    key="right"
+                    key="left"
+                    size="large"
                   >
                     <div class="flex flex-col">
                       <Form layout="vertical">

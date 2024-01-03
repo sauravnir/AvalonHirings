@@ -168,9 +168,10 @@ function ContractReviewDashboard() {
           okText = "Approve"
           okType = "default"
           onConfirm = {() => fetchModalData("Approved", record.key)}
+          disabled={record.contract_status === "Approved"}
           >
           <Button >
-            <CheckOutlined />
+            <CheckOutlined  />
           </Button>
           </Popconfirm>
           <Popconfirm
@@ -181,6 +182,7 @@ function ContractReviewDashboard() {
           okType = "default"
           danger
           onConfirm={() => fetchModalData("Terminated", record.key)}
+          disabled={record.contract_status === "Terminated"}
           >
           <Button>
             <DeleteOutlined />
@@ -222,10 +224,6 @@ function ContractReviewDashboard() {
     contract_status: [contractDetail.contract_status],
   }));
   
-  
-  
-
-
   return (
     <div class="w-screen mt-14">
       <div class="flex flex-col mt-2 p-6">

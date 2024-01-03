@@ -123,7 +123,7 @@ const data = reportDetails.map((info)=>({
           <h1 className="text-2xl font-bold">Issue Reports / Requests</h1>
         </div>
 
-        <div className=" flex flex-col p-3 mt-5 bg-white rounded shadow-xl shadow-gray-350">
+        <div className=" flex flex-col p-3 mt-5 rounded shadow-xl bg-white shadow-gray-350">
           
             <Card>
               <div className="text-red-600">

@@ -1,25 +1,203 @@
-import React from 'react'
+import React, { useEffect, useState } from "react";
+
+import { Tabs, Modal, Table, Space, Button, Card, Descriptions, Badge } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
-import DashboardFooter from '../Dashboards/DashboardFooter';
+import DashboardFooter from "../Dashboards/DashboardFooter";
+
 function WorkSchedules() {
+  const [modalOpen, setModalOpen] = useState(false);
+  const { TabPane } = Tabs;
+
+  const [activeService, setActiveService] = useState({
+    id: "",
+    servicename: "",
+    fullname: "",
+    serviceavailable: "",
+    contact: "",
+    servicelocation: "",
+    servicedesc: "",
+    expiry_date: "",
+    profilepicture: "",
+    workstatus : "",
+    approved_date : "",
+  });
+
+  console.log("Active Service", activeService);
+  const data = localStorage.getItem("userData");
+
+  const userType = JSON.parse(data);
+
+  useEffect(() => {
+    const viewAssignedService = async () => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8000/assignedservices/${userType.user_id}`
+        );
+        const data = await response.json();
+
+        const { service_request, assigned_service_details, client_details } =
+          data;
+        const viewActiveService = {
+          id: data.id,
+          servicename: assigned_service_details?.servicename || "",
+          fullname: client_details?.fullname || "",
+          serviceavailable: assigned_service_details?.serviceavailable || "",
+          contact: client_details?.contact || "",
+          servicelocation: service_request?.servicelocation || "",
+          servicedes: assigned_service_details?.servicedesc || "",
+          expiry_date: service_request?.expiry_date || "",
+          profilepicture: client_details?.profilepic || "",
+          workstatus : data.work_status, 
+          approved_date : assigned_service_details?.approved_date || ""
+        };
+
+        setActiveService(viewActiveService);
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    viewAssignedService();
+  }, []);
+
+  const workTable = [
+    {
+      title: "Service Name",
+      dataIndex: "service_name",
+      key: "service_name",
+    },
+    {
+      title: "Client Name",
+      dataIndex: "client_name",
+      key: "clent_name",
+    },
+    {
+      title: "Actions",
+      dataIndex: "action",
+      key: "action",
+      render: (_, { action }) => (
+        <Space>
+          <Button onClick={() => setModalOpen(true)}>
+            <EyeOutlined />
+          </Button>
+          <Modal
+            title="Client's Details"
+            open={modalOpen}
+            onCancel={() => setModalOpen(false)}
+            footer={null}
+            width={1000}
+            centered={true}
+          >
+            <div class="flex flex-col p-4 items-center">
+              <div class="bordered space-y-2">
+                <div class="flex flex-row items-center justify-center">
+              <a href={activeService.profilepicture}>
+
+                <img
+                  class="w-20 h-20 rounded-full border mb-5"
+                  alt="User Picture"
+                  src={activeService.profilepicture}
+                ></img>
+              </a>
+                </div>
+
+                <Descriptions layout="horizontal" size="middle" bordered>
+                  <Descriptions.Items label="Client's Name:">
+                    {activeService.fullname}
+                  </Descriptions.Items>
+
+                  <Descriptions.Items label="Client's Contact:">
+
+                  {activeService.contact}
+                  </Descriptions.Items>
+
+                  <Descriptions.Items label="Work Location">
+                  {activeService.servicelocation}
+
+                  </Descriptions.Items>
+
+                  <Descriptions.Items label="Service Name">
+                  {activeService.servicename}
+                  </Descriptions.Items>
+
+                  <Descriptions.Items label="Description">
+                  {activeService.servicedes}
+                  </Descriptions.Items>
+                  <Descriptions.Items label="Service Time">
+                  {activeService.serviceavailable}
+                  </Descriptions.Items>
+
+                  <Descriptions.Items label="From">
+                  {new Date(activeService.approved_date).toLocaleDateString()}
+                  </Descriptions.Items>
+
+                  <Descriptions.Items label="Till">
+                  {new Date(activeService.expiry_date).toLocaleDateString()}
+                  </Descriptions.Items>
+                  <Descriptions.Items label="Status">
+                  <Badge status="processing" text="Active" />
+                  </Descriptions.Items>
+                </Descriptions>
+
+              </div>
+            </div>
+          </Modal>
+        </Space>
+      ),
+    },
+  ];
+
+  const workTableData = [
+    {
+      key: activeService.id,
+      service_name: activeService.servicename,
+      client_name: activeService.fullname,
+    },
+  ];
+
+  const TabList = [
+    {
+      key: "1",
+      label: "Active Work",
+      children: (
+        <TabPane tab="Active Work" key="1">
+          <Table columns={workTable} dataSource={workTableData} bordered />
+        </TabPane>
+      ),
+    },
+    {
+      key: "2",
+      label: "Work History",
+      children: (
+        <TabPane tab="Work History" key="2">
+          <Table
+            columns={workTable}
+            // dataSource={workTableData}
+            bordered
+          />
+        </TabPane>
+      ),
+    },
+  ];
   return (
     <div className="w-screen mt-14">
-    <div className="mt-2 w-10/14 p-6">
-      <div className="flex flex-col py-3">
-      <div className="flex flex-row items-center justify-between w-full bg-white rounded shadow   p-3">
-        <h1 className="text-2xl font-bold">Work Schedules</h1>
-      </div>
-      </div>
-      <ToastContainer position="bottom-center" autoClose={6000} />
-      <div class="grid grid-cols-4 space-x-4">
-        
+      <div className="flex flex-col mt-2 p-6">
+        <div className="flex w-full bg-white items-center justify-between rounded shadow p-3">
+          <h1 className="text-2xl  font-bold">Work Schedules</h1>
+        </div>
+        <ToastContainer position="bottom-center" autoClose={6000} />
+        <div class="p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
+          <Card>
+            <Tabs>{TabList.map((tab) => tab.children)}</Tabs>
+          </Card>
+        </div>
       </div>
       <DashboardFooter />
     </div>
-  </div>
-  )
+  );
 }
 
-export default WorkSchedules
+export default WorkSchedules;

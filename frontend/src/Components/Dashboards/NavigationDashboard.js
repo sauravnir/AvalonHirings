@@ -1,15 +1,13 @@
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { UserOutlined, QuestionCircleOutlined } from "@ant-design/icons";
+import { UserOutlined } from "@ant-design/icons";
 import {
   Avatar,
   Dropdown,
   Space,
   Divider,
-  Button,
   theme,
-  Popconfirm,
 } from "antd";
 import Logo from "../../images/Abnw.png";
 // Dropdown for Profile Items
@@ -20,9 +18,9 @@ function NavigationDashboard() {
   const navigate = useNavigate();
 
   const data = localStorage.getItem("userData");
-  console.log(data);
+
   const userType = JSON.parse(data);
-  console.log(userType);
+
   // Handling the Logout Of The User
   const handleLogout = async (e) => {
     localStorage.removeItem("token");
@@ -54,7 +52,7 @@ function NavigationDashboard() {
   // Logout Pop-Confirm
   return (
     <nav class="z-50">
-      <div class="container fixed bg-sky-900 dark:bg-sky-900 p-7 py-3 shadow-lg ">
+      <div class="container fixed bg-gray-800 dark:bg-gray-800 p-7 py-3 shadow-lg ">
         <div class="flex flex-row items-center justify-between h-8">
           <div class="flex items-center justify-start space-x-1 ">
             <img src={Logo} class="h-5" alt="FlowBite Logo" />

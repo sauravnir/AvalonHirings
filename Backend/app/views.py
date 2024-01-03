@@ -1,7 +1,8 @@
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate , login
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer, UserLoginSerializer , UserForgotPasswordSerializer  , OTPTransactionSerializer
+from .serializers import UserRegisterSerializer, UserLoginSerializer , UserForgotPasswordSerializer  , OTPTransactionSerializer , UpdateUserProfileSerializer , ViewUserProfileSerializer , UpdateProfilePictureSerializer
+from rest_framework.generics import RetrieveAPIView
 from rest_framework import status
 
 from django.contrib.auth.hashers import make_password , check_password
@@ -15,7 +16,7 @@ from django.conf import settings
 import math , random 
 from django.http import FileResponse
 import uuid
-
+from rest_framework.parsers import MultiPartParser
 from app.models import Users , CustomToken
 from reports.models import Reports
 
@@ -43,6 +44,8 @@ class UserLoginView(APIView):
                     token.save();
                     is_auth =  user.is_auth;
                     user_id = user.id;
+                   
+
                     employees_count = Users.objects.filter(user_type = 'Employee').count();
                     clients_count = Users.objects.filter(user_type='Client').count()
                     total_reports = Reports.objects.all().count();
@@ -66,6 +69,7 @@ class UserLoginView(APIView):
                             'otp': user.otp,
                             'user_id': user_id,
                             'is_auth':is_auth,
+                            
                             'message' : 'Login Successfull'} , status = status.HTTP_200_OK)
                 else:
                     return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
@@ -135,7 +139,6 @@ class UserDownloadFileView(APIView):
     
 
 # Fetch User Data 
-    
 class UserProfileData(APIView):
     def post(self, request):
         user_token_key = request.GET.get('token',None)
@@ -158,34 +161,67 @@ class UserProfileData(APIView):
         else:
             return Response({'error': 'Token Not Provided'}, status=400)
 
-# class UserLogoutView(APIView):
-#     class UserLogoutView(APIView):
-#         def post(self, request):
-#             token = self.get_token(request)
-            
-#             if token:
-#                 return self.logout_user(request.user, token)
 
-#             return Response({"detail": "Token not provided"}, status=status.HTTP_400_BAD_REQUEST)
 
-#     def get_token(self, request):
-#         authorization_header = request.headers.get('Authorization', '')
-#         try:
-#             auth_type, token = authorization_header.split()
-#             if auth_type.lower() != 'bearer':
-#                 raise ValueError('Invalid Authorization header format')
-#             return token
-#         except ValueError:
-#             return None
-
-#     def logout_user(self, user, token):
-#         try:
-#             custom_token = CustomToken.objects.get(user=user, key=token)
-#             custom_token.delete()
-#             return Response({"detail": "Successfully logged out"}, status=status.HTTP_201_CREATED)
-#         except CustomToken.DoesNotExist:
-#             return Response({"detail": "Token not found"}, status=status.HTTP_404_NOT_FOUND)
-#         except Exception as e:
-#             print('Error:', e)
-#             return Response({"detail": "Internal server error"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+# View User Profile
     
+
+class UserProfileView(RetrieveAPIView):
+    queryset= Users.objects.all()
+    serializer_class = ViewUserProfileSerializer
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+
+# Updating User Profile
+    
+# class UserProfileUpdateView(APIView):
+#     def post(self ,request):
+#         serializers  = UpdateUserProfileSerializer(data = request.data)
+#         if serializers.is_valid():
+#             newpass = serializers.validated_data['password']
+#             profilepic = serializers.validated_data['profilepic']
+#             username = serializers.validated_data['username']
+#             user = get_object_or_404(Users, username = username)
+#             if user is not None:
+#                 user.password = make_password(newpass)
+#                 user.profilepic = profilepic
+#                 user.save()
+
+#                 return Response({"message":"Profile Updated Successfully"} , status = status.HTTP_200_OK)
+#         return Response({"message":"Error in Updating the profile"} , status = status.HTTP_400_BAD_REQUEST)
+    
+# Updating user password
+class UserProfileUpdateView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializers = UpdateUserProfileSerializer(data=request.data)
+        if serializers.is_valid():
+            newpass = serializers.validated_data['password']
+            username = serializers.validated_data['username']
+            user = get_object_or_404(Users, username=username)
+            if user is not None:
+                 if not check_password(newpass, user.password):
+                        user.password = make_password(newpass)
+                        user.save()
+
+            return Response({"message": "Profile Updated Successfully"}, status=status.HTTP_200_OK)
+            
+        return Response({"message": "Error in Updating the profile"}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+# Updating profile picture
+class UpdateProfilePictureView(APIView):
+    parser_classes = (MultiPartParser,)
+    def post(self,request):
+        serializers = UpdateProfilePictureSerializer(data=request.data)
+        if  serializers.is_valid():
+            username = serializers.validated_data['username']
+            profilepic = request.FILES['profilepicture']
+            # print(profilepic , username)
+            user = get_object_or_404(Users , username = username)
+            if user is not None:
+                user.profilepic = profilepic 
+                user.save()
+            return Response({"message" : "Profile Picture Updated" }, status = status.HTTP_200_OK)
+        return Response({"message": "Error in Updating the profile"}, status=status.HTTP_400_BAD_REQUEST)

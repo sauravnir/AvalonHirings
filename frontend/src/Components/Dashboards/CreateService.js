@@ -24,7 +24,7 @@ import DashboardFooter from "./DashboardFooter";
 
 function CreateService() {
   const [openModal, setOpenModal] = useState(false);
-  const [openModal1 , setOpenModal1] = useState(false);  
+  const [openModal1, setOpenModal1] = useState(false);
   const [serviceName, setServiceName] = useState("");
   const [serviceTarget, setServiceTarget] = useState("");
   const [servicePricing, setServicePricing] = useState("");
@@ -65,6 +65,7 @@ function CreateService() {
   // Store the fetched data for later use
 
   const [createdService, setCreatedService] = useState([]);
+
   // Setting the service data while creating
   const serviceData = {
     servicename: serviceName,
@@ -311,30 +312,16 @@ function CreateService() {
               <Button key="back" onClick={() => setOpenModal(false)}>
                 Back
               </Button>,
-// Conditionally rendering the buttons 
-              viewRequestedServices.status === "Pending" ? (
-                <Button
-                  style={{ backgroundColor: "green", color: "white" }}
-                  onClick={() =>
-                    updateServiceRequest("Payment Required", record.key)
-                  }
-                  // onClick={()=>console.log("Clicked")}
-                  
-                >
-                  Assign & Approve
-                </Button>
-              ) : (
-                <Button
-                  style={{ backgroundColor: "green", color: "white" }}
-                  onClick={() =>
-                    updateServiceRequest("Payment Required", record.key)
-                  }
-                  disabled
-                  // onClick={()=>console.log("Clicked")}
-                >
-                  Assign & Approve
-                </Button>
-              ),
+              // Conditionally rendering the buttons
+              <Button
+                style={{ backgroundColor: "green", color: "white" }}
+                onClick={() =>
+                  updateServiceRequest("Payment Required", record.key)
+                }
+                disabled={freeEmployees.length === 0}
+              >
+                Assign & Approve
+              </Button>,
             ]}
           >
             <Descriptions bordered layout="vertical">
@@ -370,11 +357,10 @@ function CreateService() {
               </Descriptions.Item>
             </Descriptions>
             <Divider></Divider>
-            
-              {viewRequestedServices.status === "Pending" && (
-                <div class="flex flex-col items-center justify-center space-y-2">
-                <h1 class="items-center mt-4 font-bold">Assign a maid:</h1>
-                <select
+
+            <div class="flex flex-col items-center justify-center space-y-2">
+              <h1 class="items-center mt-4 font-bold">Assign a maid:</h1>
+              <select
                 class="border rounded h-8"
                 onChange={(e) => setAssignedEmployee(e.target.value)}
                 required
@@ -382,16 +368,28 @@ function CreateService() {
                 <option>Choose from the option below:</option>
 
                 {/* Fetching the employees from the database and then assigning to any of the requested services */}
-                {freeEmployees.map((info) => (
-                  <option key={info.id} value={info.assigned_employee.fullname}>
-                    {info.assigned_employee.fullname}
+                {freeEmployees.length === 0 ? (
+                  <option value="" disabled>
+                    No available employees
                   </option>
-                ))}
+                ) : (
+                  <>
+                    <option value="" disabled>
+                      Choose from the option below:
+                    </option>
+                    {/* Fetching the employees from the database and then assigning to any of the requested services */}
+                    {freeEmployees.map((info) => (
+                      <option
+                        key={info.id}
+                        value={info.assigned_employee.fullname}
+                      >
+                        {info.assigned_employee.fullname}
+                      </option>
+                    ))}
+                  </>
+                )}
               </select>
-              </div>
-              )}
-               
-            
+            </div>
           </Modal>
         </Space>
       ),
