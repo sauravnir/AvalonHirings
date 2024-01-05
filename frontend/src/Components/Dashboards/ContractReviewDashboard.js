@@ -114,6 +114,11 @@ function ContractReviewDashboard() {
 // Table Contents
   const contents = [
     {
+      title:"S.N",
+      dataIndex:"sn",
+      key:"sn",
+    },
+    {
       title: "Request ID",
       dataIndex: "contract_id",
       key: "contract",
@@ -170,8 +175,8 @@ function ContractReviewDashboard() {
           onConfirm = {() => fetchModalData("Approved", record.key)}
           disabled={record.contract_status === "Approved"}
           >
-          <Button >
-            <CheckOutlined  />
+          <Button size="small" icon={<CheckOutlined style={{ fontSize: '13px' }}/>} onClick={()=>toast.info("In Development")}>
+            
           </Button>
           </Popconfirm>
           <Popconfirm
@@ -184,13 +189,12 @@ function ContractReviewDashboard() {
           onConfirm={() => fetchModalData("Terminated", record.key)}
           disabled={record.contract_status === "Terminated"}
           >
-          <Button>
-            <DeleteOutlined />
+          <Button size="small" icon={<DeleteOutlined style={{ fontSize: '13px' }}/>}>
           </Button>
           </Popconfirm>
           
-          <Button onClick={()=>toast.info("In Development")}>
-            <QuestionCircleOutlined />
+          <Button icon={<QuestionCircleOutlined style={{ fontSize: '13px' }}/>} size="small" onClick={()=>toast.info("In Development")}>
+           
           </Button>
           <Modal
         title="Details:"
@@ -215,13 +219,14 @@ function ContractReviewDashboard() {
   ];
   
 
-  const data = contractDetails.map((contractDetail) => ({
-    key: contractDetail.id,
-    contract_id: contractDetail.contract_id,
-    user_name: contractDetail.user.fullname,
-    user_type: contractDetail.user.user_type,
-    created_date: contractDetail.created_date,
-    contract_status: [contractDetail.contract_status],
+  const data = contractDetails.map((info , index) => ({
+    sn:index+1,
+    key: info.id,
+    contract_id: info.contract_id,
+    user_name: info.user.fullname,
+    user_type: info.user.user_type,
+    created_date: info.created_date,
+    contract_status: [info.contract_status],
   }));
   
   return (
@@ -276,7 +281,11 @@ function ContractReviewDashboard() {
           <div class="w-full h-0.5 bg-gray-500 border"></div>
 
           <div class="grid grid-row pt-3">
-            <Table columns={contents} dataSource={data} loading={loading} />
+            <Table columns={contents} dataSource={data} 
+            pagination ={{
+              pageSize:10 , 
+              showTotal :(total) => `Total ${total} items`,
+            }} loading={loading} />
           </div>
         </div>
         <DashboardFooter />

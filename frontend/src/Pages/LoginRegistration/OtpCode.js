@@ -19,8 +19,9 @@ function OtpCode() {
       });
     
       if (response.ok) {
-        const data = await response.json();
-        toast.success("Login Successful.");
+        const userData = localStorage.getItem("userData")
+        const data = JSON.parse(userData)
+        
         if (data.user_type === "Client") {
           navigate("/client-dashboard");
         } else {
@@ -65,7 +66,7 @@ function OtpCode() {
                   for="email"
                 ></label>
                 <input
-                  class="shadow appearance-none border  border-gray-200 rounded h-14 py-2 px-3 text-gray-700 text-2xl leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
+                  class="shadow appearance-none border  border-gray-200 rounded h-10 w-40 py-2 px-3 text-gray-700 text-2xl leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
                   id="otp1"
                   name="otp1"
                   type="text"

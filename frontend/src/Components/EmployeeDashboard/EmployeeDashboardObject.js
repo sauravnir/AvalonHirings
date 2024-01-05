@@ -1,8 +1,7 @@
 import React,{useState , useEffect} from 'react'
 import { Link } from 'react-router-dom'
-import { Descriptions , Progress, Card } from 'antd'
+import {Progress, Card } from 'antd'
 import DashboardFooter from '../Dashboards/DashboardFooter'
-import { defaultPrefixCls } from 'antd/es/config-provider'
 function EmployeeDashboardObject() {
     const [workDetails , setWorkDetails] = useState({
         fullname: "",
@@ -83,8 +82,8 @@ const daysDifference =timeDifference / (1000*3600*24)
                 <Card title="Assigned For:">
 
                   <div class="flex flex-row items-center justify-center space-x-5">
-                    <img class="rounded-full w-10 h-10" src={workDetails.profilepicture} alt="Profile Pic"></img>
-                    <h1 class="text-sm font-semibold">Client's Name: {workDetails.fullname}</h1>
+                    <img class="rounded-full object-cover w-10 h-10" src={workDetails.profilepicture} alt="Profile Pic"></img>
+                    <h1 class="text-sm ">Client's Name: <span class="font-semibold">{workDetails.fullname}</span></h1>
                   <div class="flex flex-row item-center justify-between space-x-5">
                     <h1>Start Date:  {new Date(workDetails.approved_date).toLocaleDateString()}</h1>
                     <h1>End Date: {new Date(workDetails.expiry_date).toLocaleDateString()}</h1>

@@ -19,9 +19,7 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
-
 import KhaltiCheckout from "khalti-checkout-web";
-
 
 function ServiceStatus() {
   const [openModal, setOpenModal] = useState(false);
@@ -29,79 +27,74 @@ function ServiceStatus() {
   const [paymentMethod, setPaymentMethod] = useState("");
   const userData = localStorage.getItem("userData");
   const userID = JSON.parse(userData);
-  const navigate = useNavigate()
+  const navigate = useNavigate();
 
-
-
-  console.log("Print" , singleService)
-  
   const getPayment = (value) => {
     setPaymentMethod(value);
   };
 
-
   // Handling Khalti Payment
-  const khaltiPayment = async(id , serviceName , totalPrice) => {
+  const khaltiPayment = async (id, serviceName, totalPrice) => {
     const config = {
       publicKey: "test_public_key_fb53c47dfcf44808988bda227c018702",
       productIdentity: id,
-      productName: serviceName , 
+      productName: serviceName,
       productUrl: "http://localhost:3000/",
       eventHandler: {
         onSuccess: async (payload) => {
-          
-          await sendPaymentToken(payload.token , payload.amount , payload.product_identity);
-
-          console.log(payload);
+          await sendPaymentToken(
+            payload.token,
+            payload.amount,
+            payload.product_identity
+          );
         },
         onError: (error) => {
           // Handle errors
           console.log(error);
         },
         onClose: () => {
-          navigate('/client-dashboard');
+          navigate("/client-dashboard");
         },
       },
-      paymentPreference: [
-        "KHALTI",
-      ],
+      paymentPreference: ["KHALTI"],
     };
     try {
-      const checkout = new KhaltiCheckout(config); 
-      checkout.show({amount : totalPrice / 100});
+      const checkout = new KhaltiCheckout(config);
+      checkout.show({ amount: totalPrice / 10 });
     } catch (error) {
       console.log(error);
     }
-  }
+  };
 
-  const sendPaymentToken= async(paymentToken , amount , serviceuseid) =>{
-    try{
-      
-      const res = await fetch("http://127.0.0.1:8000/servicetransaction/",{
+  const sendPaymentToken = async (paymentToken, amount, serviceuseid) => {
+    try {
+      const res = await fetch("http://127.0.0.1:8000/servicetransaction/", {
         method: "POST",
         headers: {
-          'Content-Type': 'application/json',
+          "Content-Type": "application/json",
         },
-        body:JSON.stringify({payment_token : paymentToken , payment_amount : amount , serviceuseid :  serviceuseid})
+        body: JSON.stringify({
+          payment_token: paymentToken,
+          payment_amount: amount,
+          serviceuseid: serviceuseid,
+        }),
       });
-      if(res.ok){
-        navigate('/client-dashboard')
-        alert("Payment Completed!")
+      if (res.ok) {
+        navigate("/client-dashboard");
+        alert("Payment Completed!");
       }
-    }catch(error){
-      toast.error(error)
+    } catch (error) {
+      toast.error(error);
     }
-  }
-
+  };
 
   // Handling Cash Payment
 
   const cashPayment = () => {
-    console.log("Paid")
-  }
+    console.log("Paid");
+  };
 
-
-  // Fetching client requested services using user_id  
+  // Fetching client requested services using user_id
   useEffect(() => {
     const singleClientService = async () => {
       try {
@@ -140,7 +133,7 @@ function ServiceStatus() {
       key: "total_price",
     },
     {
-      title: "Approval Status",
+      title: "Status",
       dataIndex: "service_status",
       key: "service_status",
       render: (_, { service_status }) => (
@@ -150,9 +143,11 @@ function ServiceStatus() {
               let color = tag.length > 5 ? "geekblue" : "green";
               if (tag === "Payment Required") {
                 color = "orange";
-              } else if (tag === "On-Going") {
+              } else if (
+                tag === "On-Going"             
+              ) {
                 color = "green";
-              } else if (tag === "Pending") {
+              } else if (tag === "Paid (Waiting For Approval)") {
                 color = "yellow";
               } else if (tag === "Completed") {
                 color = "gray";
@@ -169,22 +164,28 @@ function ServiceStatus() {
       ),
     },
     {
-      title: "Process",
+      title: "Actions",
       key: "process",
       render: (_, record) => (
         <Space>
           <Button
             disabled={
-              record.service_status.includes("Pending") ||
+              record.service_status.includes("Paid (Waiting For Approval)") ||
               record.service_status.includes("Completed") ||
               record.service_status.includes("On-Going")
             }
             onClick={() => setOpenModal(true)}
-            style={{ background: "green", color: "white" }}
+            size="small"
           >
-            Make Payment
+            {record.service_status.includes("Paid (Waiting For Approval)")
+              ? "Paid"
+              : record.service_status.includes("On-Going")
+              ? "Paid"
+              : record.service_status.includes("Completed")
+              ? "Paid"
+              : "Make Payment"}
           </Button>
-
+          
           <Modal
             title="Payment Details:"
             open={openModal}
@@ -193,7 +194,15 @@ function ServiceStatus() {
             onCancel={() => setOpenModal(false)}
             okText="Make Payment"
             centered
-            onOk={()=>paymentMethod === "Khalti" ? khaltiPayment(record.key , record.service_name , record.total_price): cashPayment()}
+            onOk={() =>
+              paymentMethod === "Khalti"
+                ? khaltiPayment(
+                    record.key,
+                    record.service_name,
+                    record.total_price
+                  )
+                : cashPayment()
+            }
             width={1100}
           >
             <Descriptions bordered layout="vertical">
@@ -203,15 +212,15 @@ function ServiceStatus() {
 
               <Descriptions.Item label="Service Duration:">
                 <a>
-                {(() => {
-                  const startDate = new Date(record.approved_date);
-                  const endDate = new Date(record.service_till);
-                  const timeDifference = endDate - startDate;
-                  const daysDifference = Math.floor(
-                    timeDifference / (1000 * 3600 * 24 )
-                  );
-                  return `${daysDifference} days`;
-                })()}
+                  {(() => {
+                    const startDate = new Date(record.approved_date);
+                    const endDate = new Date(record.service_till);
+                    const timeDifference = endDate - startDate;
+                    const daysDifference = Math.floor(
+                      timeDifference / (1000 * 3600 * 24)
+                    );
+                    return `${daysDifference} days`;
+                  })()}
                 </a>
               </Descriptions.Item>
               <Descriptions.Item label="Total Amount:">
@@ -264,11 +273,14 @@ function ServiceStatus() {
 
         <div class="space-y-12">
           <div className="p-3 mt-5 bg-white rounded shadow-xl shadow-gray-350">
-            <div>
-              <h1 class="underline text-red-400">
+            <div class="flex justify-center items-center p-3">
+              <div class="bg-sky-700 rounded p-2 px-10">
+
+              <h1 class="hover:underline text-white">
                 Note: The service will only be available once the payment is
                 done.
               </h1>
+              </div>
             </div>
             <Card>
               <Table columns={requestContent} dataSource={tableData}></Table>

@@ -8,7 +8,7 @@ from rest_framework import status
 from rest_framework.response import Response
 from .models import ServiceList , ServiceUse , AssignedEmployees
 from app.models import Users 
-
+from payment.models import Payment
 
 # Creating Service By The Admin
 class CreateServiceView(APIView):
@@ -43,14 +43,15 @@ class UserServiceRequestView(APIView):
             userdata = get_object_or_404(Users , username = username)
             user_id = userdata.id
             service_id = request.data.get('serviceid')
-
+            
             service_use = ServiceUse.objects.create(
                  user_id = user_id , 
                  services_id =service_id , 
                  expiry_date = request.data.get('expiry_date'),
                  servicevalue = request.data.get('servicevalue'),
                  totalprice = request.data.get('totalprice'),
-                 servicelocation = request.data.get('servicelocation')   
+                 servicelocation = request.data.get('servicelocation'),   
+                 status = "Payment Required"
              )
 
             service_use.save();
@@ -69,9 +70,8 @@ class ViewServiceRequestView(APIView):
      
 # Fetching Single Request Service 
 class SingleRequestedServiceView(RetrieveAPIView):
-     queryset = ServiceUse.objects.all()
+     queryset = ServiceUse.objects.prefetch_related('payments').all()
      serializer_class = ViewServiceRequestedSerializer 
-
 
 # Updating the requested service 
 
@@ -79,22 +79,28 @@ class UpdateServiceRequestView(RetrieveAPIView):
     def post(self, request, id):
         service_use = get_object_or_404(ServiceUse, id=id)
         serializer = UpdateServiceStatusSerializer(data=request.data)
-
-        if serializer.is_valid():
+        
+        if serializer.is_valid(): 
             serviceuse_status = serializer.validated_data.get('action')
             assigned_employee_fullname = serializer.validated_data.get('assignedEmployee')
-
+            payment_approval = serializer.validated_data.get('paymentApproval')
+            
             assigned_employee_data = Users.objects.get(fullname=assigned_employee_fullname)
-
             assigned_employee_id = assigned_employee_data.id
-            if serviceuse_status == "Payment Required":
+            payment_object = get_object_or_404(Payment , service_use_id = service_use.id)
+            print(payment_object , serviceuse_status , payment_approval , assigned_employee_id)
+            if serviceuse_status == "On-Going":
                 if assigned_employee_id:
                     assigned_employee_table = AssignedEmployees.objects.filter(assigned_employee=assigned_employee_id).first()
                     if assigned_employee_table:
                         assigned_employee_table.service_request = service_use
                         assigned_employee_table.work_status = "Occupied"
                         assigned_employee_table.save()
-
+                if payment_approval == "Payment Received":
+                    payment_object.payment_approval = True
+                else:
+                    payment_object.payment_approval = False
+                payment_object.save()
                 service_use.status = serviceuse_status
                 service_use.approved_date = timezone.now()
                 service_use.save()

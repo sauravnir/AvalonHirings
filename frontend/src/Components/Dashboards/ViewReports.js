@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardFooter from "./DashboardFooter";
-import { Card, Button, Modal, Tabs } from "antd";
-
+import { Card, Button, Modal, Tabs, Table, Space, Descriptions, Tag } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -10,7 +10,6 @@ import "react-toastify/dist/ReactToastify.css";
 // import InfiniteScroll from 'react-infinite-scroll-component';
 
 function ViewReports() {
-  const [loading, setLoading] = useState(false);
   const [openModalClient, setOpenModalClient] = useState(false);
   const [action, setAction] = useState("");
   const navigate = useNavigate();
@@ -27,7 +26,6 @@ function ViewReports() {
     setAction("Denied");
   };
 
-  console.log(action);
   const [modalDetails, setModalDetails] = useState({
     fullname: "",
     contact: "",
@@ -36,6 +34,7 @@ function ViewReports() {
     date: "",
     username: "",
     user_id: "",
+    report_action : ""
   });
 
   const [reportDetails, setReportDetails] = useState([]);
@@ -43,10 +42,6 @@ function ViewReports() {
   const showReportClient = (report) => {
     fetchModalData(report);
     setOpenModalClient(true);
-  };
-
-  const modalConfirmClient = () => {
-    console.log("hi");
   };
 
   const modalCancelClient = () => {
@@ -74,9 +69,12 @@ function ViewReports() {
   // Fetching the data in modal
   const fetchModalData = async (id) => {
     try {
-      const response = await fetch(`http://127.0.0.1:8000/getreportobject/${id}/`);
+      const response = await fetch(
+        `http://127.0.0.1:8000/getreportobject/${id}/`
+      );
       const data = await response.json();
-      const { user, title, description, issue_date } = data[0];
+      console.log("Modal Data", data);
+      const { user, title, description, issue_date , report_action } = data[0];
       console.log(data);
       setModalDetails({
         fullname: user?.fullname || "",
@@ -86,6 +84,7 @@ function ViewReports() {
         date: issue_date || "",
         username: user?.username || "",
         user_id: id || "",
+        report_action : report_action || ""
       });
     } catch (error) {
       console.error("Error fetching report details:", error);
@@ -123,98 +122,98 @@ function ViewReports() {
     }
   }, [action]);
 
-  const onChange = (key) => {
-    console.log(key);
-  };
- 
-
-  const renderReports = () => {
-    return reportDetails.map(
-      (report) =>
-        report.report_action === "Pending" && (
-          <div className="mb-3" key={report.id}>
-            <Card hoverable>
-              <div className="flex flex-row items-center place-content-between">
-                <h1>User Name: {report.user.fullname}</h1>
-                <h1>User Type: {report.user.user_type}</h1>
-                <h1>Title: {report.title}</h1>
-                <h1>
-                  Status:
-                  {report.report_action === "Pending" ? (
-                    <button className="bg-yellow-300 border p-1 rounded">
-                      Pending
-                    </button>
-                  ) : report.report_action === "Approved" ? (
-                    <button className="bg-green-300 border p-1 rounded">
-                      Approved
-                    </button>
-                  ) : (
-                    <button className="bg-red-300 border p-1 rounded">
-                      Declined
-                    </button>
-                  )}
-                </h1>
-                <Button
-                  danger
-                  onClick={() => showReportClient(report.id)}
-                  disabled={
-                    report.report_action === "Approved" ||
-                    report.report_action === "Denied"
-                  }
-                >
-                  View details
-                </Button>
-              </div>
-            </Card>
-          </div>
+  const pendingItems = [
+    {
+      title: "S.N",
+      dataIndex: "sn",
+      key: "sn",
+    },
+    {
+      title: "User Name",
+      dataIndex: "user_name",
+      key: "user_name",
+    },
+    {
+      title: "User Type",
+      dataIndex: "user_type",
+      key: "user_type",
+    },
+    {
+      title: "Report Title",
+      dataIndex: "report_title",
+      key: "report_title",
+    },
+    {
+      title: "Report Status",
+      dataIndex: "report_status",
+      key: "report_status",
+      render:(report_status ,record)=>{
+        console.log(report_status)
+        let color = report_status.length > 5 ? "geekblue" : "green";
+        if (report_status === "Pending"){
+          color = "yellow";
+        } else if (report_status === "Approved"){
+          color = "green";
+        }else {
+          color = "red"
+        }
+        return (
+          <Tag color = {color} key = {record.key}>
+            {report_status}
+          </Tag>
         )
-    );
-  };
+      }
+    },
+    {
+      title: "Action",
+      dataIndex: "action",
+      key: "action",
+      render: (_, record) => (
+        <Space>
+          <Button
+            onClick={() => showReportClient(record.key)}
+            size="small"
+            icon={<EyeOutlined style={{ fontSize: '13px' }}/>}
+            >
+          </Button>
+        </Space>
+      ),
+    },
+  ];
 
-  //Rendering Approved / Denied Reports
-  const renderCheckedReports = () => {
-    return reportDetails.map(
-      (report) =>
-        report.report_action !== "Pending" && (
-          
-          <div className="mb-3" key={report.id}>
-            <Card hoverable>
-              <div className="flex flex-row items-center place-content-between">
-                <h1>User Name: {report.user.fullname}</h1>
-                <h1>User Type: {report.user.user_type}</h1>
-                <h1>Title: {report.title}</h1>
-                <h1>
-                  Status:
-                  {report.report_action === "Pending" ? (
-                    <button className="bg-yellow-300 border p-1 rounded">
-                      Pending
-                    </button>
-                  ) : report.report_action === "Approved" ? (
-                    <button className="bg-green-300 border p-1 rounded">
-                      Approved
-                    </button>
-                  ) : (
-                    <button className="bg-red-300 border p-1 rounded">
-                      Declined
-                    </button>
-                  )}
-                </h1>
-                <Button
-                  danger
-                  onClick={() => showReportClient(report.id)}
-                  disabled={
-                    report.report_action === "Approved" ||
-                    report.report_action === "Denied"
-                  }
-                >
-                  View details
-                </Button>
-              </div>
-            </Card>
-          </div>
-        )
-    );
-  };
+  
+  const pendingData = reportDetails
+  .filter((info) => info.report_action === "Pending")
+  .map((info, index) => ({
+    sn: index + 1,
+    key: info.id,
+    user_name: info.user.fullname,
+    user_type: info.user.user_type,
+    report_title: info.title,
+    report_status: info.report_action,
+  }));
+  
+  const approvedData = reportDetails
+  .filter((info) => info.report_action === "Approved")
+  .map((info, index) => ({
+    sn: index + 1,
+    key: info.id,
+    user_name: info.user.fullname,
+    user_type: info.user.user_type,
+    report_title: info.title,
+    report_status: info.report_action,
+  }));
+
+  const deniedData = reportDetails
+  .filter((info) => info.report_action === "Denied")
+  .map((info, index) => ({
+    sn: index + 1,
+    key: info.id,
+    user_name: info.user.fullname,
+    user_type: info.user.user_type,
+    report_title: info.title,
+    report_status: info.report_action,
+  }));
 
   // Contents in the tab
   const TabList = [
@@ -223,98 +222,122 @@ function ViewReports() {
       label: "Pending",
       children: (
         <TabPane tab="Pending" key="1">
-          {renderReports()}
+        
+          <Table
+            columns={pendingItems}
+            dataSource={pendingData}
+            pagination={{
+              pageSize: 10,
+              showTotal: (total) => `Total ${total} items`,
+            }}
+          />
         </TabPane>
       ),
     },
     {
       key: "2",
-      label: "Approved/Denied",
-      children:(
-        <TabPane tab="Approved/Denied" key="2">
-          {renderCheckedReports()} 
+      label: "Approved",
+      children: (
+        <TabPane tab="Approved" key="2">
+          <Table
+            columns={pendingItems}
+            dataSource={approvedData}
+            pagination={{
+              pageSize: 10,
+              showTotal: (total) => `Total ${total} items`,
+            }}
+          />
         </TabPane>
       ),
     },
+    {
+      key: "3",
+      label: "Denied",
+      children: (
+        <TabPane tab="Denied" key="3">
+          <Table
+            columns={pendingItems}
+            dataSource={deniedData}
+            pagination={{
+              pageSize: 10,
+              showTotal: (total) => `Total ${total} items`,
+            }}
+          />
+        </TabPane>
+      ),
+    },
+ 
   ];
 
   return (
     <div class="w-screen mt-14">
       <div class="flex flex-col mt-2 p-6">
-      <div className="flex w-full bg-white  rounded shadow p-3">
+        <div className="flex w-full bg-white  rounded shadow p-3">
           <h1 className="text-2xl font-bold">Reports and Issues</h1>
         </div>
         <ToastContainer position="top-center" autoClose={5000} />
 
         <div class="p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
-          
-            <Card>
-              <div style={{ maxHeight: "390px", overflowY: "auto" }}>
-              <Tabs>{TabList.map((tab) => tab.children)}</Tabs>
-              </div>
-              <Modal
-                title="Registered Report"
-                open={openModalClient}
-                onOk={modalConfirmClient}
-                onCancel={modalCancelClient}
-                okText="Approve"
-                cancelText="Decline"
-                footer={[
-                  <Button key="back" onClick={modalCancelClient}>
-                    Back
-                  </Button>,
-
-                  <Button
-                    style={{ backgroundColor: "green" }}
-                    onClick={onApproval}
-                  >
-                    Approve
-                  </Button>,
-                  <Button style={{ backgroundColor: "red" }} onClick={onDenial}>
-                    Decline
-                  </Button>,
-                ]}
-              >
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="mb-4">
-                    <p className="text-lg font-semibold">
-                      Report ID : {modalDetails.user_id}
-                    </p>
-                    {/* <p className="text-gray-800">{modalDetails.user_id}</p> */}
-                  </div>
-                  <div className="mb-4">
-                    <p className="text-lg font-semibold">Fullname:</p>
-                    <p className="text-gray-800">{modalDetails.fullname}</p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p className="text-lg font-semibold">Username:</p>
-                    <p className="text-gray-800">{modalDetails.username}</p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p className="text-lg font-semibold">Contact Number:</p>
-                    <p className="text-gray-800">{modalDetails.contact}</p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p className="text-lg font-semibold">Title:</p>
-                    <p className="text-gray-800">{modalDetails.title}</p>
-                  </div>
-
-                  <div className="mb-4 col-span-2">
-                    <p className="text-lg font-semibold">Description:</p>
-                    <p className="text-gray-800">{modalDetails.description}</p>
-                  </div>
-
-                  <div className="mb-4">
-                    <p className="text-lg font-semibold">Date:</p>
-                    <p className="text-gray-800">{modalDetails.date}</p>
-                  </div>
-                </div>
-              </Modal>
-            </Card>
-        
+          <Card>
+            <Tabs>{TabList.map((tab) => tab.children)}</Tabs>
+            <Modal
+              open={openModalClient}
+              onCancel={modalCancelClient}
+              okText="Approve"
+              cancelText="Decline"
+              footer={[
+                <Button key="back" size="small" onClick={modalCancelClient}>
+                  Back
+                </Button>,
+                modalDetails.report_action === "Pending" && (
+                  <>
+                    <Button
+                      style={{ backgroundColor: "green", color: "white" }}
+                      size="small"
+                      onClick={onApproval}
+                    >
+                      Approve
+                    </Button>
+                    <Button
+                      style={{ backgroundColor: "red", color: "white" }}
+                      size="small"
+                      onClick={onDenial}
+                    >
+                      Decline
+                    </Button>
+                  </>
+                ),
+              ]}
+              width={1000}
+            >
+              
+                <Descriptions title="Report Details" layout="vertical" bordered>
+                  <Descriptions.Items label="Report ID">
+                    {modalDetails.user_id}
+                  </Descriptions.Items>
+                  <Descriptions.Items label="Fullname">
+                    {modalDetails.fullname}
+                  </Descriptions.Items>
+                  <Descriptions.Items label="Username:">
+                    {modalDetails.username}
+                  </Descriptions.Items>
+                  <Descriptions.Items label="Contact Number">
+                    {modalDetails.contact}
+                  </Descriptions.Items>
+                  <Descriptions.Items label="Report Title">
+                    {modalDetails.title}
+                  </Descriptions.Items>
+                  <Descriptions.Items label="Issued Date:">
+                    {modalDetails.date}
+                  </Descriptions.Items>
+                  <Descriptions.Items label="Report Description">
+                    {modalDetails.description}
+                  </Descriptions.Items>
+                  
+                </Descriptions>
+         
+            </Modal>
+          </Card>
         </div>
       </div>
       <DashboardFooter />

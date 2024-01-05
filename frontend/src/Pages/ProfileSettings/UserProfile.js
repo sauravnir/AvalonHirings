@@ -46,7 +46,7 @@ function UserProfile() {
             navigate("/admin-dashboard");
           }
         } else {
-          toast.error("Please use a different password!");
+          toast.error("Enter Valid Credentials!");
         }
       }
     } catch (error) {
@@ -151,26 +151,25 @@ function UserProfile() {
       children: (
         <TabPane tab="Change Password" key="2">
           <div class="p-5 items-center">
-          <form onSubmit={handleProfileUpdate}>
-            <Form.Item label="New Password">
-              <Input.Password onChange={(e) => setNewPass(e.target.value)} />
-            </Form.Item>
-            <Form.Item label="Confirm Password">
-              <Input.Password
-                onChange={(e) => setNewConfirmPass(e.target.value)}
-              />
-            </Form.Item>
-            <div class="flex justify-center">
-              <button
-                class="text-white px-4 py-2 rounded bordered bg-green-600"
-                type="submit"
-              >
-                Save Changes
-              </button>
-            </div>
-          </form>
+            <form onSubmit={handleProfileUpdate}>
+              <Form.Item label="New Password">
+                <Input.Password onChange={(e) => setNewPass(e.target.value)} />
+              </Form.Item>
+              <Form.Item label="Confirm Password">
+                <Input.Password
+                  onChange={(e) => setNewConfirmPass(e.target.value)}
+                />
+              </Form.Item>
+              <div class="flex justify-center">
+                <button
+                  class="text-white px-4 py-2 rounded bordered bg-green-600"
+                  type="submit"
+                >
+                  Save Changes
+                </button>
+              </div>
+            </form>
           </div>
-          
         </TabPane>
       ),
     },
@@ -186,24 +185,25 @@ function UserProfile() {
           <div class="border">
             <div class="flex flex-col items-center">
               <div
-                class="flex items-center justify-center "
+                class="flex items-center justify-center"
                 style={{
                   backgroundImage: `url(${require("../../images/profilebackground.jpg")})`,
                   backgroundSize: "cover",
                   backgroundPosition: "center",
                   width: "100%",
                   height: "300px",
+                  opacity:0.9
                 }}
               >
                 {/* <img src={require(`../../images/profilebackground.jpg`)}></img> */}
                 <div class="flex flex-col relative items-center justify-center">
-                  <a href={`http://127.0.0.1:8000${getProfile.profilepic}`}>
+                  
                     <img
                       class="w-40 h-40 mb-3 rounded-full shadow-2xl border object-cover"
                       src={`http://127.0.0.1:8000${getProfile.profilepic}`}
                       alt="User Profile"
                     ></img>
-                  </a>
+                  
                   <label
                     for="profilePictureInput"
                     class="absolute top-0 left-0 w-full h-full cursor-pointer opacity-0"
@@ -217,8 +217,8 @@ function UserProfile() {
                       ></input>
                     </form>
                   </label>
-                  <h1 class="hover:underline text-lg">{getProfile.fullname}</h1>
-                  <h1 class="text-sm text-gray-600 ">{getProfile.email}</h1>
+                  <h1 class="hover:underline text-white text-lg">{getProfile.fullname}</h1>
+                  <h1 class="text-sm text-zinc-200 ">{getProfile.email}</h1>
                 </div>
               </div>
             </div>

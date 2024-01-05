@@ -15,6 +15,7 @@ function Sidebar() {
   const handleLogout = async (e) => {
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
+    localStorage.removeItem('isFirstPageLoad')
     navigate("/login");
   };
 
@@ -85,7 +86,7 @@ function Sidebar() {
                 </button>
 
                 {isOpen && (
-                  <div className="flex  items-center px-4 py-2 mt-5 text-gray-600 ">
+                  <div className="flex  items-center px-4 py-2 text-gray-600 ">
                     {/* Dropdown content goes here */}
                     <div className="py-1">
                       <Link to="/create-service">
@@ -180,7 +181,7 @@ function Sidebar() {
                 </button>
 
                 {isOpen1 && (
-                  <div className="flex  items-center px-4 py-2 mt-5 text-gray-600 ">
+                  <div className="flex  items-center px-4 py-2 text-gray-600 ">
                     {/* Dropdown content goes here */}
                     <div className="py-1">
                       <Link to="/admin-contractreview">
@@ -454,7 +455,7 @@ function Sidebar() {
                 </button>
 
                 {isOpen && (
-                  <div className="flex  items-center px-4 py-2 mt-5 text-gray-600 ">
+                  <div className="flex  items-center px-4 py-2 text-gray-600 ">
                     {/* Dropdown content goes here */}
                     <div className="py-1">
                       <Link to="/request-service">

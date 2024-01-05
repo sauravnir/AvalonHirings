@@ -2,7 +2,6 @@ from django.utils import timezone
 from django.db import models
 from django.contrib.auth import get_user_model
 from django.utils import timezone
-# Create your models here.
 
 
 class ServiceList(models.Model):

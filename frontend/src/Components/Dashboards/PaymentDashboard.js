@@ -59,6 +59,11 @@ function PaymentDashboard() {
 
   const clientTableContents = [
     {
+      title:"S.N",
+      dataIndex:"sn",
+      key:"sn"
+    },
+    {
       title: "Client ID",
       dataIndex: "client_id",
       key: "client_id",
@@ -103,7 +108,7 @@ function PaymentDashboard() {
       key: "action",
       render: (_, { action }) => (
         <Space size="medium">
-          <Button onClick={() => setClientModelOpen(true)}>
+          <Button size="small" onClick={() => setClientModelOpen(true)}>
             Request Payment
           </Button>
           <Modal
@@ -145,6 +150,11 @@ function PaymentDashboard() {
   // //   Contents for employee Table
 
   const employeeTableContents = [
+    {
+      title:"S.N",
+      dataIndex:"sn",
+      key:"sn"
+    },
     {
       title: "Employee ID",
       dataIndex: "employee_id",
@@ -190,7 +200,7 @@ function PaymentDashboard() {
       key: "action",
       render: (_, { action }) => (
         <Space size="medium">
-          <Button onClick={() => setEmployeeModelOpen(true)}>
+          <Button size="small" onClick={() => setEmployeeModelOpen(true)}>
             Process Salary
           </Button>
           <Modal
@@ -290,48 +300,6 @@ function PaymentDashboard() {
       console.log(error);
     }
   };
-
-  // const handlePayment = async (e) => {
-  //   console.log("test");
-  //   try {
-  //     const payload = {
-  //       return_url: returnUrl,
-  //       website_url: websiteUrl,
-  //       amount: amount,
-  //       purchase_order_id: purchaseOrderId,
-  //       purchase_order_name: purchaseOrderName,
-  //       customer_info: {
-  //         name: "Hari Kumar",
-  //         email: "test@khalti.com",
-  //         phone: "9800000001",
-  //       },
-  //     };
-
-  //     const headers = {
-  //       Authorization: "key b42caed1ffbd4202b41b700a32e3a237",
-  //       "Content-Type": "application/json",
-  //     };
-  //     const response = await fetch(
-  //       "https://a.khalti.com/api/v2/epayment/initiate/",
-  //       {
-  //         method: "POST",
-  //         headers: headers,
-  //         body: JSON.stringify(payload),
-  //       }
-  //     );
-
-  //     // console.log(await response.json());
-
-  //     if (response.ok) {
-  //       const responseData = await response.json();
-  //       setPaymentUrl(responseData.payment_url);
-  //     } else {
-  //       console.error("Error:", response.statusText);
-  //     }
-  //   } catch (error) {
-  //     console.log("error", error);
-  //   }
-  // };
 
   return (
     <div class="w-screen mt-14">

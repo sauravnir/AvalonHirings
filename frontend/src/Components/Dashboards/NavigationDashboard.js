@@ -9,6 +9,7 @@ import {
   Divider,
   theme,
 } from "antd";
+import { LogoutOutlined } from "@ant-design/icons";
 import Logo from "../../images/Abnw.png";
 // Dropdown for Profile Items
 const { useToken } = theme;
@@ -24,6 +25,8 @@ function NavigationDashboard() {
   // Handling the Logout Of The User
   const handleLogout = async (e) => {
     localStorage.removeItem("token");
+    localStorage.removeItem("userData");
+    localStorage.removeItem('isFirstPageLoad')
     navigate("/login");
   };
 
@@ -43,10 +46,23 @@ function NavigationDashboard() {
       key: "1",
       label: (
         <Link to="/userprofile">
+          <div class="flex space-x-3 items-center">
+          <img class="w-4 h-4 " src={require(`../../images/userprofile.png`)}></img>
           <h1>User Profile</h1>
+          </div>
         </Link>
       ),
     },
+    {
+      key:"2",
+      label : (
+        <div class="flex space-x-3 items-center">
+          {/* <img class="w-4 h-4 " src={require(`../../images/.png`)}></img> */}
+          <LogoutOutlined />
+          <button onClick={handleLogout}><h1> Logout</h1></button>
+          </div>
+      )
+    }
   ];
 
   // Logout Pop-Confirm
@@ -81,8 +97,11 @@ function NavigationDashboard() {
               menu={{
                 items,
               }}
+              trigger={['click']}
+              size={['small']}
               dropdownRender={(menu) => (
                 <div style={contentStyle}>
+                  
                   {React.cloneElement(menu, {
                     style: menuStyle,
                   })}

@@ -17,6 +17,7 @@ import {
   Divider,
 } from "antd";
 
+import { EyeOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
@@ -50,13 +51,18 @@ function CreateService() {
     servicevalue: "",
     servicetarget: "",
     contact: "",
+    payment_method: "",
+    payment_approval: "",
   });
 
   // storing the free employee information
 
   const [freeEmployees, setFreeEmployees] = useState([]);
   const [assignedEmployees, setAssignedEmployee] = useState("");
+  const [paymentApproval, setPaymentApproval] = useState("");
 
+  console.log(assignedEmployees);
+  console.log(paymentApproval);
   const handleInfoClick = (id) => {
     fetchRequestedService(id);
     setOpenModal(true);
@@ -116,7 +122,6 @@ function CreateService() {
       try {
         const res = await fetch("http://127.0.0.1:8000/getrequestedservice/");
         const data = await res.json();
-        console.log("individual data", data);
         setViewRequestedServices(data);
       } catch (error) {
         toast.error("Failed to fetch services!");
@@ -126,13 +131,13 @@ function CreateService() {
   }, []);
 
   // Loading singular requested service
-
   const fetchRequestedService = async (id) => {
     try {
       const res = await fetch(
         `http://127.0.0.1:8000/singlerequestedservice/${id}`
       );
       const data = await res.json();
+      console.log(data);
       const {
         user,
         services,
@@ -141,6 +146,7 @@ function CreateService() {
         servicelocation,
         totalprice,
         servicevalue,
+        payments,
       } = data;
 
       const updateSingleRequestedService = {
@@ -153,6 +159,8 @@ function CreateService() {
         servicevalue: servicevalue || "",
         servicetarget: services?.servicetarget || "",
         contact: user?.contact || "",
+        payment_method: payments[0]?.payment_method || "",
+        payment_approval: payments[0]?.payment_approval || "",
       };
 
       setSingleRequestedService(updateSingleRequestedService);
@@ -173,10 +181,11 @@ function CreateService() {
       };
 
       // Include assigned employee details only when approvalType is "Payment Required"
-      if (approvalType === "Payment Required") {
+      if (approvalType === "On-Going") {
         requestOptions.body = JSON.stringify({
           action: approvalType,
           assignedEmployee: assignedEmployees,
+          paymentApproval: paymentApproval,
         });
       } else {
         requestOptions.body = JSON.stringify({ action: approvalType });
@@ -211,6 +220,11 @@ function CreateService() {
 
   const serviceTableContents = [
     {
+      title:"S.N",
+      dataIndex:"sn",
+      key:"sn",
+    },
+    {
       title: "Service Name",
       dataIndex: "service_name",
       key: "service_name",
@@ -236,7 +250,7 @@ function CreateService() {
       key: "action",
       render: (_, { action }) => (
         <Space size="medium">
-          <Button onClick={() => setViewServicesModal(true)}>View</Button>
+          <Button size="small" icon={<EyeOutlined style={{ fontSize: '13px' }}/>}  onClick={() => setViewServicesModal(true)}></Button>
           <Modal
             title="Data Display Garna Parcha Update Hune Sahit "
             open={viewServicesModal}
@@ -253,6 +267,11 @@ function CreateService() {
 
   // View Requested Services by the client
   const serviceRequestTable = [
+   {
+    title:"S.N",
+    dataIndex:"sn",
+    key:"sn"
+   },
     {
       title: "Client Name",
       dataIndex: "client_name",
@@ -276,8 +295,10 @@ function CreateService() {
         let color = requestStatus.length > 5 ? "geekblue" : "green";
         if (requestStatus === "On-Going") {
           color = "green";
-        } else if (requestStatus === "Pending") {
+        } else if (requestStatus === "Paid (Waiting For Approval)") {
           color = "yellow";
+        } else if (requestStatus === "Completed") {
+          color = "gray";
         } else {
           color = "red";
         }
@@ -294,7 +315,7 @@ function CreateService() {
       key: "action",
       render: (_, record) => (
         <Space>
-          <Button onClick={() => handleInfoClick(record.key)}>View</Button>
+          <Button size="small"  icon={<EyeOutlined style={{ fontSize: '13px' }}/>} onClick={() => handleInfoClick(record.key)}></Button>
 
           <Modal
             title="Details:"
@@ -315,12 +336,11 @@ function CreateService() {
               // Conditionally rendering the buttons
               <Button
                 style={{ backgroundColor: "green", color: "white" }}
-                onClick={() =>
-                  updateServiceRequest("Payment Required", record.key)
-                }
+                onClick={() => updateServiceRequest("On-Going", record.key)}
                 disabled={freeEmployees.length === 0}
               >
-                Assign & Approve
+                {record.request_status === "On-Going" || record.request_status === "Completed" ? 
+                "Employee Assigned" : "Assign & Approve" }
               </Button>,
             ]}
           >
@@ -354,6 +374,51 @@ function CreateService() {
               </Descriptions.Item>
               <Descriptions.Item label="Contact no:">
                 {singleRequestedService.contact}
+              </Descriptions.Item>
+              {record.request_status === "Paid (Waiting For Approval)" ||  record.request_status === "On-Going" || record.request_status === "Completed"  ? (
+                <Descriptions.Item label="Payment Status">
+                  <div class="flex flex-row items-center">
+                    <img
+                      class="w-5 h-5 mr-3"
+                      src={require(`../../images/tick.png`)}
+                    ></img>
+                    Paid
+                  </div>
+                </Descriptions.Item>
+              ) : (
+                <Descriptions.Item label="Payment Status">
+                  <div class="flex flex-row items-center">
+                    <img
+                      class="w-5 h-5 mr-3"
+                      src={require(`../../images/cross.png`)}
+                    ></img>
+                    Not Paid
+                  </div>
+                </Descriptions.Item>
+              )}
+              {singleRequestedService.payment_method === "Khalti Payment" ? (
+                <Descriptions.Item label="Payment Method">
+                  Online Payment
+                </Descriptions.Item>
+              ) : (
+                <Descriptions.Item label="Payment Method">
+                  Cash Payment
+                </Descriptions.Item>
+              )}
+              <Descriptions.Item label="Approve Payment">
+                <Radio.Group
+                  onChange={(e) => setPaymentApproval(e.target.value)}
+                >
+                  <Radio.Button value="Select" disabled>
+                    Select
+                  </Radio.Button>
+                  <Radio.Button value="Payment Received">
+                    Payment Received
+                  </Radio.Button>
+                  <Radio.Button value="Payment Not Received">
+                    Payment Not Received
+                  </Radio.Button>
+                </Radio.Group>
               </Descriptions.Item>
             </Descriptions>
             <Divider></Divider>
@@ -397,7 +462,8 @@ function CreateService() {
   ];
 
   // View All Services
-  const allServicesList = createdService.map((info) => ({
+  const allServicesList = createdService.map((info , index) => ({
+    sn:index +1 ,
     key: info.id,
     service_name: info.servicename,
     service_for: info.servicetarget,
@@ -406,7 +472,8 @@ function CreateService() {
   }));
 
   // Data Source For Requested Services
-  const allRequestedService = viewRequestedServices.map((info) => ({
+  const allRequestedService = viewRequestedServices.map((info,index) => ({
+    sn:index+1,
     key: info.id,
     client_name: info.user.fullname,
     service_name: info.services.servicename,
@@ -453,7 +520,7 @@ function CreateService() {
                   onChange={(e) => setServiceAvailable(e.target.value)}
                 >
                   <option>Select From Below</option>
-                  <option>Hours</option>
+                  <option disabled>Hours (currently disabled)</option>
                   <option>Months</option>
                   <option>Weeks</option>
                 </select>
@@ -499,6 +566,10 @@ function CreateService() {
             dataSource={allServicesList}
             loading={loading}
             bordered
+            pagination ={{
+              pageSize:10 , 
+              showTotal :(total) => `Total ${total} items`,
+            }}
           />
         </TabPane>
       ),
@@ -513,6 +584,10 @@ function CreateService() {
             dataSource={allRequestedService}
             loading={loading}
             bordered
+            pagination={{
+              pageSize:10,
+              showTotal: (total) => `Total ${total} items`,
+            }}
           />
         </TabPane>
       ),

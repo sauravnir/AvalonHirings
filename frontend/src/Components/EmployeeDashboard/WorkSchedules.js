@@ -65,6 +65,11 @@ function WorkSchedules() {
 
   const workTable = [
     {
+      title: "S.N",
+      dataIndex: "sn",
+      key: "sn",
+    },
+    {
       title: "Service Name",
       dataIndex: "service_name",
       key: "service_name",
@@ -80,8 +85,7 @@ function WorkSchedules() {
       key: "action",
       render: (_, { action }) => (
         <Space>
-          <Button onClick={() => setModalOpen(true)}>
-            <EyeOutlined />
+          <Button size="small" shape="circle" icon={<EyeOutlined style={{ fontSize: '13px' }}/>} onClick={() => setModalOpen(true)}>
           </Button>
           <Modal
             title="Client's Details"
@@ -97,7 +101,7 @@ function WorkSchedules() {
               <a href={activeService.profilepicture}>
 
                 <img
-                  class="w-20 h-20 rounded-full border mb-5"
+                  class="w-20 h-20 rounded-full border mb-5 object-cover"
                   alt="User Picture"
                   src={activeService.profilepicture}
                 ></img>
@@ -152,6 +156,7 @@ function WorkSchedules() {
 
   const workTableData = [
     {
+      sn:1,
       key: activeService.id,
       service_name: activeService.servicename,
       client_name: activeService.fullname,

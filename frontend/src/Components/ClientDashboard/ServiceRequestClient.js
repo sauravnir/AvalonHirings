@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardFooter from "../Dashboards/DashboardFooter";
-import { Drawer, Form, Input } from "antd";
+import { Drawer, Form, Input , Button } from "antd";
 import { ToastContainer, toast } from "react-toastify";
+import {PlusOutlined , QuestionOutlined } from "@ant-design/icons";
 
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
@@ -110,7 +111,7 @@ function ServiceRequestClient() {
 
         if(res.ok){
           toast.success("Successfully sent a request!")
-          navigate('../client-dashboard')
+          navigate('../client-view-service')
         }
     } catch(error) {
       
@@ -136,6 +137,9 @@ function ServiceRequestClient() {
         </div>
         </div>
         <ToastContainer position="bottom-center" autoClose={6000} />
+      <div class="flex items-center justify-center">
+      </div>
+
         <div class="grid grid-cols-4 space-x-4">
           {getServiceItems.map((info) => (
             <div
@@ -170,14 +174,10 @@ function ServiceRequestClient() {
                   </span>
                 </h1>
               </div>
-              <div className="flex justify-end">
-                <button
-                  className="rounded-full shadow hover:bg-green-200 w-6 h-6 p-1"
-                  onClick={() => fetchServiceDetails(info.id)}
-                >
-                  <img src={require(`../../images/select.png`)} alt="Select" />
-                </button>
-
+              <div className="flex justify-end space-x-4">
+                <Button size="small" shape="circle" icon={<PlusOutlined style={{ fontSize: '13px' }} />} onClick={() => fetchServiceDetails(info.id)}>
+                </Button>
+               
                 {selectedItems && (
                   <Drawer
                     title="Request This Service?"
@@ -262,15 +262,10 @@ function ServiceRequestClient() {
                     </div>
                   </Drawer>
                 )}
-                <button
-                  className="rounded-full shadow hover:bg-orange-700 w-6 h-6 p-1 ml-2"
-                  onClick={infoAlert}
-                >
-                  <img
-                    src={require(`../../images/inquire.png`)}
-                    alt="Inquire"
-                  />
-                </button>
+
+                <Button onClick={infoAlert} size="small" shape="circle" icon={<QuestionOutlined style={{ fontSize: '13px' }}/>}>
+                
+                </Button >
               </div>
             </div>
           ))}

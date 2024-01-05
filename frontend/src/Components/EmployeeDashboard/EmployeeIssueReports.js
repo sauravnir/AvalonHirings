@@ -5,17 +5,14 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DashboardFooter from "../Dashboards/DashboardFooter.js";
 
-
-// Fetching the Report Status in progress
-
-
 function EmployeeIssueReports() {
   const [openModal, setOpenModal] = useState(false);
   const [reportTitle, setReportTitle] = useState("");
   const [reportDesc, setReportDesc] = useState("");
   const navigate = useNavigate();
   const [reportDetails, setReportDetails] = useState([]);
-  
+
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -36,7 +33,12 @@ function EmployeeIssueReports() {
       });
 
       if (response.ok) {
-        navigate("/employee-dashboard");
+        const user_type = reportDetails[0].user.user_type
+        if(user_type === "Client"){
+          navigate("/client-dashboard");
+        } else {
+          navigate("/employee-dashboard")
+        }
         toast.success("Registered Successfully");
       } else {
         toast.error("Failed to register");
@@ -47,10 +49,8 @@ function EmployeeIssueReports() {
     }
   };
 
-
   const userdata = localStorage.getItem("userData");
   const userId = JSON.parse(userdata)
-  console.log(userId)
  
   // Fetching Reports from the database
   useEffect(() => {
@@ -67,7 +67,29 @@ function EmployeeIssueReports() {
     fetchReportDetails();
   }, []);
 
+// Displaying the latest data in the table 
+
+// useEffect(() => {
+//   // Reverse the data array to display the most recent data at the top
+//   const reversedData = [...reportDetails].reverse();
+
+//   // Add SN based on the reversed data
+//   const finalData = reversedData.map((info, index) => ({
+//     ...info,
+//     sn: index + 1,
+//   }));
+
+//   // Set the finalData in the component's state
+//   setTableData(finalData);
+// }, [reportDetails]);
+
+
 const contents = [
+  {
+    title:"S.N",
+    dataIndex:"sn",
+    key:"sn",
+  },
   {
     title: "Title",
     dataIndex: "title",
@@ -86,7 +108,6 @@ const contents = [
       <>
         {report_status &&
           report_status.map((tag) => {
-            console.log("Tag:", tag);
             let color;
             if (tag === "Approved") {
               color = "green";
@@ -108,13 +129,15 @@ const contents = [
 ]
 
 // table datasource 
-console.log(reportDetails)
-const data = reportDetails.map((info)=>({
+const data = reportDetails.map((info , index)=>({
+  sn : index+1,
   key : info.id,
   title : info.title, 
   issued_date : info.issue_date,    
   report_status : [info.report_action]
 }));
+
+// Sorting Data
 
   return (
     <div className="w-screen mt-14 ">
@@ -168,7 +191,10 @@ const data = reportDetails.map((info)=>({
         <div class="mt-12 p-3 bg-white rounded shadow-lg">
             <h1 class="text-lg p-2 font-bold hover:underline">View Reports</h1>
             <h1 class="text-sm p-2 mb-4 text-red-500">Note: Once approved , the related department will contact you for further processing.</h1>
-            <Table columns={contents} dataSource={data}></Table>
+            <Table columns={contents} dataSource={data} pagination={{
+              pageSize:5,
+              showTotal:(total) => `Total ${total} items`
+            }}></Table>
           </div>
       </div>
       

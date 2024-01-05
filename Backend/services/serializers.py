@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from .models import ServiceList , ServiceUse , AssignedEmployees
 from app.models import Users
-
+from payment.models import Payment
 
 # Creating Services by the admin
 class ServiceCreateSerializer(serializers.ModelSerializer):
@@ -22,6 +22,13 @@ class ViewUserSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+# Creating a serializer for fetching the Client Payment Information
+        
+class ClientPaymentInfoSerializer(serializers.ModelSerializer):
+    class Meta : 
+        model = Payment 
+        fields = "__all__"
+
 class AssignedEmployeesSerializer(serializers.ModelSerializer):
     assigned_employee= ViewUserSerializer()
     class Meta : 
@@ -32,6 +39,7 @@ class AssignedEmployeesSerializer(serializers.ModelSerializer):
 class ViewServiceRequestedSerializer(serializers.ModelSerializer):
     user = ViewUserSerializer()
     services = ServiceCreateSerializer()
+    payments = ClientPaymentInfoSerializer(many=True)
     class Meta: 
         model = ServiceUse
         fields = "__all__"
@@ -48,14 +56,14 @@ class ViewServiceRequestedEmployeeSerializer(serializers.ModelSerializer):
 class UpdateServiceStatusSerializer(serializers.Serializer):
     action = serializers.CharField(required=True)
     assignedEmployee = serializers.CharField(required=False , allow_blank=True)
+    paymentApproval = serializers.CharField(required=False, allow_blank=True   )
+    # def validate(self, data):
+    #     action = data.get('action')
 
-    def validate(self, data):
-        action = data.get('action')
+    #     if action == 'On-Going' and not data.get('assignedEmployee'):
+    #         raise serializers.ValidationError("assignedEmployee is required for Payment Required status.")
 
-        if action == 'Payment Required' and not data.get('assignedEmployee'):
-            raise serializers.ValidationError("assignedEmployee is required for Payment Required status.")
-
-        return data
+    #     return data
 
 
 
