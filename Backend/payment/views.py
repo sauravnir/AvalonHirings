@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404
-# from .serializers import UserContractSerializer , ContractUpdateSerializer
+from .serializers import SubscriptionSerializer , CashPaymentSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -52,6 +52,28 @@ class ServicePaymentView(APIView):
          return JsonResponse({'message': 'Payment verification failed'}, status=400)
 
 
+class CashPaymentView(APIView):
+    def post(self , request ):
+        service_use_id =  request.data.get("service_use_id")
+        total_price = request.data.get("total_price")
+        
+        serviceuse = get_object_or_404(ServiceUse , id = service_use_id)
+        if serviceuse is not None:
+           serviceuse.status = "Paid (Waiting For Approval)";
+           payment = Payment.objects.create(
+              service_use = serviceuse, 
+              amount = total_price , 
+              payment_method = "Cash Payment",
+              payment_date = datetime.now()   
+           )
+           payment.save()
+           serviceuse.save()
+           return Response({'message' :'Payment Successful'} , status = status.HTTP_200_OK)
+        else:
+            return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
 class SubscriptionView(APIView):
    def post(self , request):
     payment_token = request.data.get('payment_token');
@@ -85,3 +107,10 @@ class SubscriptionView(APIView):
        return JsonResponse({'message': 'Payment successful'}, status=200)
     else:
          return JsonResponse({'message': 'Payment verification failed'}, status=400)
+    
+
+
+class SubscriptionDetailsView(RetrieveAPIView):
+   queryset = Subscription.objects.all()
+   serializer_class = SubscriptionSerializer
+   lookup_field = "user_id"

@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import Users
+from payment.models import Caliber
 
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
@@ -19,6 +20,10 @@ class UserRegisterSerializer(serializers.ModelSerializer):
             instance.save()
         return instance
 
+class EmployeeCaliberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Caliber
+        fields = "__all__"
 
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField()
@@ -32,6 +37,7 @@ class OTPTransactionSerializer(serializers.Serializer):
     otp_pin = serializers.CharField();
 
 class ViewUserProfileSerializer(serializers.ModelSerializer):
+    employee_caliber = EmployeeCaliberSerializer() 
     class Meta:
         model =  Users 
         fields = "__all__"

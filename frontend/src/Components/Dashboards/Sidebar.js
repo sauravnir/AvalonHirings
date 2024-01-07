@@ -16,6 +16,7 @@ function Sidebar() {
     localStorage.removeItem("token");
     localStorage.removeItem("userData");
     localStorage.removeItem('isFirstPageLoad')
+    localStorage.removeItem("is_subscribed");
     navigate("/login");
   };
 
@@ -86,19 +87,22 @@ function Sidebar() {
                 </button>
 
                 {isOpen && (
-                  <div className="flex  items-center px-4 py-2 text-gray-600 ">
+                  <div className="flex flex-row items-center px-4 py-2 text-gray-600 ">
                     {/* Dropdown content goes here */}
                     <div className="py-1">
                       <Link to="/create-service">
-                        <a className="block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                          View and Create Services
+                        
+
+                        <a className="flex items-center flex-row block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                          <img class="w-6 h-6 mr-3" src={require(`../../images/add.png`)}></img>Add / View services
                         </a>
+                        
                       </Link>
 
                       <Link to="/admin-dashboard">
                         {/* <img src={require(``)}></img> */}
-                        <a className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                          View Ratings
+                        <a className="flex flex-row block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                        <img class="w-5 h-5 mr-4" src={require(`../../images/view.png`)}></img>View Ratings
                         </a>
                       </Link>
                     </div>
@@ -185,15 +189,15 @@ function Sidebar() {
                     {/* Dropdown content goes here */}
                     <div className="py-1">
                       <Link to="/admin-contractreview">
-                        <a className="block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                          User Requests
+                        <a className="flex flex-row items-center block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                        <img class="w-5 h-5 mr-3" src={require(`../../images/userrequest.png`)}></img>Member Requests
                         </a>
                       </Link>
 
                       <Link to="/admin-dashboard">
                         {/* <img src={require(``)}></img> */}
-                        <a className="block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                          All Users
+                        <a className="flex flex-row items-center  block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                        <img class="w-5 h-5 mr-3" src={require(`../../images/users.png`)}></img>All Users
                         </a>
                       </Link>
                     </div>
@@ -459,14 +463,14 @@ function Sidebar() {
                     {/* Dropdown content goes here */}
                     <div className="py-1">
                       <Link to="/request-service">
-                        <a className="block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                          Request For A Service
+                        <a className="flex flex-row items-center block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                        <img class="w-6 h-6 mr-3" src={require(`../../images/add.png`)}></img>Request Service
                         </a>
                       </Link>
 
                       <Link to="/client-view-service">
-                        <a className="block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                          View Progress / Status
+                        <a className="flex flex-row items-center block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
+                        <img class="w-5 h-5 mr-4" src={require(`../../images/status.png`)}></img>Progress / Status
                         </a>
                       </Link>
                     </div>
@@ -519,7 +523,7 @@ function Sidebar() {
                     />
                   </svg>
 
-                  <span class="mx-4 font-medium">Ratings</span>
+                  <span class="mx-4 font-medium">View Ratings</span>
                 </a>
               </Link>
 

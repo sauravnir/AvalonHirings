@@ -175,7 +175,7 @@ function ContractReviewDashboard() {
           onConfirm = {() => fetchModalData("Approved", record.key)}
           disabled={record.contract_status === "Approved"}
           >
-          <Button size="small" icon={<CheckOutlined style={{ fontSize: '13px' }}/>} onClick={()=>toast.info("In Development")}>
+          <Button size="small" icon={<CheckOutlined style={{ fontSize: '13px' }}/>}>
             
           </Button>
           </Popconfirm>
@@ -192,9 +192,8 @@ function ContractReviewDashboard() {
           <Button size="small" icon={<DeleteOutlined style={{ fontSize: '13px' }}/>}>
           </Button>
           </Popconfirm>
-          
+
           <Button icon={<QuestionCircleOutlined style={{ fontSize: '13px' }}/>} size="small" onClick={()=>toast.info("In Development")}>
-           
           </Button>
           <Modal
         title="Details:"

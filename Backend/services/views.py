@@ -18,7 +18,7 @@ class CreateServiceView(APIView):
             serializer.save()
             return Response(serializer.data , status=status.HTTP_201_CREATED)
         return Response(serializer.errors , status = status.HTTP_200_OK)
-    
+       
 # Fetching all the services from the database
 class GetCreatedServiceView(APIView):
     def get(self , request):
@@ -28,12 +28,40 @@ class GetCreatedServiceView(APIView):
     
 # Fetching single services based on the PK 
 class GetSingleServiceView(RetrieveAPIView):
-        queryset = ServiceList.objects.all()
-        serializer_class = ServiceCreateSerializer
+    queryset = ServiceList.objects.all()
+    serializer_class = ServiceCreateSerializer
+
+# updating the single services created by the admin 
+
+class UpdateSingleServiceView(APIView):
+    def post(self, request):
+        service_list_id = request.data.get('service_list_id')
+        servicelist = get_object_or_404(ServiceList, id=service_list_id)
+
+        if servicelist:
+            
+            if 'servicedesc' in request.data:
+                servicelist.servicedesc = request.data['servicedesc']
+
+            if 'servicetarget' in request.data:
+                servicelist.servicetarget = request.data['servicetarget']
+
+            if 'serviceavailable' in request.data:
+                servicelist.serviceavailable = request.data['serviceavailable']
+
+            if 'servicepricing' in request.data:
+                servicelist.serviceprice = request.data['servicepricing']
+
+            if 'serviceavailability' in request.data:
+                servicelist.status = request.data['serviceavailability']
+
+            servicelist.save()
+            return Response({"message": "Service Updated Successfully"}, status=status.HTTP_200_OK)
+        else:
+            return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# User Service Entry View
-        
+# User Service Entry View        
 class UserServiceRequestView(APIView):
     def post(self , request):
         serializer = UserServiceRequestSerializer(data = request.data)
@@ -73,8 +101,11 @@ class SingleRequestedServiceView(RetrieveAPIView):
      queryset = ServiceUse.objects.prefetch_related('payments').all()
      serializer_class = ViewServiceRequestedSerializer 
 
-# Updating the requested service 
 
+
+
+
+# Updating the requested service 
 class UpdateServiceRequestView(RetrieveAPIView):
     def post(self, request, id):
         service_use = get_object_or_404(ServiceUse, id=id)

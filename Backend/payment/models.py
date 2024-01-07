@@ -1,6 +1,8 @@
 from django.db import models
 from services.models import ServiceUse
 from app.models import Users
+from ratings.models import Rating
+import datetime
 # Create your models here.
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
@@ -26,3 +28,11 @@ class Subscription(models.Model):
 
     def __str__(self):
         return f"{self.subscription_name} - {self.amount} - {self.user} - {self.is_subscribed}"
+    
+class Caliber(models.Model):
+    employee = models.OneToOneField(Users , on_delete = models.CASCADE , related_name = 'employee_caliber')
+    ratings = models.OneToOneField(Rating, on_delete=models.CASCADE, null=True, blank=True, related_name='employee_caliber_rating')
+    caliber_level = models.CharField(max_length = 255 , choices=[('bronze', 'Bronze'), ('silver', 'Silver'), ('gold', 'Gold')], default='bronze')
+    salary = models.DecimalField(max_digits = 10 , decimal_places = 2 , default = 17000)
+    last_paid = models.DateField(default=datetime.date.today)
+    

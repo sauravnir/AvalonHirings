@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CreateServiceView,GetCreatedServiceView,GetSingleServiceView,UserServiceRequestView ,ClientServiceView, ViewServiceRequestView,SingleRequestedServiceView, UpdateServiceRequestView ,AssignedEmployeesView,EmployeeWorkScheduleView 
+from .views import CreateServiceView,GetCreatedServiceView,GetSingleServiceView,UserServiceRequestView ,ClientServiceView, ViewServiceRequestView,SingleRequestedServiceView, UpdateServiceRequestView ,AssignedEmployeesView,EmployeeWorkScheduleView,UpdateSingleServiceView 
 urlpatterns=[
     path("createservice/" , CreateServiceView.as_view() , name="Services"),
     path("getservices/" ,GetCreatedServiceView.as_view() , name="Created Services"),
@@ -10,5 +10,6 @@ urlpatterns=[
     path("updateservicerequest/<int:id>" , UpdateServiceRequestView.as_view() , name="Update Service Request"),
     path("viewclientservice/<int:user_id>",ClientServiceView.as_view() , name="Single Client Service View"),
     path("freeemployees/" , AssignedEmployeesView.as_view() , name="Free Employees View"),
-    path("assignedservices/<int:assigned_employee_id>",EmployeeWorkScheduleView.as_view() , name="Employee Service Assigned")
+    path("assignedservices/<int:assigned_employee_id>",EmployeeWorkScheduleView.as_view() , name="Employee Service Assigned"),
+    path("updatecreatedservice/" , UpdateSingleServiceView.as_view() , name="Update Created Service")
 ]

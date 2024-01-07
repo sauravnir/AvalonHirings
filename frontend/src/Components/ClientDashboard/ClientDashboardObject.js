@@ -2,18 +2,31 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Descriptions, Progress, Card, Modal, Button, Divider } from "antd";
+import {
+  ExclamationCircleOutlined
+} from '@ant-design/icons';
 import DashboardFooter from "../Dashboards/DashboardFooter";
 import KhaltiCheckout from "khalti-checkout-web";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
+
+
+
 function ClientDashboard() {
   const [getServiceItems, setGetServiceItems] = useState([]);
   const [dashboardItems, setDashboardItems] = useState([]);
   const [workDetails, setWorkDetails] = useState([]);
   const [showSubscription, setShowSubscription] = useState(false);
+
   const listItem = ['Prioritize Service Requests','Premium Service Plans','Fast-track handling of your reports','Quick response to support requests']
+  
+  const [subscriptionDetails , setSubscriptionDetails] = useState([]);
+
   const navigate = useNavigate();
   const userData = localStorage.getItem("userData");
   const userID = JSON.parse(userData);
   const user_id = userID.user_id;
+  
   // Displaying the work details
   useEffect(() => {
     const handleWork = async () => {
@@ -23,6 +36,7 @@ function ClientDashboard() {
         );
         const data = await res.json();
         setWorkDetails(data);
+     
       } catch (error) {
         return error;
       }
@@ -84,7 +98,7 @@ function ClientDashboard() {
 
   const handleSubscription = async() =>{
     // Fetching the user ID
-    console.log('The User Id is:',user_id)
+    
     const config ={
       publicKey: "test_public_key_fb53c47dfcf44808988bda227c018702",
       productIdentity: '123',
@@ -126,20 +140,37 @@ function ClientDashboard() {
       });
 
       if(response.ok){
-        alert("Payment Successful");
         navigate("/client-dashboard")
       }
     } catch(error){
       console.log(error);
     }
   }
+
+
+  // Fetching the subscription Details
+
+  useEffect(()=>{
+    const fetchSubscriptionDetails = async () =>{
+      try{
+        const response = await fetch(`http://127.0.0.1:8000/subscriptiondetails/${user_id}`)
+        const data = await response.json()
+        setSubscriptionDetails(data);
+      }catch(error){
+        toast.error("Unable To Fetch The Details")
+      }
+    }
+    fetchSubscriptionDetails();
+  },[user_id])
+
   return (
     <div className="w-screen mt-14">
+      <ToastContainer />
       <Modal
         open={showSubscription}
         onCancel={() => setShowSubscription(false)}
         footer={null}
-        width={500}
+        width={400}
       >
         <div class="flex flex-col bg-violet-950 rounded-3xl  items-center justify-center w-full">
             <div class="flex flex-row items-center space-x-3 p-10">
@@ -156,7 +187,7 @@ function ClientDashboard() {
               
             </div>
             
-            <div class="flex flex-col items-center space-y-3 mb-5">
+            <div class="flex flex-col items-center space-y-4 mb-5">
               <h1 class="text-sm text-white ">Premium Subscription Plan</h1>
               <hr class="w-full border-t  border-white"/>
               <ul>
@@ -166,7 +197,9 @@ function ClientDashboard() {
                 ))}
               </ul>
               <hr class="w-full border-t border-white"/>
-              <button onClick={handleSubscription} class="bg-amber-400 rounded-2xl hover:bg-gradient-to-r from-orange-400 via-amber-500 to-yellow-600 p-3 font-bold text-white hover:text-gray-900">SUBSCRIBE NOW</button>
+              {subscriptionDetails.is_subscribed === true ? (
+                <button onClick={handleSubscription} class="bg-amber-400 rounded-2xl hover:bg-gradient-to-r from-orange-400 via-amber-500 to-yellow-600 p-3 font-bold text-white hover:text-gray-900" disabled>ALREADY SUBSCRIBED</button>
+              ):(<button onClick={handleSubscription} class="bg-amber-400 rounded-2xl hover:bg-gradient-to-r from-orange-400 via-amber-500 to-yellow-600 p-3 font-bold text-white hover:text-gray-900">SUBSCRIBE NOW</button>)}
             </div>
           </div>
         
@@ -232,7 +265,7 @@ function ClientDashboard() {
                       />
                     </div>
                     <Card title="Assigned To:">
-                      {console.log(item)}
+                    
                       <div class="flex flex-row items-center justify-center space-x-5">
                         <img
                           class="rounded-full w-10 h-10"
@@ -263,6 +296,19 @@ function ClientDashboard() {
                     </Card>
                   </Link>
                 ))}
+
+                {workDetails.filter((item) => item.status !== "On-Going").map((item) => (
+                  <Card>
+                  <div class="flex flex-col items-center justify-center space-y-4 p-4">
+                  <ExclamationCircleOutlined style={{ fontSize: "32px" }}/>
+                      <h1>No Current Services</h1>
+                    <Link to='/request-service'> 
+                      <button class="rounded border p-3 bg-amber-600 text-white font-bold hover:shadow-xl hover:bg-amber-700">Request For Services Now!</button>
+                    </Link>
+                    </div>
+                  </Card>
+                ))
+                }
             </div>
           </div>
         </div>

@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate , login
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer, UserLoginSerializer , UserForgotPasswordSerializer  , OTPTransactionSerializer , UpdateUserProfileSerializer , ViewUserProfileSerializer , UpdateProfilePictureSerializer
+from .serializers import UserRegisterSerializer, UserLoginSerializer , UserForgotPasswordSerializer  , OTPTransactionSerializer , UpdateUserProfileSerializer , ViewUserProfileSerializer , UpdateProfilePictureSerializer , EmployeeCaliberSerializer
 from rest_framework.generics import RetrieveAPIView
 from rest_framework import status
 
@@ -45,7 +45,7 @@ class UserLoginView(APIView):
                     is_auth =  user.is_auth;
                     user_id = user.id;
                    
-
+                    
                     employees_count = Users.objects.filter(user_type = 'Employee').count();
                     clients_count = Users.objects.filter(user_type='Client').count()
                     total_reports = Reports.objects.all().count();
@@ -60,6 +60,7 @@ class UserLoginView(APIView):
                         'total_reports' : total_reports,
                         'user_id': user_id,
                         'is_auth':is_auth,
+                        
                         'message' : 'Login Successfull'} , status = status.HTTP_200_OK)
                     else:
                         return Response({
@@ -143,7 +144,6 @@ class UserProfileData(APIView):
     def post(self, request):
         user_token_key = request.GET.get('token',None)
         user_otp = request.GET.get('otp_pin', None)
-        print(user_otp)
         if user_token_key:
             try:
                 custom_token = CustomToken.objects.get(key=user_token_key)
@@ -164,34 +164,22 @@ class UserProfileData(APIView):
 
 
 # View User Profile
-    
-
 class UserProfileView(RetrieveAPIView):
     queryset= Users.objects.all()
     serializer_class = ViewUserProfileSerializer
     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
-        serializer = self.get_serializer(instance)
-        return Response(serializer.data)
+        try:
+            employee_caliber = instance.employee_caliber
+            caliber_serializer = EmployeeCaliberSerializer(employee_caliber)
+            user_data = self.get_serializer(instance).data
+            user_data['employee_caliber'] = caliber_serializer.data
+            return Response(user_data)
+            
+        except:
+            return super().retrieve(request, *args, **kwargs)
 
-# Updating User Profile
-    
-# class UserProfileUpdateView(APIView):
-#     def post(self ,request):
-#         serializers  = UpdateUserProfileSerializer(data = request.data)
-#         if serializers.is_valid():
-#             newpass = serializers.validated_data['password']
-#             profilepic = serializers.validated_data['profilepic']
-#             username = serializers.validated_data['username']
-#             user = get_object_or_404(Users, username = username)
-#             if user is not None:
-#                 user.password = make_password(newpass)
-#                 user.profilepic = profilepic
-#                 user.save()
 
-#                 return Response({"message":"Profile Updated Successfully"} , status = status.HTTP_200_OK)
-#         return Response({"message":"Error in Updating the profile"} , status = status.HTTP_400_BAD_REQUEST)
-    
 # Updating user password
 class UserProfileUpdateView(APIView):
     def post(self, request, *args, **kwargs):

@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardFooter from "../Dashboards/DashboardFooter";
-import { Drawer, Form, Input , Button } from "antd";
+import { Drawer, Form, Input, Button, Tooltip } from "antd";
 import { ToastContainer, toast } from "react-toastify";
-import {PlusOutlined , QuestionOutlined } from "@ant-design/icons";
+import { PlusOutlined, QuestionOutlined } from "@ant-design/icons";
 
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
@@ -13,13 +13,13 @@ function ServiceRequestClient() {
   const [selectedItems, setSelectedItems] = useState([]);
 
   // storing the input value in state
-  const [expiryDate, setExpiryDate] = useState(moment().format("YYYY-MM-DD HH:mm:ss"));
+  const [expiryDate, setExpiryDate] = useState(
+    moment().format("YYYY-MM-DD HH:mm:ss")
+  );
   const [pickValue, setPickValue] = useState("");
   const [finalPrice, setFinalPrice] = useState("");
   const [location, setLocation] = useState("");
 
-
-  console.log(location)
   const userdata = localStorage.getItem("userData");
   const username = JSON.parse(userdata);
   // Preparing data to be entered into the model
@@ -28,11 +28,11 @@ function ServiceRequestClient() {
     servicevalue: pickValue,
     totalprice: finalPrice,
     expiry_date: expiryDate,
-    serviceid : selectedItems.id,
-    servicelocation : location
+    serviceid: selectedItems.id,
+    servicelocation: location,
   };
 
-  const navigate = useNavigate()
+  const navigate = useNavigate();
   // Opening and Closing Drawer
   const [open, setOpen] = useState(false);
   const showDrawer = () => {
@@ -87,7 +87,6 @@ function ServiceRequestClient() {
   // Fetching the service based on service ID
   const fetchServiceDetails = async (serviceId) => {
     try {
-      
       const res = await fetch(`http://127.0.0.1:8000/getservice/${serviceId}`);
       const data = await res.json();
       console.log(data);
@@ -102,43 +101,39 @@ function ServiceRequestClient() {
 
   const giveServiceDetails = async () => {
     try {
-      
-        const res = await fetch("http://127.0.0.1:8000/postrequest/", {
+      const res = await fetch("http://127.0.0.1:8000/postrequest/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
       });
 
-        if(res.ok){
-          toast.success("Successfully sent a request!")
-          navigate('../client-view-service')
-        }
-    } catch(error) {
-      
-      navigate('./')
+      if (res.ok) {
+        toast.success("Successfully sent a request!");
+        navigate("../client-view-service");
+      }
+    } catch (error) {
+      navigate("./");
     }
   };
-
   return (
     <div className="w-screen mt-14">
-      <div className="mt-2 w-10/14 p-6">
+      <div className="mt-2 w-10/14 py-2 px-3">
         <div className="flex flex-col py-3">
-        <div className="flex flex-row items-center justify-between w-full bg-white rounded shadow   p-3">
-          <h1 className="text-2xl font-bold">Request For Service</h1>
-          {/* <h1 className="text-2xl text-white font-base">Issue Reports / Requests</h1> */}
-            <h1 className=" hover:underline">
-              {Object.keys(getServiceItems).length} Service/s Available
+          <div className="flex flex-row items-center justify-between w-full bg-white rounded shadow   p-3">
+            <h1 className="text-2xl font-bold">Request For Service</h1>
+            {/* <h1 className="text-2xl text-white font-base">Issue Reports / Requests</h1> */}
+            <h1 className="text-sm hover:underline">
+              Total Services:  {Object.keys(getServiceItems).length} 
             </h1>
             <select class=" shadow-lg p-2 text-sm">
               <option>Search for service types</option>
               <option>For Households</option>
               <option>For Business / Enterprises</option>
             </select>
-        </div>
+          </div>
         </div>
         <ToastContainer position="bottom-center" autoClose={6000} />
-      <div class="flex items-center justify-center">
-      </div>
+        <div class="flex items-center justify-center"></div>
 
         <div class="grid grid-cols-4 space-x-4">
           {getServiceItems.map((info) => (
@@ -147,7 +142,14 @@ function ServiceRequestClient() {
               className="p-4 rounded shadow-lg bg-white border flex flex-col justify-between"
             >
               <div className="space-y-5">
-                <button className="rounded-2xl w-1/3 bg-green-400 text-white  shadow text-sm ">
+                <button
+                  className="rounded-2xl w-1/3 shadow text-sm"
+                  style={{
+                    backgroundColor:
+                      info.status === "Available" ? "green" : "red",
+                    color: "white",
+                  }}
+                >
                   {info.status}
                 </button>
                 <h1 className="mt-2 font-bold text-xl">{info.servicename}</h1>
@@ -175,9 +177,20 @@ function ServiceRequestClient() {
                 </h1>
               </div>
               <div className="flex justify-end space-x-4">
-                <Button size="small" shape="circle" icon={<PlusOutlined style={{ fontSize: '13px' }} />} onClick={() => fetchServiceDetails(info.id)}>
-                </Button>
-               
+                <Button
+                  size="small"
+                  shape="circle"
+                  icon={<PlusOutlined style={{ fontSize: "13px" }} />}
+                  onClick={() => fetchServiceDetails(info.id)}
+                  disabled={info.status === "Not Available"}
+                ></Button>
+
+                <Button
+                  onClick={infoAlert}
+                  size="small"
+                  shape="circle"
+                  icon={<QuestionOutlined style={{ fontSize: "13px" }} />}
+                ></Button>
                 {selectedItems && (
                   <Drawer
                     title="Request This Service?"
@@ -191,17 +204,22 @@ function ServiceRequestClient() {
                     <div class="flex flex-col">
                       <Form layout="vertical">
                         <Form.Item label="Service Name">
-                          <Input value={selectedItems.servicename} defaultValue={selectedItems.servicename}/>
+                          <Input
+                            value={selectedItems.servicename}
+                            defaultValue={selectedItems.servicename}
+                          />
                         </Form.Item>
                         <Form.Item label="About the service:">
                           <Input.TextArea
                             value={selectedItems.servicedesc}
                             defaultValue={selectedItems.servicedesc}
-                            
                           />
                         </Form.Item>
                         <Form.Item label="Service for:">
-                          <Input value={selectedItems.servicetarget} defaultValue={selectedItems.servicetarget}/>
+                          <Input
+                            value={selectedItems.servicetarget}
+                            defaultValue={selectedItems.servicetarget}
+                          />
                         </Form.Item>
 
                         <Form.Item label="Service Availability:">
@@ -225,20 +243,21 @@ function ServiceRequestClient() {
                         </Form.Item>
 
                         <Form.Item label="Service will expire on:">
-                          <Input value={calculatedDate()} defaultValue={calculatedDate()} />
+                          <Input
+                            value={calculatedDate()}
+                            defaultValue={calculatedDate()}
+                          />
                         </Form.Item>
 
-                        <Form.Item label="Provide the location of work:"
-                         >
+                        <Form.Item label="Provide the location of work:">
                           <input
                             class="p-2 rounded border w-full"
                             type="text"
-                            placeholder='Eg: Budhanilkanthan-2 , Bhangal , Nepal'
+                            placeholder="Eg: Budhanilkanthan-2 , Bhangal , Nepal"
                             onChange={(e) => setLocation(e.target.value)}
                             required
                           ></input>
-
-                         </Form.Item>
+                        </Form.Item>
 
                         <Form.Item label="Service Price:">
                           <Input value={finalPrice} defaultValue={finalPrice} />
@@ -262,17 +281,11 @@ function ServiceRequestClient() {
                     </div>
                   </Drawer>
                 )}
-
-                <Button onClick={infoAlert} size="small" shape="circle" icon={<QuestionOutlined style={{ fontSize: '13px' }}/>}>
-                
-                </Button >
               </div>
             </div>
           ))}
         </div>
-        <div>
-         
-        </div>
+        <div></div>
         <DashboardFooter />
       </div>
     </div>

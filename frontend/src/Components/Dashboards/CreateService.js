@@ -12,7 +12,6 @@ import {
   Space,
   Table,
   Tag,
-  Popconfirm,
   Descriptions,
   Divider,
 } from "antd";
@@ -35,12 +34,8 @@ function CreateService() {
   const navigate = useNavigate();
   const { TabPane } = Tabs;
 
-  const [loading, setLoading] = useState(false);
-
   const [viewServicesModal, setViewServicesModal] = useState(false);
-
   const [viewRequestedServices, setViewRequestedServices] = useState([]);
-
   const [singleRequestedService, setSingleRequestedService] = useState({
     fullname: "",
     servicename: "",
@@ -61,13 +56,14 @@ function CreateService() {
   const [assignedEmployees, setAssignedEmployee] = useState("");
   const [paymentApproval, setPaymentApproval] = useState("");
 
-  console.log(assignedEmployees);
-  console.log(paymentApproval);
   const handleInfoClick = (id) => {
     fetchRequestedService(id);
     setOpenModal(true);
   };
 
+  // Creating variables for single created service
+
+  const [singleCreatedService, setSingleCreatedService] = useState([]);
   // Store the fetched data for later use
 
   const [createdService, setCreatedService] = useState([]);
@@ -90,11 +86,10 @@ function CreateService() {
         headers: {
           "Content-Type": "application/json",
         },
-
         body: JSON.stringify(serviceData),
       });
       if (response.ok) {
-        navigate("../client-dashboard");
+        navigate("/admin-dashboard");
       }
     } catch (error) {
       toast.error("Error in creating service!");
@@ -115,6 +110,46 @@ function CreateService() {
     };
     fetchServiceData();
   }, []);
+
+  const [updateDesc,setUpdatedDesc] = useState('')
+  const [updatedServiceTarget,setUpdatedServiceTarget] = useState('');
+  const [updatedServiceAvailable,setUpdatedServiceAvailable] = useState('');
+  const [updatedServicePricing,setUpdatedServicePricing] = useState('')
+  const [updatedAvailability,setUpdatedAvailability] = useState('')
+
+  // Getting the details for the single created service to update
+  const fetchSingleServiceData = async (Id) => {
+    try {
+      const res = await fetch(`http://127.0.0.1:8000/getservice/${Id}`);
+      const data = await res.json();
+      setSingleCreatedService(data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  // Updating the created services by the admin
+  // const updateSingleServiceData = async (id) =>  {
+  //   try {
+  //     const response = await fetch("http://127.0.0.1:8000/updatecreatedservice/",{
+  //      method: 'POST', 
+  //     )} 
+  // }
+
+  const updateSingleServiceData = async (id) => {
+    try{
+      const response = await fetch("http://127.0.0.1:8000/updatecreatedservice/",{
+        method: 'POST', 
+        headers: { 'Content-Type': 'application/json'},
+        body : JSON.stringify({service_list_id : id , servicedesc : updateDesc , servicetarget : updatedServiceTarget ,serviceavailable : updatedServiceAvailable , servicepricing: updatedServicePricing , serviceavailability : updatedAvailability})
+      })
+      if(response.ok){
+        navigate('/admin-dashboard')
+      }
+    }catch(error){
+      console.log(error);
+    }
+  }
 
   // Loading all requested services
   useEffect(() => {
@@ -220,9 +255,9 @@ function CreateService() {
 
   const serviceTableContents = [
     {
-      title:"S.N",
-      dataIndex:"sn",
-      key:"sn",
+      title: "S.N",
+      dataIndex: "sn",
+      key: "sn",
     },
     {
       title: "Service Name",
@@ -248,18 +283,74 @@ function CreateService() {
       title: "Actions",
       dataIndex: "action",
       key: "action",
-      render: (_, { action }) => (
+      render: (_, record) => (
         <Space size="medium">
-          <Button size="small" icon={<EyeOutlined style={{ fontSize: '13px' }}/>}  onClick={() => setViewServicesModal(true)}></Button>
+          <Button
+            size="small"
+            icon={<EyeOutlined style={{ fontSize: "13px" }} />}
+            onClick={() => {
+              setViewServicesModal(true);
+              fetchSingleServiceData(record.key);
+            }}
+          ></Button>
           <Modal
-            title="Data Display Garna Parcha Update Hune Sahit "
+            title="Service Details"
             open={viewServicesModal}
-            // onOk={()}
             onCancel={() => setViewServicesModal(false)}
             okText="Update"
             okType="default"
             width={400}
-          ></Modal>
+            onOk={() =>updateSingleServiceData(record.key)}
+            centered
+          >
+            <Form layout="vertical">
+              <Form.Item label="Service Name">
+                <Input
+                  value={singleCreatedService.servicename}
+                  defaultValue={singleCreatedService}
+                  disabled
+                />
+              </Form.Item>
+              <Form.Item label="Service Description">
+                <Input.TextArea
+                  placeholder={singleCreatedService.servicedesc}
+                  onChange = {(e)=>setUpdatedDesc(e.target.value)}
+                  rows={5}
+                />
+              </Form.Item>
+              <Form.Item label="Service For">
+                <Radio.Group onChange={(e) => setUpdatedServiceTarget(e.target.value)} >
+                  <Radio.Button value="Select:" disabled>
+                    Select:
+                  </Radio.Button>
+                  <Radio.Button value="Household">Household</Radio.Button>
+                  <Radio.Button value="Business">Business</Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+              <Form.Item label="Select Service Available Days">
+                <select class="p-2 border rounded w-60" onChange={(e) => setUpdatedServiceAvailable(e.target.value)}>
+                  <option>Select From Below</option>
+                  <option disabled>Hours (currently disabled)</option>
+                  <option>Months</option>
+                  <option>Weeks</option>
+                </select>
+              </Form.Item>
+              <Form.Item label="Service Base Pricing">
+                <InputNumber addonBefore="Rs" defaultValue={1000} onChange={(value) => setUpdatedServicePricing(value)} />
+              </Form.Item>
+              <Form.Item label="Select Availability">
+                <Radio.Group onChange={(e) => setUpdatedAvailability(e.target.value)}>
+                  <Radio.Button value="Select" disabled>
+                    Select:
+                  </Radio.Button>
+                  <Radio.Button value="Available">Available</Radio.Button>
+                  <Radio.Button value="Not Available">
+                    Not Available
+                  </Radio.Button>
+                </Radio.Group>
+              </Form.Item>
+            </Form>
+          </Modal>
         </Space>
       ),
     },
@@ -267,11 +358,11 @@ function CreateService() {
 
   // View Requested Services by the client
   const serviceRequestTable = [
-   {
-    title:"S.N",
-    dataIndex:"sn",
-    key:"sn"
-   },
+    {
+      title: "S.N",
+      dataIndex: "sn",
+      key: "sn",
+    },
     {
       title: "Client Name",
       dataIndex: "client_name",
@@ -315,8 +406,11 @@ function CreateService() {
       key: "action",
       render: (_, record) => (
         <Space>
-          <Button size="small"  icon={<EyeOutlined style={{ fontSize: '13px' }}/>} onClick={() => handleInfoClick(record.key)}></Button>
-
+          <Button
+            size="small"
+            icon={<EyeOutlined style={{ fontSize: "13px" }} />}
+            onClick={() => handleInfoClick(record.key)}
+          ></Button>
           <Modal
             title="Details:"
             description
@@ -339,8 +433,10 @@ function CreateService() {
                 onClick={() => updateServiceRequest("On-Going", record.key)}
                 disabled={freeEmployees.length === 0}
               >
-                {record.request_status === "On-Going" || record.request_status === "Completed" ? 
-                "Employee Assigned" : "Assign & Approve" }
+                {record.request_status === "On-Going" ||
+                record.request_status === "Completed"
+                  ? "Employee Assigned"
+                  : "Assign & Approve"}
               </Button>,
             ]}
           >
@@ -375,7 +471,9 @@ function CreateService() {
               <Descriptions.Item label="Contact no:">
                 {singleRequestedService.contact}
               </Descriptions.Item>
-              {record.request_status === "Paid (Waiting For Approval)" ||  record.request_status === "On-Going" || record.request_status === "Completed"  ? (
+              {record.request_status === "Paid (Waiting For Approval)" ||
+              record.request_status === "On-Going" ||
+              record.request_status === "Completed" ? (
                 <Descriptions.Item label="Payment Status">
                   <div class="flex flex-row items-center">
                     <img
@@ -462,8 +560,8 @@ function CreateService() {
   ];
 
   // View All Services
-  const allServicesList = createdService.map((info , index) => ({
-    sn:index +1 ,
+  const allServicesList = createdService.map((info, index) => ({
+    sn: index + 1,
     key: info.id,
     service_name: info.servicename,
     service_for: info.servicetarget,
@@ -472,8 +570,8 @@ function CreateService() {
   }));
 
   // Data Source For Requested Services
-  const allRequestedService = viewRequestedServices.map((info,index) => ({
-    sn:index+1,
+  const allRequestedService = viewRequestedServices.map((info, index) => ({
+    sn: index + 1,
     key: info.id,
     client_name: info.user.fullname,
     service_name: info.services.servicename,
@@ -525,7 +623,7 @@ function CreateService() {
                   <option>Weeks</option>
                 </select>
               </Form.Item>
-              <Form.Item label="Service Pricing">
+              <Form.Item label="Service Base Pricing">
                 <InputNumber
                   addonBefore="Rs"
                   defaultValue={1000}
@@ -564,11 +662,10 @@ function CreateService() {
           <Table
             columns={serviceTableContents}
             dataSource={allServicesList}
-            loading={loading}
             bordered
-            pagination ={{
-              pageSize:10 , 
-              showTotal :(total) => `Total ${total} items`,
+            pagination={{
+              pageSize: 10,
+              showTotal: (total) => `Total ${total} items`,
             }}
           />
         </TabPane>
@@ -582,10 +679,9 @@ function CreateService() {
           <Table
             columns={serviceRequestTable}
             dataSource={allRequestedService}
-            loading={loading}
             bordered
             pagination={{
-              pageSize:10,
+              pageSize: 10,
               showTotal: (total) => `Total ${total} items`,
             }}
           />

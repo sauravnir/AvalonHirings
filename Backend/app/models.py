@@ -7,8 +7,6 @@ from django.dispatch import receiver
 from django.db.models.signals import post_save
 
 
-
-
 def default_profilepic_path(instance , filename):
     return f"WebsiteFiles/UserProfile/"
 
@@ -43,14 +41,13 @@ def insert_contract(sender, instance, created, **kwargs):
             created_date=timezone.now(),
             contract_status='Pending',
             renewal_date=timezone.now(),
-            contract_duration=0,
         )
         contract.save()
 
 
 class CustomToken(models.Model):
     user = models.OneToOneField(Users, on_delete = models.CASCADE , related_name='custom_token')
-    key = models.CharField(max_length=40, unique=True)
+    key = models.CharField(max_length=40, unique = True)
     created = models.DateTimeField(auto_now_add=True)
     expiration = models.DateTimeField(default=timezone.now , blank = True)
 

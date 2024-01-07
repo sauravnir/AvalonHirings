@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Tabs, Card } from "antd";
+import { Form, Input, Button, Tabs, Card , Tooltip } from "antd";
 import Sidebar from "../../Components/Dashboards/Sidebar";
 import NavigationDashboard from "../../Components/Dashboards/NavigationDashboard";
 
@@ -13,11 +13,14 @@ function UserProfile() {
   const [newConfirmPass, setNewConfirmPass] = useState("");
   const [profilePic, setProfilePic] = useState("");
   const [getProfile, setGetProfile] = useState([]);
+  const [subscriptionDetails , setSubscriptionDetails] = useState([]);
   const navigate = useNavigate();
   const { TabPane } = Tabs;
   const data = localStorage.getItem("userData");
 
   const userType = JSON.parse(data);
+
+  const [getEmployeeCaliber, setEmployeeCaliber] = useState("");
 
   const updatePassword = {
     password: newPass,
@@ -63,6 +66,15 @@ function UserProfile() {
       );
       const data = await respone.json();
       setGetProfile(data);
+      const employee_caliber = data.employee_caliber?.caliber_level;
+      if (
+        employee_caliber &&
+        employee_caliber !== null
+      ) {
+        setEmployeeCaliber(employee_caliber);
+      } else {
+        setEmployeeCaliber(null);
+      }
     };
 
     viewprofile();
@@ -104,7 +116,7 @@ function UserProfile() {
       children: (
         <TabPane tab="Profile Details" key="1">
           <div class="p-5 items-center">
-            <Form>
+            <Form layout="vertical">
               <Form.Item label="Fullname:">
                 <Input
                   value={getProfile.fullname}
@@ -151,6 +163,7 @@ function UserProfile() {
       children: (
         <TabPane tab="Change Password" key="2">
           <div class="p-5 items-center">
+            <Form layout="vertical">
             <form onSubmit={handleProfileUpdate}>
               <Form.Item label="New Password">
                 <Input.Password onChange={(e) => setNewPass(e.target.value)} />
@@ -169,66 +182,95 @@ function UserProfile() {
                 </button>
               </div>
             </form>
+            </Form>
+            
           </div>
         </TabPane>
       ),
     },
   ];
 
+  // Handle Suubscription Details
+
+  useEffect(()=>{
+    const fetchSubscriptionDetails = async () =>{
+      try{
+        const response = await fetch(`http://127.0.0.1:8000/subscriptiondetails/${userType.user_id}`)
+        const data = await response.json()
+        setSubscriptionDetails(data);
+        console.log(subscriptionDetails)
+      }catch(error){
+        toast.error("Unable To Fetch The Details")
+      }
+    }
+    fetchSubscriptionDetails();
+  },[])
+
+
+
   return (
     <div class="bg-zinc-100 flex">
       <NavigationDashboard />
       <Sidebar />
       <ToastContainer position="top-center" />
-      <div class="flex flex-row justify-center py-5 w-screen mt-20 ">
-        <div class="shadow border w-1/2 rounded bg-white">
-          <div class="border">
-            <div class="flex flex-col items-center">
-              <div
-                class="flex items-center justify-center"
-                style={{
-                  backgroundImage: `url(${require("../../images/profilebackground.jpg")})`,
-                  backgroundSize: "cover",
-                  backgroundPosition: "center",
-                  width: "100%",
-                  height: "300px",
-                  opacity:0.9
-                }}
-              >
-                {/* <img src={require(`../../images/profilebackground.jpg`)}></img> */}
-                <div class="flex flex-col relative items-center justify-center">
-                  
-                    <img
-                      class="w-40 h-40 mb-3 rounded-full shadow-2xl border object-cover"
-                      src={`http://127.0.0.1:8000${getProfile.profilepic}`}
-                      alt="User Profile"
-                    ></img>
-                  
-                  <label
-                    for="profilePictureInput"
-                    class="absolute top-0 left-0 w-full h-full cursor-pointer opacity-0"
-                  >
-                    <form enctype="multipart/form-data">
-                      <input
-                        type="file"
-                        id="profilePictureInput"
-                        class="text-sm"
-                        onChange={(e) => setProfilePic(e.target.files[0])}
-                      ></input>
-                    </form>
-                  </label>
-                  <h1 class="hover:underline text-white text-lg">{getProfile.fullname}</h1>
-                  <h1 class="text-sm text-zinc-200 ">{getProfile.email}</h1>
-                </div>
-              </div>
-            </div>
+      <div class="flex flex-row justify-center py-5 w-screen mt-20">
+  <div class="shadow border w-1/2 rounded bg-white">
+    <div class="border">
+      <div class="flex flex-col items-center">
+        
+        {subscriptionDetails.is_subscribed === true ? <div class="flex bg-gradient-to-r from-amber-400 to-orange-500 w-full p-2 justify-center">
+          
+          <button class="flex flex-row space-x-3 items-center">
+            <img class="w-7 h-7" src={require(`../../images/subscribe.png`)} alt="Subscribe"></img>
+            <h1 class="text-sm font-bold">PREMIUM MEMBER</h1>
+          </button>
+
+        </div> :null}
+        
+        <div
+          class="flex items-center justify-center relative"
+          style={{
+            backgroundImage: `url(${require("../../images/profilebackground.jpg")})`,
+            backgroundSize: "cover",
+            backgroundPosition: "center",
+            width: "100%",
+            height: "300px",
+            opacity: 0.9,
+          }}
+        >
+          <div class="flex flex-col relative items-center justify-center">
+            <img
+              class="w-40 h-40 mb-3 rounded-full shadow-2xl border object-cover"
+              src={`http://127.0.0.1:8000${getProfile.profilepic}`}
+              alt="User Profile"
+            ></img>
+
+            <label
+              for="profilePictureInput"
+              class="absolute top-0 left-0 w-full h-full cursor-pointer opacity-0"
+            >
+              <form enctype="multipart/form-data">
+                <input
+                  type="file"
+                  id="profilePictureInput"
+                  class="text-sm"
+                  onChange={(e) => setProfilePic(e.target.files[0])}
+                ></input>
+              </form>
+            </label>
+            <h1 class="hover:underline text-white text-lg">{getProfile.fullname}</h1>
+            <h1 class="text-sm text-zinc-200 ">{getProfile.email}</h1>
           </div>
-          <Card>
-            <Tabs>{TabList.map((tab) => tab.children)}</Tabs>
-          </Card>
         </div>
       </div>
     </div>
+    <Card>
+      <Tabs>{TabList.map((tab) => tab.children)}</Tabs>
+    </Card>
+  </div>
+</div>
+
+      </div>
   );
 }
 

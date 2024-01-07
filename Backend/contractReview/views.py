@@ -10,6 +10,7 @@ from django.core.mail import send_mail
 import math , random 
 from rest_framework.generics import RetrieveAPIView
 from services.models import AssignedEmployees
+from payment.models import Caliber
 # Create your views here.
 
 class ContractList(APIView):
@@ -40,10 +41,16 @@ class UpdatedContractView(APIView):
                 if (user_data.user_type == "Employee"):
                     assigned_employee = AssignedEmployees.objects.create(
                         assigned_employee = user_data , 
-                        work_status = 'Free For Work',
-                        
+                        work_status = 'Free For Work',   
                     )
+
+                    employee_caliber = Caliber.objects.create(
+                        employee = user_data ,
+                    )
+
+                    employee_caliber.save()
                     assigned_employee.save();
+                
 
                 user_data.is_auth = True 
                 print(user_data.is_auth)
@@ -70,13 +77,9 @@ class UpdatedContractView(APIView):
                     user_data.otp = "";
                 if(user_data.is_auth == True):
                     user_data.is_auth = False;
-                # if(get_object_or_404(CustomToken , user_id = user_data.id)):
-                #     token = get_object_or_404(CustomToken , user_id = user_data.id)
-                #     destroy_token = token("");
                 
                 AssignedEmployees.objects.filter(assigned_employee = user_data).delete()
                 user_data.save()
-                # destroy_token.save()
                 contract.save()
                 return Response({'message': 'Report updated successfully'}, status=status.HTTP_200_OK)
                 

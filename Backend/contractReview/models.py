@@ -12,7 +12,5 @@ class Contract(models.Model):
     created_date = models.DateField()
     contract_status = models.CharField(max_length=20, choices=CONTRACT_STATUS_CHOICES)
     renewal_date = models.DateField()
-    contract_duration = models.IntegerField(default = None)
-
     def __str__(self):
         return f"{self.contract_id} - {self.user.fullname}"

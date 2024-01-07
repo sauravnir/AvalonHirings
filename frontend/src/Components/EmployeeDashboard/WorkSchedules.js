@@ -1,6 +1,15 @@
 import React, { useEffect, useState } from "react";
 
-import { Tabs, Modal, Table, Space, Button, Card, Descriptions, Badge } from "antd";
+import {
+  Tabs,
+  Modal,
+  Table,
+  Space,
+  Button,
+  Card,
+  Descriptions,
+  Badge,
+} from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 
@@ -21,8 +30,8 @@ function WorkSchedules() {
     servicedesc: "",
     expiry_date: "",
     profilepicture: "",
-    workstatus : "",
-    approved_date : "",
+    workstatus: "",
+    approved_date: "",
   });
 
   console.log("Active Service", activeService);
@@ -50,8 +59,8 @@ function WorkSchedules() {
           servicedes: assigned_service_details?.servicedesc || "",
           expiry_date: service_request?.expiry_date || "",
           profilepicture: client_details?.profilepic || "",
-          workstatus : data.work_status, 
-          approved_date : assigned_service_details?.approved_date || ""
+          workstatus: data.work_status,
+          approved_date: assigned_service_details?.approved_date || "",
         };
 
         setActiveService(viewActiveService);
@@ -85,8 +94,11 @@ function WorkSchedules() {
       key: "action",
       render: (_, { action }) => (
         <Space>
-          <Button size="small" shape="circle" icon={<EyeOutlined style={{ fontSize: '13px' }}/>} onClick={() => setModalOpen(true)}>
-          </Button>
+          <Button
+            size="small"
+            icon={<EyeOutlined style={{ fontSize: "13px" }} />}
+            onClick={() => setModalOpen(true)}
+          ></Button>
           <Modal
             title="Client's Details"
             open={modalOpen}
@@ -97,55 +109,52 @@ function WorkSchedules() {
           >
             <div class="flex flex-col p-4 items-center">
               <div class="bordered space-y-2">
-                <div class="flex flex-row items-center justify-center">
-              <a href={activeService.profilepicture}>
-
-                <img
-                  class="w-20 h-20 rounded-full border mb-5 object-cover"
-                  alt="User Picture"
-                  src={activeService.profilepicture}
-                ></img>
-              </a>
-                </div>
-
                 <Descriptions layout="horizontal" size="middle" bordered>
+                  <Descriptions.Items label="Client Profile">
+                    <div class="flex flex-row items-center justify-center">
+                      <a href={activeService.profilepicture}>
+                        <img
+                          class="w-16 h-16 rounded-full border mb-5 object-cover"
+                          alt="User Picture"
+                          src={activeService.profilepicture}
+                        ></img>
+                      </a>
+                    </div>
+                  </Descriptions.Items>
                   <Descriptions.Items label="Client's Name:">
                     {activeService.fullname}
                   </Descriptions.Items>
 
                   <Descriptions.Items label="Client's Contact:">
-
-                  {activeService.contact}
+                    {activeService.contact}
                   </Descriptions.Items>
 
                   <Descriptions.Items label="Work Location">
-                  {activeService.servicelocation}
-
+                    {activeService.servicelocation}
                   </Descriptions.Items>
 
                   <Descriptions.Items label="Service Name">
-                  {activeService.servicename}
+                    {activeService.servicename}
                   </Descriptions.Items>
 
                   <Descriptions.Items label="Description">
-                  {activeService.servicedes}
+                    {activeService.servicedes}
                   </Descriptions.Items>
                   <Descriptions.Items label="Service Time">
-                  {activeService.serviceavailable}
+                    {activeService.serviceavailable}
                   </Descriptions.Items>
 
                   <Descriptions.Items label="From">
-                  {new Date(activeService.approved_date).toLocaleDateString()}
+                    {new Date(activeService.approved_date).toLocaleDateString()}
                   </Descriptions.Items>
 
                   <Descriptions.Items label="Till">
-                  {new Date(activeService.expiry_date).toLocaleDateString()}
+                    {new Date(activeService.expiry_date).toLocaleDateString()}
                   </Descriptions.Items>
                   <Descriptions.Items label="Status">
-                  <Badge status="processing" text="Active" />
+                    <Badge status="processing" text="Active" />
                   </Descriptions.Items>
                 </Descriptions>
-
               </div>
             </div>
           </Modal>
@@ -156,7 +165,7 @@ function WorkSchedules() {
 
   const workTableData = [
     {
-      sn:1,
+      sn: 1,
       key: activeService.id,
       service_name: activeService.servicename,
       client_name: activeService.fullname,
