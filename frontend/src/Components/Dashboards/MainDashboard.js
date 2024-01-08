@@ -15,7 +15,7 @@ function MainDashboard() {
     <div className="w-screen mt-14">
       <div className="mt-2 w-10/14 p-6">
         <div className=" flex-col py-3 ">
-          <h1 className="text-2xl font-semibold ">Dashboard</h1>
+          <h1 className="text-xl font-semibold ">Dashboard</h1>
   
           <div class="flex flex-row items-center bg-violet-600 rounded-lg font-medium shadow h-12 mt-5">
             <h1 class="px-8 text-white text-base">

@@ -273,7 +273,7 @@ function ViewReports() {
     <div class="w-screen mt-14">
       <div class="flex flex-col mt-2 p-6">
         <div className="flex w-full bg-white  rounded shadow p-3">
-          <h1 className="text-2xl font-bold">Reports and Issues</h1>
+          <h1 className="text-xl font-bold">Reports and Issues</h1>
         </div>
         <ToastContainer position="top-center" autoClose={5000} />
 

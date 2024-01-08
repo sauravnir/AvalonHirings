@@ -1,16 +1,16 @@
 import React from 'react'
 import Sidebar from '../../../Components/Dashboards/Sidebar'
 import NavigationDashboard from '../../../Components/Dashboards/NavigationDashboard'
-import ReviewAndRatingsEmployee from '../../../Components/EmployeeDashboard/ReviewAndRatingsEmployee'
+import ViewRatings from '../../../Components/Dashboards/ViewRatings'
 
-function EmployeeReviews() {
+function Ratings() {
   return (
     <div class="bg-zinc-100 flex">
         <NavigationDashboard />
         <Sidebar />
-        <ReviewAndRatingsEmployee />
+        <ViewRatings />
     </div>
   )
 }
 
-export default EmployeeReviews
+export default Ratings

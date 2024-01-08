@@ -99,7 +99,7 @@ function Sidebar() {
                         
                       </Link>
 
-                      <Link to="/admin-dashboard">
+                      <Link to="/ratings">
                         {/* <img src={require(``)}></img> */}
                         <a className="flex flex-row block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
                         <img class="w-5 h-5 mr-4" src={require(`../../images/view.png`)}></img>View Ratings
@@ -324,7 +324,7 @@ function Sidebar() {
                 </a>
               </Link>
 
-              <Link to="/employee-dashboard">
+              <Link to="/employee-review-ratings">
                 <a
                   class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
                   href="#"
@@ -345,7 +345,7 @@ function Sidebar() {
                     />
                   </svg>
 
-                  <span class="mx-4 font-medium">Review and Ratings</span>
+                  <span class="mx-4 font-medium">Caliber / Tier</span>
                 </a>
               </Link>
 
@@ -501,7 +501,7 @@ function Sidebar() {
                   <span class="mx-4 font-medium">Payment Details</span>
                 </a>
               </Link>
-
+{/* 
               <Link to="/client-dashboard">
                 <a
                   class="flex items-center px-4 py-2 mt-5  transition-colors duration-300 transform rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200 hover:text-gray-700"
@@ -525,7 +525,7 @@ function Sidebar() {
 
                   <span class="mx-4 font-medium">View Ratings</span>
                 </a>
-              </Link>
+              </Link> */}
 
               <Link to="/client-reports">
                 <a

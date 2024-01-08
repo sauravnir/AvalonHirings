@@ -97,7 +97,7 @@ function NavigationDashboard() {
     <nav class="z-50">
       <div class="container fixed bg-gray-800 dark:bg-gray-800 p-7 py-3 shadow-lg ">
         <div class="flex flex-row items-center justify-between h-8">
-          <div class="flex items-center justify-start space-x-1 ">
+          <div class="flex flex-row items-center justify-start space-x-1 ">
             <img src={Logo} class="h-5" alt="FlowBite Logo" />
             <h4 class=" text-lg font-medium text-gray-800 dark:text-gray-200">
               Avalon Hirings
@@ -154,6 +154,8 @@ function NavigationDashboard() {
 
             {getEmployeeCaliber !== null && (
               <>
+              <Link to="/employee-review-ratings">
+             
                 {getEmployeeCaliber === "bronze" ? (
                   <div className="flex flex-row items-center rounded">
                     <Tooltip
@@ -197,6 +199,7 @@ function NavigationDashboard() {
                     </Tooltip>
                   </div>
                 ) : null}
+                 </Link>
               </>
             )}
 

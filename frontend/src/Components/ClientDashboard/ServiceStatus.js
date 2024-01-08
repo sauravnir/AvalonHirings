@@ -13,6 +13,7 @@ import {
   Rate,
   Input,
   Form,
+
 } from "antd";
 
 import { EyeOutlined } from "@ant-design/icons";
@@ -23,6 +24,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
 import KhaltiCheckout from "khalti-checkout-web";
+
 // Rating Description
 const desc = ['Terrible', 'Bad', 'Average', 'Good', 'Perfectionist'];
 
@@ -39,7 +41,7 @@ function ServiceStatus() {
     profilepic: "",
   });
 
-
+  const [spinning , setSpinning] = useState(false);
   const [ratingValue , setRatingValue] = useState("");
   const [ratingFeedbacks , setRatingFeedBacks] = useState("");
 
@@ -87,6 +89,7 @@ function ServiceStatus() {
 
   const sendPaymentToken = async (paymentToken, amount, serviceuseid) => {
     try {
+
       const res = await fetch("http://127.0.0.1:8000/servicetransaction/", {
         method: "POST",
         headers: {
@@ -133,7 +136,6 @@ function ServiceStatus() {
         );
         const data = await res.json();
         setSingleService(data);
-        console.log(data);
         const { assigned_employee } = data[0];
         const viewAssignedEmployee = {
           id: assigned_employee?.assigned_employee?.id || "",
@@ -159,6 +161,7 @@ function ServiceStatus() {
         },
         body:JSON.stringify({employee_id:Id , rating_num : ratingValue , rating_feedback : ratingFeedbacks , client_id : client_id  })
       })
+      
       if(response.ok){
         navigate('/client-dashboard')
       }
@@ -379,7 +382,7 @@ function ServiceStatus() {
                       </div> */}
                       <div class="flex flex-col justify-center ">
                         <Form layout="vertical">
-                          <Form.Item label="Give Ratings">
+                          <Form.Item label="Give Ratings" >
                             <h1>
                               <Space>
                               <Rate tooltips={desc} onChange={(value) =>setRatingValue(value)} value={ratingValue}/>
@@ -387,9 +390,8 @@ function ServiceStatus() {
                               </Space>
                             </h1>
                           </Form.Item>
-                          <Form.Item label="Any Feedbacks?">
+                          <Form.Item label="Any Feedbacks?" >
                             <Input.TextArea onChange={(e) => setRatingFeedBacks(e.target.value)}>
-
                             </Input.TextArea>
                           </Form.Item>
                         </Form>
@@ -423,7 +425,7 @@ function ServiceStatus() {
       <div className="flex flex-col mt-2 py-3 px-4 ">
         <ToastContainer />
         <div className="flex w-full items-center mt-3 justify-between bg-white rounded shadow border p-3">
-          <h1 className="text-2xl   font-bold">View Progress / Status</h1>
+          <h1 className="text-xl font-bold">View Progress / Status</h1>
           <select class=" w-1/3 shadow-lg p-2 text-sm">
             <option>Filter Service Status</option>
             <option>Processing</option>

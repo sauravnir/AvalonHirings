@@ -7,8 +7,18 @@ import { PlusOutlined, QuestionOutlined } from "@ant-design/icons";
 
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
+import { required } from "khalti-checkout-web";
+
 
 function ServiceRequestClient() {
+
+  const rules = [
+    {
+      required: true,
+      message: "required",
+    },
+  ];
+  
   const [getServiceItems, setGetServiceItems] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]);
 
@@ -135,11 +145,11 @@ function ServiceRequestClient() {
         <ToastContainer position="bottom-center" autoClose={6000} />
         <div class="flex items-center justify-center"></div>
 
-        <div class="grid grid-cols-4 space-x-4">
+        <div class="grid grid-cols-4 space-x-4 flex-wrap">
           {getServiceItems.map((info) => (
             <div
               key={info.id}
-              className="p-4 rounded shadow-lg bg-white border flex flex-col justify-between"
+              className="p-4 rounded shadow-lg bg-white border flex flex-col justify-between mb-3"
             >
               <div className="space-y-5">
                 <button
@@ -185,12 +195,12 @@ function ServiceRequestClient() {
                   disabled={info.status === "Not Available"}
                 ></Button>
 
-                <Button
+                {/* <Button
                   onClick={infoAlert}
                   size="small"
                   shape="circle"
                   icon={<QuestionOutlined style={{ fontSize: "13px" }} />}
-                ></Button>
+                ></Button> */}
                 {selectedItems && (
                   <Drawer
                     title="Request This Service?"
@@ -230,15 +240,15 @@ function ServiceRequestClient() {
                         </Form.Item>
 
                         <Form.Item
-                          label={`Set the value for ${selectedItems.serviceavailable} service (required):`}
-                        >
+                          label={`Set the value for ${selectedItems.serviceavailable} service:` }
+>
                           <input
                             class="p-2 rounded border w-full"
                             type="number"
                             placeholder={`For how many ${selectedItems.serviceavailable}`}
                             onChange={(e) => setPickValue(e.target.value)}
                             min="1"
-                            required
+                           
                           ></input>
                         </Form.Item>
 
@@ -255,7 +265,7 @@ function ServiceRequestClient() {
                             type="text"
                             placeholder="Eg: Budhanilkanthan-2 , Bhangal , Nepal"
                             onChange={(e) => setLocation(e.target.value)}
-                            required
+                           
                           ></input>
                         </Form.Item>
 

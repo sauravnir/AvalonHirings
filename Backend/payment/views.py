@@ -44,7 +44,6 @@ class ServicePaymentView(APIView):
                 payment_method = "Khalti Payment",
                 payment_date = datetime.now()
             )
-        
             payment.save();
             serviceuse.save();    
             return JsonResponse({'message': 'Payment successful'}, status=200)

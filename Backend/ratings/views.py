@@ -7,9 +7,11 @@ from datetime import datetime
 from rest_framework import status
 from app.models import Users
 from payment.models import Caliber
+from rest_framework.generics import ListAPIView , RetrieveAPIView
+from .serializers import RatingSerializer
 # Create your views here.
 
-
+# Client rating the employee
 class EmployeeRating(APIView):
     def post(self , request):
         rating_num = request.data.get('rating_num')
@@ -21,7 +23,6 @@ class EmployeeRating(APIView):
         employee = get_object_or_404(Users , id = employee_id)
 
         
-
         rating = get_object_or_404(Caliber , employee = employee_id)
         
         if client and employee is not None:
@@ -33,6 +34,7 @@ class EmployeeRating(APIView):
                   client = client,
                   employee = employee,
                 )
+                rating.ratings = employee_ratings
             else:
                 employee_ratings = Rating.objects.create(
                   ratings = rating_num , 
@@ -41,10 +43,31 @@ class EmployeeRating(APIView):
                   client = client,
                   employee = employee,
                   )
-                
-                
+                rating.ratings = employee_ratings
+            rating.save()
             employee_ratings.save()
             
             return Response({"message":"Ratings Saved Successfully"} , status = status.HTTP_200_OK)
 
         return Response({'message': "Bad Request"}, status=status.HTTP_400_BAD_REQUEST)
+
+
+# Getting the single ratings for the employee
+class GetSingleRatingsView(ListAPIView):
+    serializer_class = RatingSerializer
+    def get_queryset(self):
+        employee_id = self.kwargs['employee_id']
+        return Rating.objects.filter(employee__id = employee_id , ratings__gt=3)
+    
+# Getting all the ratings
+    
+class GetAllRatingsView(ListAPIView):
+    queryset = Rating.objects.all()
+    serializer_class = RatingSerializer
+
+# Getting single ratings for the admin 
+
+class SingleRatingView(RetrieveAPIView):
+    queryset = Rating.objects.all()
+    serializer_class = RatingSerializer
+    lookup_field = 'pk'

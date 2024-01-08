@@ -61,7 +61,7 @@ class UserLoginView(APIView):
                         'user_id': user_id,
                         'is_auth':is_auth,
                         
-                        'message' : 'Login Successfull'} , status = status.HTTP_200_OK)
+                        'message' : 'Login Successful'} , status = status.HTTP_200_OK)
                     else:
                         return Response({
                             'token' : token.key, 
@@ -70,8 +70,7 @@ class UserLoginView(APIView):
                             'otp': user.otp,
                             'user_id': user_id,
                             'is_auth':is_auth,
-                            
-                            'message' : 'Login Successfull'} , status = status.HTTP_200_OK)
+                            'message' : 'Login Successful'} , status = status.HTTP_200_OK)
                 else:
                     return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
             else:

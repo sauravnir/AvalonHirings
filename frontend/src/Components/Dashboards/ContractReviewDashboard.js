@@ -232,7 +232,7 @@ function ContractReviewDashboard() {
     <div class="w-screen mt-14">
       <div class="flex flex-col mt-2 p-6">
       <div className="flex w-full bg-white  rounded shadow p-3">
-          <h1 className="text-2xl font-bold">User Requests</h1>
+          <h1 className="text-xl font-bold">User Requests</h1>
         </div>
         <ToastContainer />
         <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">

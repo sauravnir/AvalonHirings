@@ -104,6 +104,7 @@ function CreateService() {
         const res = await fetch("http://127.0.0.1:8000/getservices/");
         const data = await res.json();
         setCreatedService(data);
+        console.log(data);
       } catch (error) {
         toast.error(error);
       }
@@ -694,7 +695,7 @@ function CreateService() {
     <div class="w-screen mt-14">
       <div class="flex flex-col mt-2 p-6">
         <div className="flex w-full bg-white  rounded shadow p-3">
-          <h1 className="text-2xl  font-bold">Add / View services</h1>
+          <h1 className="text-xl  font-bold">Add / View services</h1>
         </div>
         <ToastContainer position="top-center" autoClose={5000} />
 

@@ -3,6 +3,7 @@ from services.models import ServiceUse
 from app.models import Users
 from ratings.models import Rating
 import datetime
+from decimal import Decimal 
 # Create your models here.
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
@@ -36,3 +37,12 @@ class Caliber(models.Model):
     salary = models.DecimalField(max_digits = 10 , decimal_places = 2 , default = 17000)
     last_paid = models.DateField(default=datetime.date.today)
     
+
+    def upgrade_salary(self):
+        if self.caliber_level == 'gold':
+            self.salary = Decimal('30000.00')
+        elif self.caliber_level == 'silver':
+            self.salary = Decimal('25000.00')
+        
+        self.save()
+        

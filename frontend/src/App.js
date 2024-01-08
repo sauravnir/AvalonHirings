@@ -24,7 +24,7 @@ import CreateServiceAdmin from  "./Pages/Dashboard/AdminDashboard/CreateServiceA
 import RequestService from "./Pages/Dashboard/ClientDashboard/RequestService.js";
 import UserProfile from "./Pages/ProfileSettings/UserProfile.js";
 import ViewServiceStatus from "./Pages/Dashboard/ClientDashboard/ViewServiceStatus.js";
-
+import Ratings from "./Pages/Dashboard/AdminDashboard/Ratings.js";
 
 function App() {
   return (
@@ -50,14 +50,7 @@ function App() {
           <Route path="/admin-payment" element={<PrivateRoute />}>
             <Route index element={<Payment />} />
           </Route>
-          <Route path="/client-dashboard" element={<PrivateRoute />}>
-            <Route index element={<ClientDashboard />} />
-          </Route>
-
-          <Route path="/employee-dashboard" element={<PrivateRoute allowedRoles={['Employee']}/>}>
-            <Route index element={<EmployeeDashboard />} />
-          </Route>
-
+         
           <Route path="/admin-view-reports" element={<PrivateRoute />}>
             <Route index element={<ReportandIssues />} />
           </Route>
@@ -65,9 +58,17 @@ function App() {
           <Route path="/create-service" element={<PrivateRoute />}>
             <Route index element={<CreateServiceAdmin />}/>
           </Route>
+         
+          <Route path="/ratings" element={<PrivateRoute />}>
+            <Route index element={<Ratings />}/>
+          </Route>
+          
 
 
           {/* Employee Routes */}
+          <Route path="/employee-dashboard" element={<PrivateRoute allowedRoles={['Employee']}/>}>
+            <Route index element={<EmployeeDashboard />} />
+          </Route>
           <Route path="/employee-work-schedule" element={<PrivateRoute />}>
             <Route index element={<EmployeeWorkSchedule />}></Route>
           </Route>

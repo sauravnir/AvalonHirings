@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 
 import Logo from "../../images/Abnw.png";
 import { Link } from "react-router-dom";
-import { notification, Input } from "antd";
+import { notification, Input , message} from "antd";
 
 import { ToastContainer, toast } from "react-toastify";
 
@@ -39,6 +39,9 @@ function LoginPage() {
         localStorage.setItem("token", data.token);
         const userData = JSON.stringify(data);
         localStorage.setItem("userData", userData);
+
+        message.success(data.message);
+
         if (data.user_type === "Admin") {
           navigate("/admin-dashboard");
         }
@@ -50,12 +53,13 @@ function LoginPage() {
         } else {
           {data.user_type === "Client" ? navigate('/client-dashboard') : navigate("/employee-dashboard")};
         }
-      }else{
-        toast.error("Failed To Authenticated")
+      }else{  
+        
       }
     } catch (error) {
-      console.log("Error occurred:", error);
-      toast.error("An error occurred. Please try again.");
+      // console.log("Error occurred:", error);
+      message.error('Failed to Log In');
+      
     }
   };
 
