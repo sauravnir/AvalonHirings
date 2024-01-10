@@ -9,7 +9,7 @@ import {
   Input
 } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
-
+import Spinner from "../../Pages/ProfileSettings/Spinner";
 
 const RatingText = ({ rating }) => {
   const getRatingText = (input) => {
@@ -37,6 +37,7 @@ const RatingText = ({ rating }) => {
 };
 
 function ViewRatings() {
+  const [loading, setLoading] = useState(false);
   const [openModal , setOpenModal] = useState(false)
   const [getAllRating , setGetAllRating] = useState([]); 
   const [singleRating , setSingleRating] = useState({
@@ -57,12 +58,16 @@ function ViewRatings() {
   useEffect(()=>{
     const allRatings = async () => {
       try {
+        setLoading(true);
         const response = await fetch("http://127.0.0.1:8000/allratings/");
         const data = await response.json();
         setGetAllRating(data);
       } 
       catch (error) {
         console.log(error);
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
       }
     }
 
@@ -71,6 +76,7 @@ function ViewRatings() {
 
   const fetchSingleRating = async (id) => {
     try {
+      
       const response = await fetch(`http://127.0.0.1:8000/singleratings/${id}`)
       const data = await response.json();
       setSingleRating(prevState => ({
@@ -100,15 +106,16 @@ function ViewRatings() {
       key: "sn",
     },
     {
-      title: "Employee Name",
-      dataIndex: "employee_name",
-      key: "employee_name",
-    },
-    {
-      title: "Client Name",
+      title: "From (Client)",
       dataIndex: "client_name",
       key: "client_name",
     },
+    {
+      title: "To (Employee)",
+      dataIndex: "employee_name",
+      key: "employee_name",
+    },
+    
     {
       title: "Rating",
       dataIndex: "rating",
@@ -163,7 +170,8 @@ function ViewRatings() {
     rating : <RatingText rating={info.ratings} />,
   }))
   return (
-    <div className="w-screen mt-10">
+    <div className="w-screen mt-8">
+      {loading && <Spinner />}
       <div className="flex flex-col mt-5 p-6">  
         <div className="flex w-full bg-white  rounded shadow p-3">
           <h1 className="text-xl font-bold">All Ratings / Reviews</h1>

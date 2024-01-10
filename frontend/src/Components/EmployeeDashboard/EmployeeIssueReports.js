@@ -1,9 +1,13 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, Button, Modal, Form, Input, Tabs, Table , Tag } from "antd";
+import { Card, Button, Modal, Form, Input, Tabs, Table , Tag, Select } from "antd";
+import {
+  SearchOutlined
+} from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DashboardFooter from "../Dashboards/DashboardFooter.js";
+import Spinner from "../../Pages/ProfileSettings/Spinner.js";
 
 function EmployeeIssueReports() {
   const [openModal, setOpenModal] = useState(false);
@@ -11,14 +15,14 @@ function EmployeeIssueReports() {
   const [reportDesc, setReportDesc] = useState("");
   const navigate = useNavigate();
   const [reportDetails, setReportDetails] = useState([]);
-
+  const [loading , setLoading] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     try {
+      setLoading(true);
       const formData = new FormData();
-
       const get_userdata = localStorage.getItem("userData");
       const parsedata = JSON.parse(get_userdata);
       const get_username = parsedata.username;
@@ -31,7 +35,7 @@ function EmployeeIssueReports() {
         method: "POST",
         body: formData,
       });
-
+      
       if (response.ok) {
         const user_type = reportDetails[0].user.user_type
         if(user_type === "Client"){
@@ -46,6 +50,9 @@ function EmployeeIssueReports() {
     } catch (error) {
       console.log(error.message);
       toast.error("Err..something is wrong!");
+    }finally{
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setLoading(false);
     }
   };
 
@@ -56,11 +63,15 @@ function EmployeeIssueReports() {
   useEffect(() => {
     const fetchReportDetails = async () => {
       try {
+        setLoading(true);
         const response = await fetch(`http://127.0.0.1:8000/getclientreport/${userId.user_id}`);
         const data = await response.json();
         setReportDetails(data);
       } catch (error) {
         console.error("Error fetching report details:", error);
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
       }
     };
 
@@ -104,6 +115,12 @@ const contents = [
     title: "Status",
     dataIndex: "report_status",
     key: "report_status",
+    filterMultiple: false,
+    filters: [
+      { text: "Approved", value: "Approved" },
+      { text: "Pending", value: "Pending" },
+      { text: "Denied", value: "Denied" },
+    ],
     render: (_, { report_status }) => (
       <>
         {report_status &&
@@ -124,10 +141,34 @@ const contents = [
           })}
       </>
     ),
-    
+    filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+      <div className="flex flex-col space-y-2" style={{ padding: 8 }}>
+        <Select
+          mode="multiple"
+          style={{ width: 200 }}
+          placeholder="Select Status"
+          onChange={(value) => setSelectedKeys(value || [])}
+          onDeselect={confirm}
+          value={selectedKeys}
+          options={["Approved", "Pending", "Denied"].map((status) => ({
+            value: status,
+            label: status,
+          }))}
+        />
+        <Button
+          type="default"
+          onClick={confirm}
+          icon={<SearchOutlined />}
+          size="small"
+          style={{ width: 90 }}
+        >
+          Search
+        </Button>
+      </div>
+    ),
+    onFilter: (value, record) => record.report_status.includes(value),
   }
-]
-
+]  
 // table datasource 
 const data = reportDetails.map((info , index)=>({
   sn : index+1,
@@ -140,13 +181,14 @@ const data = reportDetails.map((info , index)=>({
 // Sorting Data
 
   return (
-    <div className="w-screen mt-14 ">
+    <div className="w-screen mt-8 ">
+      {loading && <Spinner />}
       <div className="flex flex-col mt-2 p-6">
-        <div className="flex w-full bg-white  rounded shadow p-3">
-          <h1 className="text-2xl font-bold">Issue Reports / Requests</h1>
+        <div className="flex w-full p-3">
+          <h1 className="text-xl font-bold">Issue Reports / Requests</h1>
         </div>
 
-        <div className=" flex flex-col p-3 mt-5 rounded shadow-xl bg-white shadow-gray-350">
+        <div className=" flex flex-col p-3 rounded shadow-xl bg-white shadow-gray-350">
           
             <Card>
               <div className="text-red-600">
@@ -189,7 +231,9 @@ const data = reportDetails.map((info , index)=>({
           
         </div>
         <div class="mt-12 p-3 bg-white rounded shadow-lg">
+          <div class="flex flex-row justify-between">
             <h1 class="text-lg p-2 font-bold hover:underline">View Reports</h1>
+          </div>
             <h1 class="text-sm p-2 mb-4 text-red-500">Note: Once approved , the related department will contact you for further processing.</h1>
             <Table columns={contents} dataSource={data} pagination={{
               pageSize:5,

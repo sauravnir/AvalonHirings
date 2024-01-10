@@ -29,7 +29,6 @@ class Users(AbstractBaseUser , PermissionsMixin):
         return self.username
 
 
-
 @receiver(post_save, sender=Users)
 def insert_contract(sender, instance, created, **kwargs):
     if created:
@@ -54,4 +53,10 @@ class CustomToken(models.Model):
     def __str__(self):
         return f'Token for {self.user.username}'
     
+
+class Announcements(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    created_date = models.DateTimeField(auto_now_add=True)
+
 

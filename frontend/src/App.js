@@ -25,7 +25,13 @@ import RequestService from "./Pages/Dashboard/ClientDashboard/RequestService.js"
 import UserProfile from "./Pages/ProfileSettings/UserProfile.js";
 import ViewServiceStatus from "./Pages/Dashboard/ClientDashboard/ViewServiceStatus.js";
 import Ratings from "./Pages/Dashboard/AdminDashboard/Ratings.js";
-
+import Transaction from "./Pages/Dashboard/AdminDashboard/Transaction.js";
+import ClientTransaction from "./Pages/Dashboard/ClientDashboard/ClientTransaction.js";
+import EmployeeTransaction from "./Pages/Dashboard/EmployeeDashboard/EmployeeTransaction.js";
+import Announcements from "./Pages/Dashboard/AdminDashboard/Announcements.js";
+import ClientAnnouncement from "./Pages/Dashboard/ClientDashboard/ClientAnnouncement.js";
+import EmployeeAnnouncement from "./Pages/Dashboard/EmployeeDashboard/EmployeeAnnouncement.js";
+import AddUser from "./Pages/Dashboard/AdminDashboard/AddUser.js";
 function App() {
   return (
   
@@ -62,7 +68,18 @@ function App() {
           <Route path="/ratings" element={<PrivateRoute />}>
             <Route index element={<Ratings />}/>
           </Route>
-          
+          <Route path="/create-transaction" element={<PrivateRoute />}>
+            <Route index element = {<Transaction />}/>
+          </Route>
+
+          <Route path="/announcements" element = {<PrivateRoute/>}>
+            <Route index element = {<Announcements />} />
+          </Route>
+
+          <Route path="/add-user" element = {<PrivateRoute/>}>
+            <Route index element = {<AddUser />} />
+          </Route>
+
 
 
           {/* Employee Routes */}
@@ -84,6 +101,14 @@ function App() {
             <Route index element={<EmployeeReports />}></Route>
           </Route>
 
+          <Route path="/employee-transaction" element={<PrivateRoute />} >
+            <Route index element = {<EmployeeTransaction />}/>
+          </Route>
+
+          <Route path="/employee-announcement" element={<PrivateRoute />} >
+            <Route index element = {<EmployeeAnnouncement />}/>
+          </Route>
+
           {/* Client Routes */}
 
           <Route path="/client-dashboard" element={<PrivateRoute />}>
@@ -101,7 +126,14 @@ function App() {
           <Route path='/client-view-service' element={<PrivateRoute />}>
             <Route  index element={<ViewServiceStatus />} />
           </Route>
-          
+          <Route path='/client-transaction' element = {<PrivateRoute />}>
+          <Route index element = {<ClientTransaction />}/>
+          </Route>
+
+          <Route path="/client-announcement" element={<PrivateRoute />} >
+            <Route index element = {<ClientAnnouncement />}/>
+          </Route>
+
           
           <Route path='/userprofile' element={<PrivateRoute />}>
               <Route index element={<UserProfile />}/>

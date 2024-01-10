@@ -6,7 +6,6 @@ class Contract(models.Model):
         ('Active', 'Active'),
         ('Terminated' , 'Terminated')
     ]
-
     user = models.OneToOneField(Users, on_delete=models.CASCADE)
     contract_id = models.CharField(max_length=255, unique=True)
     created_date = models.DateField()

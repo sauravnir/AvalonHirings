@@ -1,24 +1,17 @@
 import React, { useState, useEffect } from "react";
 import DashboardFooter from "../Dashboards/DashboardFooter";
 import {
-  Tabs,
-  Modal,
-  Table,
-  Space,
-  Button,
-  Card,
-  Descriptions,
-  Badge,
-  Tooltip,
   Collapse,
-  Col,
 } from "antd";
+import { GiFallingStar, GiUpgrade } from "react-icons/gi";
+
+import Spinner from "../../Pages/ProfileSettings/Spinner";
 
 function ReviewAndRatingsEmployee() {
   const [getEmployeeCaliber, setEmployeeCaliber] = useState(null);
   //   const [getRatings , setGetRatings] = useState([]);
   const [getTotalRatings, setGetTotalRatings] = useState([]);
-
+  const [loading , setLoading] = useState(false);
   // Loading the user rating based on the user profile details
   const data = localStorage.getItem("userData");
   const userType = JSON.parse(data);
@@ -118,13 +111,20 @@ function ReviewAndRatingsEmployee() {
 
   useEffect(() => {
     const allRatings = async () => {
-      const res = await fetch(
-        `http://127.0.0.1:8000/getratings/${userType.user_id}`
-      );
-      const data = await res.json();
-      const total = data.reduce((acc, obj) => acc + parseFloat(obj.ratings), 0);
-      // setGetRatings(data);
-      setGetTotalRatings(total);
+      try{
+        setLoading(true);
+        const res = await fetch(
+          `http://127.0.0.1:8000/getratings/${userType.user_id}`
+        );
+        const data = await res.json();
+        const total = data.reduce((acc, obj) => acc + parseFloat(obj.ratings), 0);
+        // setGetRatings(data);
+        setGetTotalRatings(total);
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        setLoading(false);
+      }
+      
     };
     allRatings();
   }, [userType.user_id]);
@@ -133,15 +133,26 @@ function ReviewAndRatingsEmployee() {
 
   useEffect(() => {
     const viewprofile = async () => {
-      const respone = await fetch(
-        `http://127.0.0.1:8000/app/viewprofile/${userType.user_id}`
-      );
-      const data = await respone.json();
-      const employee_caliber = data.employee_caliber?.caliber_level;
-      if (employee_caliber && employee_caliber !== null) {
-        setEmployeeCaliber(employee_caliber);
-      } else {
-        setEmployeeCaliber(null);
+      try{
+        setLoading(true);
+        const respone = await fetch(
+          `http://127.0.0.1:8000/app/viewprofile/${userType.user_id}`
+        );
+        const data = await respone.json();
+        const employee_caliber = data.employee_caliber?.caliber_level;
+  
+  
+        if (employee_caliber && employee_caliber !== null) {
+          setEmployeeCaliber(employee_caliber);
+        } else {
+          setEmployeeCaliber(null);
+        }
+        setLoading(false);
+      }catch(error){
+        console.log(error);
+      }finally {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        setLoading(false);
       }
     };
 
@@ -149,7 +160,8 @@ function ReviewAndRatingsEmployee() {
   }, []);
 
   return (
-    <div className="w-screen mt-14">
+    <div className="w-screen mt-8">
+      {loading && <Spinner />}
       <div className="flex flex-col mt-10 p-6">
         <div class="p-3 mt-2 bg-white h-auto rounded items-center shadow">
           {getEmployeeCaliber === "bronze" ? (
@@ -159,19 +171,18 @@ function ReviewAndRatingsEmployee() {
                 src={require(`../../images/bronze.png`)}
                 alt="Bronze"
               ></img>
+              
               <div className="flex flex-col">
                 <h1 className="text-white text-base">YOU ARE CURRENTLY</h1>
                 <h1 className="text-3xl font-bold text-white">
-                  Bronze <span class="text-lg">- Tier</span>
+                  BRONZE <span class="text-lg">- Tier</span>
                 </h1>
                 <div class="flex flex-row">
-                  <h1 class="text-sm text-white">
+                  <h1 class="text-sm text-white mr-2">
                     {getTotalRatings}/50 for upgrade{" "}
                   </h1>
-                  <img
-                    class="w-5 h-5 ml-1"
-                    src={require(`../../images/upgrade.gif`)}
-                  ></img>
+                  
+                  <GiUpgrade  color="white" size={20}/>
                 </div>
               </div>
             </div>
@@ -185,16 +196,17 @@ function ReviewAndRatingsEmployee() {
               <div className="flex flex-col items-start">
                 <h1 className="text-white text-base">YOU ARE CURRENTLY</h1>
                 <h1 className="text-3xl font-bold text-white">
-                  Silver <span class="text-lg">- Tier</span>
+                  SILVER <span class="text-lg">- Tier</span>
                 </h1>
                 <div class="flex flex-row">
-                  <h1 class="text-sm text-white">
+                  <h1 class="text-sm text-white mr-2">
                     {getTotalRatings}/50 for upgrade{" "}
                   </h1>
-                  <img
+                  {/* <img
                     class="w-5 h-5 ml-1"
                     src={require(`../../images/upgrade.gif`)}
-                  ></img>
+                  ></img> */}
+                  <GiUpgrade  color="white" size={20}/>
                 </div>
               </div>
             </div>
@@ -208,7 +220,7 @@ function ReviewAndRatingsEmployee() {
               <div className="flex flex-col items-start">
                 <h1 className="text-white text-base">YOU ARE CURRENTLY</h1>
                 <h1 className="text-3xl font-bold text-white">
-                  Gold <span class="text-lg">- Tier</span>
+                  GOLD <span class="text-lg">- Tier</span>
                 </h1>
                 <h1 class="text-xs text-white">You are at the highest tier!</h1>
               </div>

@@ -16,10 +16,12 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import DashboardFooter from "../Dashboards/DashboardFooter";
 
+import Spinner from "../../Pages/ProfileSettings/Spinner";
+
 function WorkSchedules() {
   const [modalOpen, setModalOpen] = useState(false);
   const { TabPane } = Tabs;
-
+  const [loading , setLoading] = useState(false);
   const [activeService, setActiveService] = useState({
     id: "",
     servicename: "",
@@ -42,6 +44,7 @@ function WorkSchedules() {
   useEffect(() => {
     const viewAssignedService = async () => {
       try {
+        setLoading(true);
         const response = await fetch(
           `http://127.0.0.1:8000/assignedservices/${userType.user_id}`
         );
@@ -64,8 +67,12 @@ function WorkSchedules() {
         };
 
         setActiveService(viewActiveService);
+        
       } catch (error) {
         console.log(error);
+      }finally {
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        setLoading(false);
       }
     };
 
@@ -197,7 +204,8 @@ function WorkSchedules() {
     },
   ];
   return (
-    <div className="w-screen mt-14">
+    <div className="w-screen mt-8">
+      {loading && <Spinner />}
       <div className="flex flex-col mt-2 p-6">
         <div className="flex w-full bg-white items-center justify-between rounded shadow p-3">
           <h1 className="text-2xl  font-bold">Work Schedules</h1>

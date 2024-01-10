@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 
 import DashboardFooter from "../Dashboards/DashboardFooter";
 import {
@@ -13,10 +13,11 @@ import {
   Rate,
   Input,
   Form,
-
+  Select,
+  message
 } from "antd";
 
-import { EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined, SearchOutlined } from "@ant-design/icons";
 
 import { ToastContainer, toast } from "react-toastify";
 
@@ -24,9 +25,9 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 
 import KhaltiCheckout from "khalti-checkout-web";
-
+import Spinner from "../../Pages/ProfileSettings/Spinner";
 // Rating Description
-const desc = ['Terrible', 'Bad', 'Average', 'Good', 'Perfectionist'];
+const desc = ["Terrible", "Bad", "Average", "Good", "Perfectionist"];
 
 function ServiceStatus() {
   const [openModal, setOpenModal] = useState(false);
@@ -40,14 +41,17 @@ function ServiceStatus() {
     contact: "",
     profilepic: "",
   });
-
-  const [spinning , setSpinning] = useState(false);
-  const [ratingValue , setRatingValue] = useState("");
-  const [ratingFeedbacks , setRatingFeedBacks] = useState("");
+  const [loading , setLoading] = useState(false);
+  const onFilterChange = useRef([]);
+  const [filterQuery, setFilterQuery] = useState("");
+  const [userInput, setUserInput] = useState(false);
+  // const [spinning , setSpinning] = useState(false);
+  const [ratingValue, setRatingValue] = useState("");
+  const [ratingFeedbacks, setRatingFeedBacks] = useState("");
 
   const userData = localStorage.getItem("userData");
   const userID = JSON.parse(userData);
-  const client_id = userID.user_id
+  const client_id = userID.user_id;
   const navigate = useNavigate();
 
   const getPayment = (value) => {
@@ -56,6 +60,7 @@ function ServiceStatus() {
 
   // Handling Khalti Payment
   const khaltiPayment = async (id, serviceName, totalPrice) => {
+    setLoading(true);
     const config = {
       publicKey: "test_public_key_fb53c47dfcf44808988bda227c018702",
       productIdentity: id,
@@ -85,11 +90,12 @@ function ServiceStatus() {
     } catch (error) {
       console.log(error);
     }
+    setLoading(false);
   };
 
   const sendPaymentToken = async (paymentToken, amount, serviceuseid) => {
     try {
-
+      setLoading(true);
       const res = await fetch("http://127.0.0.1:8000/servicetransaction/", {
         method: "POST",
         headers: {
@@ -107,6 +113,9 @@ function ServiceStatus() {
       }
     } catch (error) {
       toast.error(error);
+    }finally{
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setLoading(false);
     }
   };
 
@@ -114,6 +123,7 @@ function ServiceStatus() {
 
   const cashPayment = async (id, totalPrice) => {
     try {
+      setLoading(true);
       const response = await fetch("http://127.0.0.1:8000/cashpayment/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -124,6 +134,9 @@ function ServiceStatus() {
       }
     } catch (error) {
       console.log(error);
+    }finally{
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setLoading(false);
     }
   };
 
@@ -144,6 +157,7 @@ function ServiceStatus() {
           profilepic: assigned_employee?.assigned_employee?.profilepic || "",
         };
         setSingleEmployee(viewAssignedEmployee);
+        onFilterChange.current = data;
       } catch (error) {
         toast.error(error);
       }
@@ -151,25 +165,67 @@ function ServiceStatus() {
     singleClientService();
   }, []);
 
+  // Handling Filter Changes
 
-  const handleRatings=async(Id)=>{
-    try{
-      const response = await fetch("http://127.0.0.1:8000/rateemployee/",{
-        method: "POST",
-        headers:{
-          'Content-Type': 'application/json',
-        },
-        body:JSON.stringify({employee_id:Id , rating_num : ratingValue , rating_feedback : ratingFeedbacks , client_id : client_id  })
-      })
-      
-      if(response.ok){
-        navigate('/client-dashboard')
+  const handleFilterChange = (e) => {
+    setFilterQuery(e.target.value);
+    setUserInput(true);
+  };
+
+  useEffect(() => {
+    const filterData = async () => {
+      try {
+        setLoading(true);
+        let newData = [...onFilterChange.current];
+
+        if (filterQuery.trim() !== "") {
+          newData = newData.filter((item) =>
+            item.services.servicename
+              .toLowerCase()
+              .includes(filterQuery.toLowerCase())
+          );
+        }
+        // if(filterQuery.trim() !== "" && filterQuery !== "All"){
+        //   newData = newData.filter((item) => item.status.includes(filterQuery));
+        // }
+        setSingleService(newData);
+        setLoading(false);
+      } catch (error) {
+        message.error('Failed To Load  The Data')
       }
-    } catch(error){
+    };
+
+    if (userInput) {
+      filterData();
+    } else {
+      setSingleService([...onFilterChange.current]);
+      setUserInput(false);
+    }
+  }, [userInput, filterQuery]);
+
+  // Handling Client Ratings
+  const handleRatings = async (Id) => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/rateemployee/", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          employee_id: Id,
+          rating_num: ratingValue,
+          rating_feedback: ratingFeedbacks,
+          client_id: client_id,
+        }),
+      });
+
+      if (response.ok) {
+        navigate("/client-dashboard");
+      }
+    } catch (error) {
       toast.error(error);
     }
-  }
-
+  };
 
   const requestContent = [
     {
@@ -206,6 +262,16 @@ function ServiceStatus() {
       title: "Status",
       dataIndex: "service_status",
       key: "service_status",
+      filterMultiple: false,
+      filters: [
+        { text: "Payment Required", value: "Payment Required" },
+        {
+          text: "Paid (Waiting For Approval)",
+          value: "Paid (Waiting For Approval)",
+        },
+        { text: "On-Going", value: "On-Going" },
+        { text: "Completed", value: "Completed" },
+      ],
       render: (_, { service_status }) => (
         <>
           {service_status &&
@@ -230,6 +296,37 @@ function ServiceStatus() {
             })}
         </>
       ),
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+        <div className="flex flex-col space-y-2" style={{ padding: 8 }}>
+          <Select
+            mode="multiple"
+            style={{ width: 200 }}
+            placeholder="Select Status"
+            onChange={(value) => setSelectedKeys(value || [])}
+            onDeselect={confirm}
+            value={selectedKeys}
+            options={[
+              "Payment Required",
+              "Paid (Waiting For Approval)",
+              "On-Going",
+              "Completed",
+            ].map((status) => ({
+              value: status,
+              label: status,
+            }))}
+          />
+          <Button
+            type="default"
+            onClick={confirm}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+        </div>
+      ),
+      onFilter: (value, record) => record.service_status.includes(value),
     },
     {
       title: "Actions",
@@ -366,33 +463,44 @@ function ServiceStatus() {
                   okText="Submit Rating"
                   okType="default"
                   width={500}
-                  onOk={()=>handleRatings(singleEmployee.id)}
+                  onOk={() => handleRatings(singleEmployee.id)}
                 >
                   <div class="flex flex-col p-4 ">
                     <Card>
                       {/* <div class="flex flex-row items-center justify-center shadow p-3">
-                        <img
-                          class="w-12 h-12 rounded-full object-cover mr-4"
-                          src={singleEmployee.profilepic}
-                        ></img>
-                        <div class="flex flex-col">
-                          <h1 class="text-lg">{singleEmployee.fullname}</h1>
-                          <h1>{singleEmployee.contact}</h1>
-                        </div>
-                      </div> */}
+                          <img
+                            class="w-12 h-12 rounded-full object-cover mr-4"
+                            src={singleEmployee.profilepic}
+                          ></img>
+                          <div class="flex flex-col">
+                            <h1 class="text-lg">{singleEmployee.fullname}</h1>
+                            <h1>{singleEmployee.contact}</h1>
+                          </div>
+                        </div> */}
                       <div class="flex flex-col justify-center ">
                         <Form layout="vertical">
-                          <Form.Item label="Give Ratings" >
+                          <Form.Item label="Give Ratings">
                             <h1>
                               <Space>
-                              <Rate tooltips={desc} onChange={(value) =>setRatingValue(value)} value={ratingValue}/>
-                              {ratingValue ? <span>{desc[ratingValue-1]}</span> : ""}
+                                <Rate
+                                  tooltips={desc}
+                                  onChange={(value) => setRatingValue(value)}
+                                  value={ratingValue}
+                                />
+                                {ratingValue ? (
+                                  <span>{desc[ratingValue - 1]}</span>
+                                ) : (
+                                  ""
+                                )}
                               </Space>
                             </h1>
                           </Form.Item>
-                          <Form.Item label="Any Feedbacks?" >
-                            <Input.TextArea onChange={(e) => setRatingFeedBacks(e.target.value)}>
-                            </Input.TextArea>
+                          <Form.Item label="Any Feedbacks?">
+                            <Input.TextArea
+                              onChange={(e) =>
+                                setRatingFeedBacks(e.target.value)
+                              }
+                            ></Input.TextArea>
                           </Form.Item>
                         </Form>
                       </div>
@@ -421,18 +529,21 @@ function ServiceStatus() {
   }));
 
   return (
-    <div className="w-screen mt-14 ">
+    <div className="w-screen mt-8 ">
+      {loading && <Spinner />}
       <div className="flex flex-col mt-2 py-3 px-4 ">
         <ToastContainer />
         <div className="flex w-full items-center mt-3 justify-between bg-white rounded shadow border p-3">
           <h1 className="text-xl font-bold">View Progress / Status</h1>
-          <select class=" w-1/3 shadow-lg p-2 text-sm">
-            <option>Filter Service Status</option>
-            <option>Processing</option>
-            <option>Payment Required</option>
-            <option>Active</option>
-            <option>Completed</option>
-          </select>
+          <div class="flex flex-row justify-end space-x-2 items-center">
+            <input
+              class="shadow rounded border border-gray-200 w-60 py-2 px-3 text-gray-700 text-sm mb-3 leading-tight invalid:border-red-500  focus:shadow-outline"
+              type="text"
+              value={filterQuery}
+              onChange={handleFilterChange}
+              placeholder="Search for service names"
+            />
+          </div>
         </div>
 
         <div class="space-y-12">

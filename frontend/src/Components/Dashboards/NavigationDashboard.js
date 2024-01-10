@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Avatar, Dropdown, Space, Divider, theme, Modal, Tooltip } from "antd";
-import { LogoutOutlined } from "@ant-design/icons";
+import { Avatar, Dropdown, Space, Divider, theme, Modal, Tooltip , Badge } from "antd";
+import { BellOutlined } from "@ant-design/icons";
 import Logo from "../../images/Abnw.png";
-
+import Spinner from "../../Pages/ProfileSettings/Spinner";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 // Dropdown for Profile Items
@@ -14,7 +14,7 @@ const { useToken } = theme;
 function NavigationDashboard() {
   const [getProfile, setGetProfile] = useState([]);
   const [getEmployeeCaliber, setEmployeeCaliber] = useState(null);
-
+  const [loading , setLoading] = useState(false);
   const [subscriptionDetails, setSubscriptionDetails] = useState([]);
   const [showSubscription, setShowSubscription] = useState(false);
   const listItem = [
@@ -58,19 +58,25 @@ function NavigationDashboard() {
   // Getting the user profile
   useEffect(() => {
     const viewprofile = async () => {
-      const respone = await fetch(
-        `http://127.0.0.1:8000/app/viewprofile/${userType.user_id}`
-      );
-      const data = await respone.json();
-      setGetProfile(data);
-      const employee_caliber = data.employee_caliber?.caliber_level;
-      if (
-        employee_caliber &&
-        employee_caliber !== null
-      ) {
-        setEmployeeCaliber(employee_caliber);
-      } else {
-        setEmployeeCaliber(null);
+      try{
+
+        const respone = await fetch(
+          `http://127.0.0.1:8000/app/viewprofile/${userType.user_id}`
+        );
+        const data = await respone.json();
+        setGetProfile(data);
+        const employee_caliber = data.employee_caliber?.caliber_level;
+        if (
+          employee_caliber &&
+          employee_caliber !== null
+        ) {
+          setEmployeeCaliber(employee_caliber);
+        } else {
+          setEmployeeCaliber(null);
+        }
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
       }
     };
 
@@ -88,6 +94,9 @@ function NavigationDashboard() {
         setSubscriptionDetails(data);
       } catch (error) {
         toast.error("Unable To Fetch The Details");
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
       }
     };
     fetchSubscriptionDetails();
@@ -95,6 +104,7 @@ function NavigationDashboard() {
 
   return (
     <nav class="z-50">
+      {loading && <Spinner />}
       <div class="container fixed bg-gray-800 dark:bg-gray-800 p-7 py-3 shadow-lg ">
         <div class="flex flex-row items-center justify-between h-8">
           <div class="flex flex-row items-center justify-start space-x-1 ">
@@ -102,12 +112,42 @@ function NavigationDashboard() {
             <h4 class=" text-lg font-medium text-gray-800 dark:text-gray-200">
               Avalon Hirings
             </h4>
+
+            <div class="justify-self ">
+             
+                <Link to="/">
+                  <h1 class="h-full py-1  text-xs ml-5 text-white ">
+                    VIEW WEBSITE
+                  </h1>
+                </Link>
+            
+            </div>
             <div class="justify-self">
               {userType.user_type === "Client" ? (
                 <Link to="/request-service">
-                  <button class="bordered shadow h-full py-1 bg-white w-40 text-xs hover:text-white font-bold ml-5 rounded hover:bg-sky-900 ">
-                    REQUEST A SERVICE?
-                  </button>
+                  <h1 class=" h-full py-1 text-xs ml-5 rounded text-white ">
+                    REQUEST SERVICE
+                  </h1>
+                </Link>
+              ) : null}
+            </div>
+            
+            <div class="justify-self">
+              {userType.user_type === "Admin" ? (
+                <Link to="/create-service">
+                  <h1 class=" h-full py-1 text-xs ml-5 rounded text-white ">
+                    CREATE SERVICE
+                  </h1>
+                </Link>
+              ) : null}
+            </div>
+
+            <div class="justify-self">
+              {userType.user_type === "Admin" ? (
+                <Link to="/admin-dashboard">
+                  <h1 class=" h-full py-1 text-xs ml-5 rounded text-white ">
+                    ADD USERS
+                  </h1>
                 </Link>
               ) : null}
             </div>
@@ -116,6 +156,7 @@ function NavigationDashboard() {
           <ToastContainer />
 
           <div class="flex space-x-4 items-center">
+              
             <h1 class="text-white text-sm ">{userType.username}</h1>
             <Dropdown
               menu={{

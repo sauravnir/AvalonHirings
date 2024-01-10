@@ -2,6 +2,7 @@ import React,{useState , useEffect} from 'react'
 import { Link } from 'react-router-dom'
 import {Progress, Card } from 'antd'
 import DashboardFooter from '../Dashboards/DashboardFooter'
+import Spinner from '../../Pages/ProfileSettings/Spinner'
 function EmployeeDashboardObject() {
     const [workDetails , setWorkDetails] = useState({
         fullname: "",
@@ -11,10 +12,13 @@ function EmployeeDashboardObject() {
     })
     const userData = localStorage.getItem("userData")
     const userID = JSON.parse(userData)
+    const [loading , setLoading] = useState(false);
+
 
     useEffect(()=>{
         const handleWork = async () => {
             try{
+              setLoading(true);
                 const response = await fetch(`http://127.0.0.1:8000/assignedservices/${userID.user_id}`)
                 const data = await response.json()
                 const {client_details , assigned_service_details , service_request} = data ;
@@ -30,6 +34,9 @@ function EmployeeDashboardObject() {
             }
             catch(error){
                 return error; 
+            }finally{
+              await new Promise((resolve) => setTimeout(resolve, 2000));
+              setLoading(false);
             }
         }
 
@@ -61,7 +68,8 @@ const timeDifference = endDate.getTime() - startDate.getTime();
 const daysDifference =timeDifference / (1000*3600*24)
 
   return (
-    <div className="w-screen mt-14">
+    <div className="w-screen mt-8">
+      {loading && <Spinner/>}
       <div className="mt-2 w-10/14 p-6">
         <div className=" flex-col py-3 ">
           <h1 className="text-2xl font-semibold ">Dashboard</h1>

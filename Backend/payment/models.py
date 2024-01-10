@@ -4,13 +4,12 @@ from app.models import Users
 from ratings.models import Rating
 import datetime
 from decimal import Decimal 
-# Create your models here.
+
 class Payment(models.Model):
     PAYMENT_METHOD_CHOICES = [
         ('Cash', 'Cash'),
         ('Khalti Payment','Khalti Payment')
     ]
-
     service_use = models.ForeignKey(ServiceUse, on_delete=models.CASCADE , null = True , related_name='payments')
     amount = models.DecimalField(max_digits=10, decimal_places=2)
     payment_date = models.DateField()
@@ -26,6 +25,7 @@ class Subscription(models.Model):
     amount = models.IntegerField(default=2000 , blank=True)
     transaction_reference =models.CharField(max_length=255, blank=True, null=True)
     is_subscribed = models.BooleanField(default=False)
+    payment_date = models.DateField(default = None)
 
     def __str__(self):
         return f"{self.subscription_name} - {self.amount} - {self.user} - {self.is_subscribed}"
@@ -34,15 +34,22 @@ class Caliber(models.Model):
     employee = models.OneToOneField(Users , on_delete = models.CASCADE , related_name = 'employee_caliber')
     ratings = models.OneToOneField(Rating, on_delete=models.CASCADE, null=True, blank=True, related_name='employee_caliber_rating')
     caliber_level = models.CharField(max_length = 255 , choices=[('bronze', 'Bronze'), ('silver', 'Silver'), ('gold', 'Gold')], default='bronze')
-    salary = models.DecimalField(max_digits = 10 , decimal_places = 2 , default = 17000)
-    last_paid = models.DateField(default=datetime.date.today)
+
+class Salary(models.Model):
+    caliber = models.ForeignKey(Caliber , on_delete = models.CASCADE)
+    amount = models.DecimalField(max_digits = 10 , decimal_places = 2)
+    payment_date = models.DateField(default = datetime.date.today)
+    description = models.TextField(blank = True)
+
+    def __str__(self):
+        return f"{self.caliber.employee.username} - {self.amount} - {self.payment_date}"
     
 
-    def upgrade_salary(self):
-        if self.caliber_level == 'gold':
-            self.salary = Decimal('30000.00')
-        elif self.caliber_level == 'silver':
-            self.salary = Decimal('25000.00')
-        
-        self.save()
-        
+class Refund(models.Model):
+    user = models.ForeignKey(Users , on_delete = models.CASCADE)
+    amount = models.DecimalField(max_digits = 10 , decimal_places = 3)
+    payment_date = models.DateField(default = datetime.date.today)
+    description = models.TextField(blank = True)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.amount} - {self.payment_date}"

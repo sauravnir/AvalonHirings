@@ -1,354 +1,209 @@
 import React, { useEffect, useState } from "react";
 import DashboardFooter from "./DashboardFooter";
 // import {  } from 'react-router-dom';
-import { useNavigate } from "react-router-dom";
-import { Table, Tabs, Tag, Modal, Space, Button, Dropdown } from "antd";
-
-// importing Khalti
-import KhaltiCheckout from "khalti-checkout-web";
-
+import { useNavigate, Link } from "react-router-dom";
+import { Table , Button , Tabs } from "antd";
+import Spinner from "../../Pages/ProfileSettings/Spinner";
 function PaymentDashboard() {
-  const [paymentUrl, setPaymentUrl] = useState(null);
-  const [returnUrl, setReturnUrl] = useState("http://localhost:3000/admin-dashboard");
-  const [websiteUrl, setWebsiteUrl] = useState("http://localhost:3000");
-  const [amount, setAmount] = useState(1000);
-  const [purchaseOrderId, setPurchaseOrderId] = useState("Order01");
-  const [purchaseOrderName, setPurchaseOrderName] = useState("test");
+
+ 
+
   const navigate = useNavigate();
-  const [EmployeeModelOpen, setEmployeeModelOpen] = useState(false);
-  const [ClientModelOpen, setClientModelOpen] = useState(false);
-  const [selectPaymentMethod, setSelectPaymentMethod] = useState("");
+  const [loading , setLoading] = useState(false);
+  const [paymentDetails , setPaymentDetails] = useState([])
+  const { TabPane } = Tabs;
 
-  console.log(selectPaymentMethod);
+  useEffect(()=>{
+    const getPaymentData = async () => {
+      try {
+        setLoading(true);
+        const response = await fetch("http://127.0.0.1:8000/alltransactions/")
+        const data = await response.json();
+        setPaymentDetails(data);
+        console.log(data);
+      }catch(error){
+        console.log(error);
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
+      }
+    };
+    getPaymentData();
+  },[])
 
-  function cashPayment() {
-    alert("Hello!");
-  }
 
-  const ContractSearch = async (e) => {
-    e.preventDefault();
-    try {
-      console.log("Hello Word!");
-    } catch (e) {}
-  };
 
-  // Handles the Tab
-  const onChange = (key) => {
-    console.log(key);
-  };
-
-  //   Data For The Client Table
-  const clientData = [
-    {
-      key: "1",
-      client_id: 123,
-      client_name: "Saurav Niraula",
-      payment_amount : 2000,
-      payment_status: ["Unpaid"],
-    },
-    {
-      key: "1",
-      client_id: 123,
-      client_name: "Saurav Niraula",
-      payment_amount : 2000,
-      payment_status: ["Paid"],
-    }, 
-  ];
 
   //   Contents for Client Table
 
-  const clientTableContents = [
+  const paymentColumn = [
     {
       title:"S.N",
       dataIndex:"sn",
       key:"sn"
     },
     {
-      title: "Client ID",
-      dataIndex: "client_id",
-      key: "client_id",
+      title:"User Type",
+      dataIndex:"user_type",
+      key:"user_type"
     },
     {
-      title: "Client Name",
-      dataIndex: "client_name",
-      key: "client_name",
+      title: "User Name",
+      dataIndex: "user_name",
+      key: "user_name",
       render: (text) => <a>{text}</a>,
     },
     {
-      title: "Payment Amount",
+      title: "Value",
       dataIndex: "payment_amount",
       key: "payment_amount",
     },
     {
-      title: "Payment Status",
-      dataIndex: "payment_status",
-      key: "payment_status",
-      render: (_, { payment_status }) => (
-        <>
-          {payment_status &&
-            payment_status.map((tag) => {
-              let color = tag.length > 5 ? "geekblue" : "green";
-              if (tag === "Paid") {
-                color = "green";
-              } else {
-                color = "yellow";
-              }
-              return (
-                <Tag color={color} key={tag}>
-                  {tag}
-                </Tag>
-              );
-            })}
-        </>
-      ),
+      title:"Payment Method",
+      dataIndex: "payment_method",
+      key:"payment_method",
     },
     {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      render: (_, { action }) => (
-        <Space size="medium">
-          <Button size="small" onClick={() => setClientModelOpen(true)}>
-            Request Payment
-          </Button>
-          <Modal
-            title="Are you sure? "
-            open={ClientModelOpen}
-            onOk={() => setClientModelOpen(false)}
-            onCancel={() => setClientModelOpen(false)}
-            okText="Make Request"
-            okType="default"
-            width={400}
-          >
-            <div class="flex flex-col">
-              <h1>Request payment of Rs.1000 from Saurav Niraula?</h1>
-            </div>
-          </Modal>
-        </Space>
-      ),
+      title:"Date",
+      dataIndex:"date" ,
+      key : "date"
+    },
+    {
+      title:"Description",
+      dataIndex:"description",
+      key:"description"
     },
   ];
 
-  // Data For Employee Table
-  const employeeData = [
-    {
-      key: "1",
-      employee_id: 123,
-      employee_name: "Saurav Niraula",
-      payment_amount : 10000,
-      salary_status: ["Unpaid"],
-    },
-    {
-      key: "2",
-      employee_id: 123,
-      employee_name: "Saurav Niraula",
-      payment_amount : 10000,
-      salary_status: ["Paid"],
-    },
-  ];
+  // data for Service Payments 
 
-  // //   Contents for employee Table
+  const servicePayments = paymentDetails?.payment_details?.data?.map((info, index) => ({
+    sn: index + 1,
+    key: info?.id,
+    user_type: info?.service_use?.user?.user_type,
+    user_name: info?.service_use?.user?.fullname,
+    payment_amount: `Rs ${info?.amount}`,
+    payment_method : info?.payment_method,
+    date: info?.payment_date,
+    description: info?.service_use?.services?.servicename,
+  })) || [];
 
-  const employeeTableContents = [
-    {
-      title:"S.N",
-      dataIndex:"sn",
-      key:"sn"
-    },
-    {
-      title: "Employee ID",
-      dataIndex: "employee_id",
-      key: "employee_id",
-      render: (text) => <a>{text}</a>,
-    },
-    {
-      title: "Employee Name",
-      dataIndex: "employee_name",
-      key: "employee_name",
-    },
-    {
-      title: "Payment Amount",
-      dataIndex: "payment_amount",
-      key: "payment_amount",
-    },
-    {
-      title: "Salary Status",
-      dataIndex: "salary_status",
-      key: "salary_status",
-      render: (_, { salary_status }) => (
-        <>
-          {salary_status &&
-            salary_status.map((tag) => {
-              let color = tag.length > 5 ? "geekblue" : "green";
-              if (tag === "Paid") {
-                color = "green";
-              } else {
-                color = "yellow";
-              }
-              return (
-                <Tag color={color} key={tag}>
-                  {tag}
-                </Tag>
-              );
-            })}
-        </>
-      ),
-    },
-    {
-      title: "Action",
-      dataIndex: "action",
-      key: "action",
-      render: (_, { action }) => (
-        <Space size="medium">
-          <Button size="small" onClick={() => setEmployeeModelOpen(true)}>
-            Process Salary
-          </Button>
-          <Modal
-            title="Are you sure?"
-            open={EmployeeModelOpen}
-            okText="Pay"
-            onCancel={() => setEmployeeModelOpen(false)}
-            onOk={() =>
-              selectPaymentMethod == "Khalti" ? handlePayment() : cashPayment()
-            }
-            okType="default"
-            width={400}
-          >
-            <div class="flex flex-col">
-              <h1>Payment ID: A124</h1>
-              <h1>Name:Saurav Niraula</h1>
-              <h1>Amount: Rs.2000</h1>
-              <h1>
-                Pay with:
-                <select
-                  class="p-1"
-                  onChange={(e) => setSelectPaymentMethod(e.target.value)}
-                >
-                  <option>-------------------------</option>
-                  <option>Khalti</option>
-                  <option>Cash</option>
-                  <option disabled>Esewa (not available)</option>
-                </select>
-              </h1>
-            </div>
-          </Modal>
-        </Space>
-      ),
-    },
-  ];
 
-  const clientTable = (
-    <Table columns={clientTableContents} dataSource={clientData} bordered></Table>
-  );
-  const employeeTable = (
-    <Table columns={employeeTableContents} dataSource={employeeData} bordered></Table>
-  );
+// data for Employee Salary 
 
-  // Number of tabs
-  const TabList = [
+const salaryPayments = paymentDetails?.salary_details?.data?.map((info , index) =>({
+  sn:index + 1 ,
+  key:info?.id , 
+  user_type:info?.caliber?.employee?.user_type ,
+  user_name : info?.caliber?.employee?.fullname , 
+  payment_amount : `Rs ${info?.amount}` ,
+  date:info?.payment_date , 
+  description:"Salary Payment"
+}))
+
+
+const premiumPayments = paymentDetails?.subscription_details?.data?.map((info , index)=>({
+  sn:index + 1,
+  key:info?.id,
+  user_type :info?.user?.user_type , 
+  user_name:info?.user?.fullname,
+  payment_amount : `Rs ${info?.amount}` , 
+  date : info?.payment_date ,
+  description:info?.subscription_name
+
+}))
+
+  const TabList =[
     {
-      key: "1",
-      label: "Client",
-      children: [clientTable],
+      key:'1',
+      label:'Service Payments',
+      children :(
+        <TabPane tab="Service Payments" key="1">
+          <Table
+          columns = {paymentColumn}
+          dataSource={servicePayments}
+          bordered
+          pagination={{
+            pageSize:10,
+            showTotal:(total) => `Total ${total} items`
+          }}
+        
+          />
+        </TabPane>
+      )
+    },  
+    {
+      key:'2',
+      label:'Salary Payments',
+      children :(
+        <TabPane tab="Salary Payments" key="2">
+          <Table
+          columns = {paymentColumn}
+          bordered
+          dataSource={salaryPayments}
+          pagination={{
+            pageSize:10,
+            showTotal:(total) => `Total ${total} items`
+          }}
+          />
+        </TabPane>
+      )
     },
     {
-      key: "2",
-      label: "Employee",
-      children: [employeeTable],
+      key:'3',
+      label:'Premium Membership',
+      children :(
+        <TabPane tab="Premium Membership" key="3">
+          <Table
+          columns = {paymentColumn}
+          bordered
+          dataSource={premiumPayments}
+          pagination={{
+            pageSize:10,
+            showTotal:(total) => `Total ${total} items`
+          }}
+          />
+        </TabPane>
+      )
     },
-  ];
-
-  // Handling Gateaway Payment Sideeffect
-  useEffect(() => {
-    if (paymentUrl) {
-      window.location.href = paymentUrl;
-    }
-  }, [paymentUrl]);
-
-  // Handling API Payment
-  const handlePayment = async (e) => {
-    const config = {
-      publicKey: "test_public_key_fb53c47dfcf44808988bda227c018702",
-      productIdentity: "1234567890",
-      productName: "Drogon",
-      productUrl: "http://localhost:3000/",
-      eventHandler: {
-        onSuccess: (payload) => {
-          // Hit your merchant API for initiating verification
-          console.log(payload);
-        },
-        onError: (error) => {
-          // Handle errors
-          console.log(error);
-        },
-        onClose: () => {
-          navigate('/dashboard');
-        },
-      },
-      paymentPreference: [
-        "KHALTI",
-        "EBANKING",
-        "MOBILE_BANKING",
-        "CONNECT_IPS",
-        "SCT",
-      ],
-    };
-    try {
-      const checkout = new KhaltiCheckout(config); 
-      checkout.show({amount : 1000});
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
+]
   return (
-    <div class="w-screen mt-14">
+    <div class="w-screen mt-8">
+      {loading && <Spinner />}
       <div class="flex flex-col mt-2 p-6">
         <div class="flex py-3">
-          <h1 class="text-2xl font-bold">Payment</h1>
+          <h1 class="text-2xl font-bold">Transcations</h1>
         </div>
 
         <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
           <div class="grid p-3 grid-cols-2">
             <div>
-              <form class="space-x-5" onSubmit={ContractSearch}>
                 <input
                   class="shadow rounded border border-gray-200 w-60 py-2 px-3 text-gray-700 text-sm mb-3 leading-tight invalid:border-red-500  focus:shadow-outline"
                   type="text"
                   placeholder="Search an item..."
                   name="SearchBarForPayments"
                 />
-                <button
-                  class="bg-green-500 py-2 px-2 rounded border text-white hover:bg-green-600 hover:shadow-lg text-sm"
-                  type="submit"
-                >
-                  Submit
-                </button>
-              </form>
+                
             </div>
-            <div class="justify-self-end">
-              <div>
-                <form class="space-x-5 " onSubmit={ContractSearch}>
+            <div class="justify-self-end ">
+              <div class="flex flex-row space-x-2">
                   <select
-                    class="rounded border border-gray-200 text-sm text-gray-500 px-2 py-2"
+                    class="rounded border border-gray-200 text-sm text-gray-500 px-2 py-1"
                     type="text"
                   >
                     <option class="">Choose From The List Below</option>
                     <option>Test</option>
                     <option>Test</option>
                   </select>
-                  <button
-                    class="bg-violet-500 py-2 px-2 rounded border text-white hover:bg-violet-800 hover:shadow-lg text-sm"
-                    type="submit"
-                  >
-                    Filter Search
-                  </button>
-                </form>
+                  <Link to='/create-transaction'>
+                  <Button>Add Transaction</Button>
+                  </Link>
               </div>
             </div>
           </div>
           <div class="m-1">
-            <Tabs onChange={onChange} type="card" items={TabList} ></Tabs>
+            <Tabs>{TabList.map((tab)=>tab.children)}</Tabs>
           </div>
         </div>
         <DashboardFooter />

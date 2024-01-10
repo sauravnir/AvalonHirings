@@ -66,7 +66,6 @@ class GetAllRatingsView(ListAPIView):
     serializer_class = RatingSerializer
 
 # Getting single ratings for the admin 
-
 class SingleRatingView(RetrieveAPIView):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer

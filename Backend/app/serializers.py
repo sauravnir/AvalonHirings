@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Users
+from .models import Users , Announcements
 from payment.models import Caliber
 
 class UserRegisterSerializer(serializers.ModelSerializer):
@@ -56,3 +56,8 @@ class UpdateProfilePictureSerializer(serializers.Serializer):
     username = serializers.CharField(required=True)
     profilepicture = serializers.ImageField()
    
+
+class PostAnnouncementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Announcements 
+        fields = "__all__"

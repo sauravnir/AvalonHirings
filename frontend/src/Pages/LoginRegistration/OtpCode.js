@@ -1,23 +1,25 @@
 import React, { useState } from "react";
 import Logo from "../../images/Abnw.png";
 import { Link, useNavigate } from "react-router-dom";
-
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Spinner from "../ProfileSettings/Spinner";
 
 function OtpCode() {
   const [otp, setotp] = useState("");
   const navigate = useNavigate();
+  const [loading , setLoading] = useState(false);
 
   const handleOTPLogin = async (e) => {
     e.preventDefault();
     try {
+      setLoading(true);
       const response = await fetch("http://127.0.0.1:8000/app/otp/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ otp_pin: otp }),
       });
-    
+      setLoading(false);
       if (response.ok) {
         const userData = localStorage.getItem("userData")
         const data = JSON.parse(userData)
@@ -38,6 +40,7 @@ function OtpCode() {
   };
   return (
     <div>
+       {loading && <Spinner />}
       <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
         <div class="h-screen w-2/3 shadow-lg bg-white justify-start p-10">
           <div class="flex flex-col items-start mt-5 p-10 pb-2 md:mb-0">

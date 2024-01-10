@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate , login
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer, UserLoginSerializer , UserForgotPasswordSerializer  , OTPTransactionSerializer , UpdateUserProfileSerializer , ViewUserProfileSerializer , UpdateProfilePictureSerializer , EmployeeCaliberSerializer
+from .serializers import UserRegisterSerializer, UserLoginSerializer , UserForgotPasswordSerializer  , OTPTransactionSerializer , UpdateUserProfileSerializer , ViewUserProfileSerializer , UpdateProfilePictureSerializer , EmployeeCaliberSerializer , PostAnnouncementSerializer
 from rest_framework.generics import RetrieveAPIView
 from rest_framework import status
 
@@ -17,7 +17,7 @@ import math , random
 from django.http import FileResponse
 import uuid
 from rest_framework.parsers import MultiPartParser
-from app.models import Users , CustomToken
+from app.models import Users , CustomToken , Announcements
 from reports.models import Reports
 
 class UserLoginView(APIView):
@@ -82,11 +82,13 @@ class UserLoginView(APIView):
 # New User Creation
 class UserCreateView(APIView):
     def post(self, request, *args, **kwargs):
+        print(request.data)
         serializer = UserRegisterSerializer(data=request.data)
         if serializer.is_valid():
+            print(serializer)
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'message':'User Registered Successfully'}, status=status.HTTP_201_CREATED)
+        return Response({"error" : "Failed to register user"}, status=status.HTTP_400_BAD_REQUEST)
     
 # Forgot Password 
     
@@ -205,10 +207,68 @@ class UpdateProfilePictureView(APIView):
         if  serializers.is_valid():
             username = serializers.validated_data['username']
             profilepic = request.FILES['profilepicture']
-            # print(profilepic , username)
             user = get_object_or_404(Users , username = username)
             if user is not None:
                 user.profilepic = profilepic 
                 user.save()
             return Response({"message" : "Profile Picture Updated" }, status = status.HTTP_200_OK)
         return Response({"message": "Error in Updating the profile"}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+class PostAnnouncementView(APIView):
+    def post(self , request):
+        serializers = PostAnnouncementSerializer(data = request.data)
+
+        if serializers.is_valid():
+            title = serializers.validated_data['title']
+            description = serializers.validated_data['description']
+
+            if title and description is not None:
+                announcement = Announcements.objects.create(
+                    title = title,
+                    description = description,
+                    created_date = timezone.now()
+                )
+
+                announcement.save()
+            return Response({'message' : 'Announcement Created Successfully'}, status=status.HTTP_200_OK)
+        
+        return Response({'error' : "Faild To Create Announcement"} , status=status.HTTP_400_BAD_REQUEST)
+    
+    def put(self , request , pk):
+        try :
+            announcement = Announcements.objects.get(id = pk)
+
+        except Announcements.DoesNotExist:
+            return Response({'error': 'Announcement not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        serializer = PostAnnouncementSerializer(announcement, data=request.data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({'message': 'Announcement updated successfully'}, status=status.HTTP_200_OK)
+
+        return Response({'error': 'Failed to update announcement'}, status=status.HTTP_400_BAD_REQUEST)
+    
+
+    def delete(self , request , pk):
+        try:
+            announcement = Announcements.objects.get(id=pk)
+        except Announcements.DoesNotExist:
+            return Response({'error': 'Announcement not found'}, status=status.HTTP_404_NOT_FOUND)
+
+        announcement.delete()
+        return Response({'message': 'Announcement deleted successfully'}, status=status.HTTP_200_OK)
+
+
+class GetAllAnnouncementView(APIView):
+    def get(self , request , pk = None):
+
+        if pk is not None:
+            announcement = Announcements.objects.get(id = pk)
+            serializers = PostAnnouncementSerializer( announcement)
+            return Response(serializers.data, status=status.HTTP_200_OK)
+        else:
+            announcements = Announcements.objects.all()
+            serializer = PostAnnouncementSerializer(announcements, many=True)
+            return Response(serializer.data, status=status.HTTP_200_OK)

@@ -8,7 +8,6 @@ function Payment(){
         <div class='bg-zinc-100 flex'>
             <NavigationDashboard />
             <Sidebar />
-            
             <PaymentDashboard /> 
     </div>
     )

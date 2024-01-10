@@ -14,6 +14,7 @@ import {
   Tag,
   Descriptions,
   Divider,
+  message
 } from "antd";
 
 import { EyeOutlined } from "@ant-design/icons";
@@ -21,8 +22,15 @@ import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
 import DashboardFooter from "./DashboardFooter";
+import Spinner from "../../Pages/ProfileSettings/Spinner";
 
 function CreateService() {
+  const rules = [
+    {
+      required: true,
+      message: "required",
+    },
+  ]; 
   const [openModal, setOpenModal] = useState(false);
   const [openModal1, setOpenModal1] = useState(false);
   const [serviceName, setServiceName] = useState("");
@@ -33,7 +41,7 @@ function CreateService() {
   const [serviceAvailable, setServiceAvailable] = useState("");
   const navigate = useNavigate();
   const { TabPane } = Tabs;
-
+  const[loading , setLoading] = useState(false);
   const [viewServicesModal, setViewServicesModal] = useState(false);
   const [viewRequestedServices, setViewRequestedServices] = useState([]);
   const [singleRequestedService, setSingleRequestedService] = useState({
@@ -50,6 +58,8 @@ function CreateService() {
     payment_approval: "",
   });
 
+  const [selectedRecordKey, setSelectedRecordKey] = useState(null);
+
   // storing the free employee information
 
   const [freeEmployees, setFreeEmployees] = useState([]);
@@ -65,6 +75,7 @@ function CreateService() {
 
   const [singleCreatedService, setSingleCreatedService] = useState([]);
   // Store the fetched data for later use
+  console.log(singleCreatedService.id);
 
   const [createdService, setCreatedService] = useState([]);
 
@@ -81,6 +92,7 @@ function CreateService() {
   //   GET Method to insert the data
   const handleFormSubmit = async () => {
     try {
+      setLoading(true);
       const response = await fetch("http://127.0.0.1:8000/createservice/", {
         method: "POST",
         headers: {
@@ -88,12 +100,17 @@ function CreateService() {
         },
         body: JSON.stringify(serviceData),
       });
+      
       if (response.ok) {
+        const data = await response.json();
+        message.success(data.message)
         navigate("/admin-dashboard");
       }
     } catch (error) {
-      toast.error("Error in creating service!");
-      console.log(error);
+      message.error(error.message);
+    }finally{
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setLoading(false);
     }
   };
 
@@ -101,12 +118,17 @@ function CreateService() {
   useEffect(() => {
     const fetchServiceData = async () => {
       try {
+        setLoading(true);
         const res = await fetch("http://127.0.0.1:8000/getservices/");
         const data = await res.json();
         setCreatedService(data);
         console.log(data);
+       
       } catch (error) {
         toast.error(error);
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
       }
     };
     fetchServiceData();
@@ -139,16 +161,22 @@ function CreateService() {
 
   const updateSingleServiceData = async (id) => {
     try{
+      setLoading(true);
       const response = await fetch("http://127.0.0.1:8000/updatecreatedservice/",{
         method: 'POST', 
         headers: { 'Content-Type': 'application/json'},
         body : JSON.stringify({service_list_id : id , servicedesc : updateDesc , servicetarget : updatedServiceTarget ,serviceavailable : updatedServiceAvailable , servicepricing: updatedServicePricing , serviceavailability : updatedAvailability})
       })
       if(response.ok){
+        const data = await response.json()
+        message.success(data.message)
         navigate('/admin-dashboard')
       }
     }catch(error){
-      console.log(error);
+      message.error(error.message)
+    }finally{
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setLoading(false);
     }
   }
 
@@ -156,11 +184,16 @@ function CreateService() {
   useEffect(() => {
     const serviceRequest = async () => {
       try {
+        setLoading(true);
         const res = await fetch("http://127.0.0.1:8000/getrequestedservice/");
         const data = await res.json();
         setViewRequestedServices(data);
+        
       } catch (error) {
         toast.error("Failed to fetch services!");
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
       }
     };
     serviceRequest();
@@ -169,6 +202,7 @@ function CreateService() {
   // Loading singular requested service
   const fetchRequestedService = async (id) => {
     try {
+
       const res = await fetch(
         `http://127.0.0.1:8000/singlerequestedservice/${id}`
       );
@@ -200,22 +234,24 @@ function CreateService() {
       };
 
       setSingleRequestedService(updateSingleRequestedService);
+      
     } catch (error) {
       toast.error(error);
-    }
+    } 
   };
 
   // Update Service Request / Status
 
   const updateServiceRequest = async (approvalType, serviceID) => {
     try {
+      setLoading(true);
       const url = `http://127.0.0.1:8000/updateservicerequest/${serviceID}`;
 
       const requestOptions = {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       };
-
+      
       // Include assigned employee details only when approvalType is "Payment Required"
       if (approvalType === "On-Going") {
         requestOptions.body = JSON.stringify({
@@ -237,18 +273,22 @@ function CreateService() {
       }
     } catch (error) {
       toast.error(error.message);
+    }finally{
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setLoading(false);
     }
   };
 
   // Loading the free-employees from AssignedEmployees model
 
   useEffect(() => {
+    setLoading(true);
     const getAssignedEmployees = async () => {
       const res = await fetch("http://127.0.0.1:8000/freeemployees/");
       const data = await res.json();
       setFreeEmployees(data);
     };
-
+    setLoading(false);
     getAssignedEmployees();
   }, []);
 
@@ -292,34 +332,34 @@ function CreateService() {
             onClick={() => {
               setViewServicesModal(true);
               fetchSingleServiceData(record.key);
+              setSelectedRecordKey(record.key);
             }}
           ></Button>
           <Modal
             title="Service Details"
             open={viewServicesModal}
             onCancel={() => setViewServicesModal(false)}
-            okText="Update"
-            okType="default"
             width={400}
-            onOk={() =>updateSingleServiceData(record.key)}
+            footer={null}
+            // onOk={() =>updateSingleServiceData(record.key)}
             centered
           >
-            <Form layout="vertical">
-              <Form.Item label="Service Name">
+            <Form layout="vertical" onFinish={() => updateSingleServiceData(selectedRecordKey)} >
+              <Form.Item label="Service Name" >
                 <Input
                   value={singleCreatedService.servicename}
                   defaultValue={singleCreatedService}
                   disabled
                 />
               </Form.Item>
-              <Form.Item label="Service Description">
+              <Form.Item label="Service Description" name="description" rules={rules}>
                 <Input.TextArea
                   placeholder={singleCreatedService.servicedesc}
                   onChange = {(e)=>setUpdatedDesc(e.target.value)}
                   rows={5}
                 />
               </Form.Item>
-              <Form.Item label="Service For">
+              <Form.Item label="Service For" name="For" rules={rules}>
                 <Radio.Group onChange={(e) => setUpdatedServiceTarget(e.target.value)} >
                   <Radio.Button value="Select:" disabled>
                     Select:
@@ -328,7 +368,7 @@ function CreateService() {
                   <Radio.Button value="Business">Business</Radio.Button>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Select Service Available Days">
+              <Form.Item label="Select Service Available Days" name="Available" rules={rules}>
                 <select class="p-2 border rounded w-60" onChange={(e) => setUpdatedServiceAvailable(e.target.value)}>
                   <option>Select From Below</option>
                   <option disabled>Hours (currently disabled)</option>
@@ -336,10 +376,10 @@ function CreateService() {
                   <option>Weeks</option>
                 </select>
               </Form.Item>
-              <Form.Item label="Service Base Pricing">
-                <InputNumber addonBefore="Rs" defaultValue={1000} onChange={(value) => setUpdatedServicePricing(value)} />
+              <Form.Item label="Service Base Pricing" name="Pricing" rules={rules}>
+                <InputNumber addonBefore="Rs"  onChange={(value) => setUpdatedServicePricing(value)} />
               </Form.Item>
-              <Form.Item label="Select Availability">
+              <Form.Item label="Select Availability" name="Availability" rules={rules}>
                 <Radio.Group onChange={(e) => setUpdatedAvailability(e.target.value)}>
                   <Radio.Button value="Select" disabled>
                     Select:
@@ -350,6 +390,10 @@ function CreateService() {
                   </Radio.Button>
                 </Radio.Group>
               </Form.Item>
+              <div class="space-x-2">
+              <Button htmlType="submit">Update</Button>
+              <Button onClick={() => setViewServicesModal(false)}>Discard</Button>
+              </div>
             </Form>
           </Modal>
         </Space>
@@ -504,10 +548,11 @@ function CreateService() {
                   Cash Payment
                 </Descriptions.Item>
               )}
-              <Descriptions.Item label="Approve Payment">
+              <Descriptions.Item label="Approve Payment" name="Approve">
                 <Radio.Group
                   onChange={(e) => setPaymentApproval(e.target.value)}
                 >
+
                   <Radio.Button value="Select" disabled>
                     Select
                   </Radio.Button>
@@ -588,9 +633,9 @@ function CreateService() {
       label: "Add Service",
       children: (
         <TabPane tab="Add Service" key="1">
-          <form onSubmit={handleFormSubmit}>
-            <Form layout="vertical">
-              <Form.Item label="Package Name">
+          
+            <Form layout="vertical" onFinish={handleFormSubmit}>
+              <Form.Item label="Package Name" name="Package" rules={rules}>
                 <Input
                   onChange={(e) => setServiceName(e.target.value)}
                   validationErrors={{
@@ -598,7 +643,7 @@ function CreateService() {
                   }}
                 />
               </Form.Item>
-              <Form.Item label="Service For">
+              <Form.Item label="Service For" name="For" rules={rules}>
                 <Radio.Group onChange={(e) => setServiceTarget(e.target.value)}>
                   <Radio.Button value="Select:" disabled>
                     Select:
@@ -607,13 +652,13 @@ function CreateService() {
                   <Radio.Button value="Business">Business</Radio.Button>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Service Description">
+              <Form.Item label="Service Description" name="Description" rules={rules}>
                 <Input.TextArea
                   rows={4}
                   onChange={(e) => setServiceDescription(e.target.value)}
                 />
               </Form.Item>
-              <Form.Item label="Select Service Available Days">
+              <Form.Item label="Select Service Available Days" name="Days" rules={rules}>
                 <select
                   class="p-2 border rounded w-60"
                   onChange={(e) => setServiceAvailable(e.target.value)}
@@ -624,7 +669,7 @@ function CreateService() {
                   <option>Weeks</option>
                 </select>
               </Form.Item>
-              <Form.Item label="Service Base Pricing">
+              <Form.Item label="Service Base Pricing" name="Price" rules={rules}>
                 <InputNumber
                   addonBefore="Rs"
                   defaultValue={1000}
@@ -634,24 +679,13 @@ function CreateService() {
               <Form.Item>
                 <Button
                   style={{ background: "green", color: "white" }}
-                  onClick={() => setOpenModal1(true)}
+                  // onClick={() => setOpenModal1(true)}
+                  htmlType="submit"
                 >
                   Create
                 </Button>
-                <Modal
-                  title="Are you sure?"
-                  description
-                  open={openModal1}
-                  okText="Submit"
-                  onCancel={() => setOpenModal1(false)}
-                  onOk={handleFormSubmit}
-                  okType="default"
-                  width={400}
-                  centered
-                />
               </Form.Item>
             </Form>
-          </form>
         </TabPane>
       ),
     },
@@ -692,14 +726,15 @@ function CreateService() {
   ];
 
   return (
-    <div class="w-screen mt-14">
+    <div class="w-screen mt-8">
+      {loading && <Spinner />}
       <div class="flex flex-col mt-2 p-6">
-        <div className="flex w-full bg-white  rounded shadow p-3">
+        <div className="flex w-full p-3">
           <h1 className="text-xl  font-bold">Add / View services</h1>
         </div>
         <ToastContainer position="top-center" autoClose={5000} />
 
-        <div class="p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
+        <div class="p-3 bg-white rounded shadow-xl shadow-gray-350">
           <Card>
             <Tabs>{TabList.map((tab) => tab.children)}</Tabs>
           </Card>

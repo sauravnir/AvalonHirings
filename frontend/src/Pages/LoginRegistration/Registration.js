@@ -1,14 +1,36 @@
 import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { DatePicker, Input, Button } from "antd";
+import {
+  Table,
+  Button,
+  message,
+  Modal,
+  Form,
+  Input,
+  Space,
+  Divider,
+  Popconfirm,
+  Radio,
+  Card,
+  DatePicker,
+} from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
 import Logo from "../../images/Abnw.png";
-
+import Spinner from "../ProfileSettings/Spinner";
+import { maxLength } from "khalti-checkout-web";
 function Registration() {
+  const rules = [
+    {
+      required: true,
+      message: "required",
+    },
+  ];
+
+  const [loading , setLoading] = useState(false);
   const navigate = useNavigate();
   const [fullName, setFullName] = useState("");
   const [userType, setUserType] = useState("");
@@ -18,21 +40,21 @@ function Registration() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userName, setUserName] = useState("");
-  const [navigateError, setNavigateError] = useState("");
 
-  const registeredData = {
-    fullname: fullName,
-    user_type: userType,
-    date_of_birth: dateOfBirth,
-    email: email,
-    contact : contact ,
-    password: password,
-    username: userName,
-  };
-  const handleRegister = async (e) => {
-    e.preventDefault();
-    if (password === confirmPassword) {
-      try {
+  const userCreate = async () => {
+    try {
+      const registeredData = {
+        fullname: fullName,
+        user_type: userType,
+        date_of_birth:new Date(dateOfBirth).toISOString().split('T')[0],
+        email: email,
+        contact: contact,
+        password: password,
+        username: userName, 
+      };
+      if (password === confirmPassword && contact.length === 10) {
+
+        setLoading(true);
         const response = await fetch("http://127.0.0.1:8000/app/register/", {
           method: "POST",
           headers: {
@@ -40,21 +62,19 @@ function Registration() {
           },
           body: JSON.stringify(registeredData),
         });
-
-        if (response.ok) {
-          toast.success("Registration in verification.")
-          navigate("/login");
-        } else {
-          toast.error("Credentials with the account is already registered!") ; 
+        setLoading(false);
+        if(response.ok){
+            const data = await response.json();
+            message.success(data.message);
+            navigate('/admin-dashboard')
         }
-      } catch (error) {
-        console.log("Error", error);
+      } else {
+        message.error("Wrong credentials. Try checking the passwords or the contact number!");
       }
-    } else {
-      toast.error("Please match the passwords!") ; 
+    } catch (error) {
+      message.error(error.message);
     }
   };
-
   // File Download
 
   const downloadFile = async () => {
@@ -76,6 +96,7 @@ function Registration() {
   return (
     <div>
       <div class="flex h-screen mx-auto max-w-l bg-gradient-to-tl from-gray-900 to-sky-900 overflow-hidden">
+        {loading && <Spinner />}
         <div class="h-screen w-2/3 shadow-lg bg-white justify-start p-10">
           <div class="flex flex-col items-start pb-2 md:mb-0">
           
@@ -101,193 +122,66 @@ function Registration() {
                   </span>
                 </span>
           </div>
-          <ToastContainer position="top-center"/>
-          <div class="grid grid-rows-2 grid-flow-row gap-4 max-w-xl justify-between ">
-            <form
-              class="md:flex flex-col space-y-3  pt-4 pb-2 justify-center"
-              onSubmit={handleRegister}
-              // method="post"
-              // enctype="multipart/form-data"
-            >
-              {/* Full Name */}
-              <div class="mb-1">
-                <label
-                  class="block text-gray-700 text-m font-medium mb-2"
-                  for="Fullname"
-                >
-                  Full Name
-                </label>
-                <input
-                  class="shadow appearance-none border border-gray-200 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                  id="fullname"
-                  name="fullname"
-                  type="text"
-                  placeholder="John Smith"
-                  onChange={(e) => setFullName(e.target.value)}
-                  required
-                />
-              </div>
-              {/* Email Address */}
-              <div class="mb-1">
-                <label
-                  class="block text-gray-700 text-m font-medium mb-2"
-                  for="Email"
-                >
-                  Email address
-                </label>
-                <input
-                  class="shadow appearance-none border border-gray-200 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="example@gmail.com"
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-              </div>
+          <div class="flex flex-col w-full overflow-auto text-sm">
+            <Card  style={{ height: '500px' }}>
+            <Form layout="vertical" onFinish={userCreate}>
+                  <Form.Item label="Fullname" name="fullname" rules={rules}>
+                    <Input onChange={(e) => setFullName(e.target.value)}/>
+                  </Form.Item>
 
-              <div class="mb-1">
-                <label
-                  class="block text-gray-700 text-m font-medium mb-2"
-                  for="Contact Number"
-                >
-                  Contact Number
-                </label>
-                <input
-                  class="shadow appearance-none border border-gray-200 rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                  id="contact"
-                  name="contact"
-                  type="text"
-                  placeholder="980000000000"
-                  onChange={(e) => setContact(e.target.value)}
-                  maxLength={10}
-                  required
-                />
-              </div>
-              {/* User Name */}
-              <div class="flex flex-row space-x-5 max-w-xl">
-                <div class="mb-1">
-                  <label
-                    class="block text-gray-700 text-m font-medium mb-2"
-                    for="Username"
-                  >
-                    Username
-                  </label>
-                  <input
-                    class="shadow appearance-none border border-gray-200 rounded w-half  py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                    id="username"
-                    name="username"
-                    type="text"
-                    placeholder="JohnSmith123"
-                    onChange={(e) => setUserName(e.target.value)}
-                    required
-                  />
-                </div>
-                {/* User Type */}
-                <div class="mb-1">
-                  <label
-                    class="block text-gray-700 text-m font-medium mb-2"
-                    for="Usertype"
-                  >
-                    User-type
-                  </label>
-                  <select
-                    class="shadow appearance-none border border-gray-200 rounded py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                    onChange={(e) => setUserType(e.target.value)}
-                    required
-                  >
-                    <option>******</option>
-                    <option>Client</option>
-                    <option>Employee</option>
-                  </select>
-                </div>
-                {/* DOB */}
-                <div class="mb-1">
-                  <label
-                    class="block text-gray-700 text-m font-medium mb-2"
-                    for="Dateofbirth"
-                  >
-                    Date of Birth
-                  </label>
+                  <Form.Item label="User Name" name="username" rules={rules}>
+                    <Input onChange={(e) => setUserName(e.target.value)}/>
+                  </Form.Item>
 
-                  <div
-                    data-te-datepicker-init
-                    data-te-input-wrapper-init
-                    class="mb-1"
-                  >
-                    {/* <DatePicker format="YYYY-MM-DD" onChange={(value)=>setDateOfBirth(value)}/> */}
-                    <input
-                      class="shadow appearance-none border border-gray-200 rounded w-half  py-2 px-3 text-gray-700 leading-tight focus:outline-none invalid:border-red-500 focus:shadow-outline"
-                      type="text"
-                      name="dateofbirth"
-                      id="dateofbirth"
-                      placeholder="XXXX-XX-XX"
-                      onChange={(e) => setDateOfBirth(e.target.value)}
-                      required
-                    />
-                  </div>
-                </div>
-              </div>
+                  <Form.Item label="Email ID" name="emailid" rules={rules}>
+                    <Input onChange={(e) => setEmail(e.target.value)}/>
+                  </Form.Item>
 
-              <div class="flex flex-row justify-start space-x-5 max-w-xl">
-                <div class="mb-1">
-                  <label
-                    class="block text-gray-700 text-m font-medium mb-2"
-                    for="Password"
+                  <Form.Item
+                    label="Contact Number"
+                    name="contact"
+                    rules={rules}
                   >
-                    Password
-                  </label>
+                    <Input onChange={(e)=>setContact(e.target.value)}/>
+                  </Form.Item>
 
-                  <Input.Password
-                    onChange={(e) => setPassword(e.target.value)}
-                  />
-                </div>
+                  <Form.Item label="User-Type" name="usertype" rules={rules}>
+                    <Radio.Group onChange={(e) => setUserType(e.target.value)}>
+                      <Radio.Button value="Select" disabled>
+                        Select:
+                      </Radio.Button>
+                      <Radio.Button value="Client">Client</Radio.Button>
+                      <Radio.Button value="Employee">Employee</Radio.Button>
+                    </Radio.Group>
+                  </Form.Item>
 
-                <div class="mb-1">
-                  <label
-                    class="block text-gray-700 text-m font-medium mb-2"
-                    for="Confirm Password"
+                  <Form.Item
+                    label="Date Of Birth"
+                    name="dateofbirth"
+                    rules={rules}
                   >
-                    Confirm Password
-                  </label>
-                  <Input.Password
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    required
-                  />
-                </div>
-              </div>
+                    <DatePicker onChange={(date) => setDateOfBirth(date)} format="YYYY-MM-DD"/>
+                  </Form.Item>
 
-              {/* <div class="flex max-w-xl">
-              <div class="mb-1">
-                  <label
-                    class="block text-gray-700 text-m font-medium mb-2"
-                    for="Upload File"
-                  >
-                    Upload (Citizenship)
-                  </label>
-                  <input
-                    class="shadow border border-gray-200 rounded py-2 px-3 text-gray-700 leading-tight invalid:border-red-500 focus:shadow-outline"
-                    id="confirmpassword"
+                  <Form.Item label="Password" name="password" rules={rules}>
+                    <Input.Password onChange={(e) => setPassword(e.target.value)}/>
+                  </Form.Item>
+
+                  <Form.Item
+                    label="Confirm Password"
                     name="confirmpassword"
-                    type="file"
-                    accept="applocation/pdf"
-                    placeholder="**********"
-                  />
-                  <span class="flex text-red-900 text-sm">Only file with .pdf extension is accepted.</span>
-                </div> 
-              </div> */}
+                    rules={rules}
+                  >
+                    <Input.Password onChange={(e) => setConfirmPassword(e.target.value)}/>
+                  </Form.Item>
 
-              <div class="flex flex-col space-y-20 items-center w-full py-2 justify-center items-center p-5 ">
-                <button
-                  class="bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium py-2 px-40 rounded-lg focus:outline-none focus:shadow-outline"
-                  type="submit"
-                  // onClick={handleRegister}
-                >
-                  Create Account
-                </button>
-                
-              </div>
-            </form>
+                  <div class="flex flex-row justify-center w-full space-x-2">
+                    <Button htmlType="submit" class="bg-sky-700 text-white p-2 hover:bg-sky-600 rounded w-full " >REGISTER</Button>
+                  </div>
+                </Form>
+            </Card>
+            
+
           </div>
         </div>
 

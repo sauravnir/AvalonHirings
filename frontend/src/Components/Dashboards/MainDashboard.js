@@ -1,58 +1,71 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import dashboardItemsData from "../../objects/MainDashboardObject";
 import DashboardFooter from "./DashboardFooter";
-
+import {Card , Space , Button, Divider} from "antd";
 function MainDashboard() {
-  const [dashboardItems, setDashboardItems] = useState([]);
-
-  useEffect(() => {
-    // Use the imported array directly, don't call it as a function
-    setDashboardItems(dashboardItemsData);
-  }, []);
-
   return (
-    <div className="w-screen mt-14">
+    <div className="w-screen mt-8">
       <div className="mt-2 w-10/14 p-6">
         <div className=" flex-col py-3 ">
           <h1 className="text-xl font-semibold ">Dashboard</h1>
-  
-          <div class="flex flex-row items-center bg-violet-600 rounded-lg font-medium shadow h-12 mt-5">
-            <h1 class="px-8 text-white text-base">
-              Click here for Easter Egg:
-            </h1>
-          </div>
-          {/* <button > */}
-
-          {/* </button> */}
         </div>
-        <div className="flex  justify-between">
-          {dashboardItems.map((info) => (
-            <div class="mt-3">
-              <Link to="/admin-dashboard">
-                <div
-                  className={`flex flex-row w-72 h-22 shadow rounded rounded-lg bg-white shadow-gray-250`}
-                >
-                  <div className="flex flex-row p-3 space-x-8 items-center">
-                    <div class={`relative rounded-full h-fit ${info.color}`}>
-                      <img
-                        className="w-8"
-                        src={require(`../../images/${info.img}`)}
-                      ></img>
-                    </div>
-                    <div class="flex flex-col space-y-2">
-                      <h1 className="text-sm items-center text-gray-600">
-                        {info.title}
-                      </h1>
-                      <span className="text-xl font-medium  text-dark  ">
-                        {info.number}
-                      </span>
-                    </div>
+        <div className="grid grid-cols-2">
+          <div class="p-2 space-y-3">
+            <div class="flex flex-row space-x-3 justify-between">
+              <Card title={<Space><div class="flex flex-row items-center justify-between">Total Users</div></Space>}>
+                <Space>
+                  <div class="flex flex-row items-center p-3">
+                  <div class="flex flex-col space-y-1">
+                  <h1 class="text-lg">150000</h1>
+                  <h1 class="text-xs">Total users</h1>
                   </div>
-                </div>
-              </Link>
+                  </div>
+                </Space>
+              </Card>
+             <Card>
+             <Space>
+                  <div class="flex flex-row items-center p-3">
+                  <img class="w-10 h-10 mr-5" src={require(`../../images/dashboard-admin-client.png`)}></img>
+                  <div class="flex flex-col space-y-1">
+                  <h1 class="text-lg">100</h1>
+                  <h1 class="text-xs">Total Services</h1>
+                  </div>
+                  </div>
+                </Space>
+             </Card>
+             <Card>
+             <Space>
+                  <div class="flex flex-row items-center p-3">
+                  <img class="w-10 h-10 mr-5" src={require(`../../images/dashboard-admin-client.png`)}></img>
+                  <div class="flex flex-col space-y-1">
+                  <h1 class="text-lg">100</h1>
+                  <h1 class="text-xs">Total Services</h1>
+                  </div>
+                  </div>
+                </Space>
+             </Card>
             </div>
-          ))}
+          </div>
+
+          <div class="p-3 ">
+            <div>
+            <Card title="Values">
+              <div class="grid grid-cols-2">
+                <div class="flex flex-col  ">
+                  <h1>Total Received:</h1>
+                  <h1>Total Paid:</h1>
+                </div>
+                <div class="flex flex-col ">
+                  <h1>Rs.123123</h1>
+                  <h1>Rs.1231231</h1>
+                </div>
+              </div>
+            </Card>
+            </div>
+            <div>
+              
+            </div>
+          </div>
         </div>
         <DashboardFooter />
       </div>

@@ -4,7 +4,7 @@ import DashboardFooter from "./DashboardFooter";
 import { Card, Button, Modal, Tabs, Table, Space, Descriptions, Tag } from "antd";
 import { EyeOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
-
+import Spinner from "../../Pages/ProfileSettings/Spinner";
 import "react-toastify/dist/ReactToastify.css";
 
 // import InfiniteScroll from 'react-infinite-scroll-component';
@@ -14,7 +14,7 @@ function ViewReports() {
   const [action, setAction] = useState("");
   const navigate = useNavigate();
   const [actionResponse, setActionResponse] = useState(null);
-
+  const [loading , setLoading] = useState(false);
   const { TabPane } = Tabs;
 
   console.log(actionResponse);
@@ -52,6 +52,7 @@ function ViewReports() {
   useEffect(() => {
     const fetchReportDetails = async () => {
       try {
+        setLoading(true);
         const response = await fetch("http://127.0.0.1:8000/getreport/");
         const contentType = response.headers.get("content-type");
         console.log("Content-Type:", contentType);
@@ -60,6 +61,9 @@ function ViewReports() {
         setReportDetails(data);
       } catch (error) {
         console.error("Error fetching report details:", error);
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
       }
     };
 
@@ -86,6 +90,7 @@ function ViewReports() {
         user_id: id || "",
         report_action : report_action || ""
       });
+      
     } catch (error) {
       console.error("Error fetching report details:", error);
     }
@@ -93,6 +98,7 @@ function ViewReports() {
 
   const postApproval = async () => {
     try {
+      setLoading(true);
       const response = await fetch(
         `http://127.0.0.1:8000/updatereport/${modalDetails.user_id}`,
         {
@@ -111,6 +117,9 @@ function ViewReports() {
       }
     } catch (error) {
       console.log(error);
+    }finally{
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setLoading(false);
     }
   };
 
@@ -270,14 +279,15 @@ function ViewReports() {
   ];
 
   return (
-    <div class="w-screen mt-14">
+    <div class="w-screen mt-8">
+      {loading && <Spinner />}
       <div class="flex flex-col mt-2 p-6">
-        <div className="flex w-full bg-white  rounded shadow p-3">
+        <div className="flex w-full p-3">
           <h1 className="text-xl font-bold">Reports and Issues</h1>
         </div>
         <ToastContainer position="top-center" autoClose={5000} />
 
-        <div class="p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
+        <div class="p-3 bg-white rounded shadow-xl shadow-gray-350">
           <Card>
             <Tabs>{TabList.map((tab) => tab.children)}</Tabs>
             <Modal

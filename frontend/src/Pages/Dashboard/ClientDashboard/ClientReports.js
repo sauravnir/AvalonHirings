@@ -7,7 +7,6 @@ function ClientReports() {
     <div class="bg-zinc-100 flex">
         <NavigationDashboard />
         <Sidebar />
-        
         <UserIssueReports />
     </div>
   )

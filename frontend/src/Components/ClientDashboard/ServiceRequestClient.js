@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardFooter from "../Dashboards/DashboardFooter";
 import { Drawer, Form, Input, Button, Tooltip } from "antd";
@@ -8,7 +8,7 @@ import { PlusOutlined, QuestionOutlined } from "@ant-design/icons";
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
 import { required } from "khalti-checkout-web";
-
+import Spinner from "../../Pages/ProfileSettings/Spinner";
 
 function ServiceRequestClient() {
 
@@ -18,17 +18,20 @@ function ServiceRequestClient() {
       message: "required",
     },
   ];
-  
+  const [location , setLocation] = useState('')
+  const [handleUserInput , setHandleUserInput] = useState(false);
+  const [filterQuery , setFilterQuery] = useState('')  
+  const [filterAvailability , setFilterAvailability] = useState('')
   const [getServiceItems, setGetServiceItems] = useState([]);
+  const onFilterChange = useRef([])
   const [selectedItems, setSelectedItems] = useState([]);
-
   // storing the input value in state
   const [expiryDate, setExpiryDate] = useState(
     moment().format("YYYY-MM-DD HH:mm:ss")
   );
   const [pickValue, setPickValue] = useState("");
   const [finalPrice, setFinalPrice] = useState("");
-  const [location, setLocation] = useState("");
+  const [loading, setLoading] = useState("");
 
   const userdata = localStorage.getItem("userData");
   const username = JSON.parse(userdata);
@@ -83,12 +86,17 @@ function ServiceRequestClient() {
   useEffect(() => {
     const handleSubmit = async () => {
       try {
+        setLoading(true);
         const res = await fetch("http://127.0.0.1:8000/getservices/");
         const data = await res.json();
         console.log(data);
         setGetServiceItems(data);
+        onFilterChange.current = data ; 
       } catch (error) {
         toast.error(error);
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
       }
     };
     handleSubmit();
@@ -111,6 +119,7 @@ function ServiceRequestClient() {
 
   const giveServiceDetails = async () => {
     try {
+      setLoading(true);
       const res = await fetch("http://127.0.0.1:8000/postrequest/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -124,9 +133,59 @@ function ServiceRequestClient() {
     } catch (error) {
       navigate("./");
     }
+    finally{
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setLoading(false);
+    }
   };
+
+  const handleFilterChange =  (value) =>{
+    setFilterQuery(value);
+    setHandleUserInput(true);
+  }
+
+  const handleFilterAvailability = (value) =>{
+    setFilterAvailability(value);
+    setHandleUserInput(true);
+  }
+
+  useEffect(() => {
+    const applySearchAndFilter = async () => {
+      try {
+        setLoading(true);
+        let newData = [...onFilterChange.current];
+  
+        if (filterQuery.trim() !== "" && filterQuery !== "All Service Areas") {
+          newData = newData.filter(
+            (item) =>
+              item.servicetarget.includes(filterQuery)
+          );
+        }
+        
+        if(filterAvailability.trim() !== "" && filterAvailability !== "All"){
+          newData = newData.filter(
+          (item) => item.status.includes(filterAvailability)
+          );
+        }
+        setGetServiceItems(newData);
+        setLoading(false);
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
+  
+    if (handleUserInput) {
+      applySearchAndFilter();
+    } else {
+      setGetServiceItems([...onFilterChange.current]);
+      setHandleUserInput(false);
+    }
+  }, [filterQuery, handleUserInput , filterAvailability]);
+  
+
   return (
-    <div className="w-screen mt-14">
+    <div className="w-screen mt-8">
+      {loading && <Spinner />}
       <div className="mt-2 w-10/14 py-2 px-3">
         <div className="flex flex-col py-3">
           <div className="flex flex-row items-center justify-between w-full bg-white rounded shadow   p-3">
@@ -135,11 +194,21 @@ function ServiceRequestClient() {
             <h1 className="text-sm hover:underline">
               Total Services:  {Object.keys(getServiceItems).length} 
             </h1>
-            <select class=" shadow-lg p-2 text-sm">
-              <option>Search for service types</option>
-              <option>For Households</option>
-              <option>For Business / Enterprises</option>
+            <div class="flex flex-row justify-end items-center space-x-2">
+            <h1 class="text-sm">Filter:</h1>
+            <select class=" shadow-lg p-2 text-sm" value={filterQuery} onChange={(e) => handleFilterChange(e.target.value)}>
+              <option disabled>Filter Service Targets</option>
+              <option>All Service Areas</option>
+              <option>Household</option>
+              <option>Business</option>
             </select>
+            <select class=" shadow-lg p-2 text-sm" value={filterAvailability} onChange={(e) => handleFilterAvailability(e.target.value)}>
+              <option disabled>Filter Availability</option>
+              <option>All</option>
+              <option>Available</option>
+              <option>Not Available</option>
+            </select>
+            </div>
           </div>
         </div>
         <ToastContainer position="bottom-center" autoClose={6000} />

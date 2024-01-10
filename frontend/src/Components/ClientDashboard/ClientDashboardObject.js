@@ -1,23 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import { Descriptions, Progress, Card, Modal, Button, Divider } from "antd";
-import {
-  ExclamationCircleOutlined
-} from '@ant-design/icons';
+import { Descriptions, Progress, Card, Modal, Button, Divider } from "antd"
 import DashboardFooter from "../Dashboards/DashboardFooter";
 import KhaltiCheckout from "khalti-checkout-web";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
-
+import Spinner from "../../Pages/ProfileSettings/Spinner";
 
 function ClientDashboard() {
   const [getServiceItems, setGetServiceItems] = useState([]);
   const [dashboardItems, setDashboardItems] = useState([]);
   const [workDetails, setWorkDetails] = useState([]);
   const [showSubscription, setShowSubscription] = useState(false);
-
+  const [loading , setLoading] = useState(false);
   const listItem = ['Prioritize Service Requests','Premium Service Plans','Fast-track handling of your reports','Quick response to support requests']
   
   const [subscriptionDetails , setSubscriptionDetails] = useState([]);
@@ -31,6 +28,7 @@ function ClientDashboard() {
   useEffect(() => {
     const handleWork = async () => {
       try {
+        setLoading(true);
         const res = await fetch(
           `http://127.0.0.1:8000/viewclientservice/${userID.user_id}`
         );
@@ -39,6 +37,9 @@ function ClientDashboard() {
      
       } catch (error) {
         return error;
+      }finally{
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
       }
     };
 
@@ -98,7 +99,7 @@ function ClientDashboard() {
 
   const handleSubscription = async() =>{
     // Fetching the user ID
-    
+    setLoading(true);
     const config ={
       publicKey: "test_public_key_fb53c47dfcf44808988bda227c018702",
       productIdentity: '123',
@@ -125,10 +126,12 @@ function ClientDashboard() {
     } catch (error) {
       console.log(error);
     }
+    setLoading(false);
   };
 
   const sendPaymentToken = async (paymentToken , amount) =>{
     try {
+      setLoading(true);
       const response = await fetch("http://127.0.0.1:8000/subscriptionpayment/" , {
         method: "POST",
         headers: {'Content-Type': 'application/json'},
@@ -144,6 +147,9 @@ function ClientDashboard() {
       }
     } catch(error){
       console.log(error);
+    }finally{
+      await new Promise((resolve) => setTimeout(resolve, 2000));
+      setLoading(false);
     }
   }
 
@@ -164,7 +170,7 @@ function ClientDashboard() {
   },[user_id])
 
   return (
-    <div className="w-screen mt-14">
+    <div className="w-screen mt-8">
       <ToastContainer />
       <Modal
         open={showSubscription}
@@ -172,6 +178,7 @@ function ClientDashboard() {
         footer={null}
         width={400}
       >
+        {loading && <Spinner />}
         <div class="flex flex-col bg-violet-950 rounded-3xl  items-center justify-center w-full">
             <div class="flex flex-row items-center space-x-3 p-10">
               <button class="flex justify-center w-20 h-20 rounded-3xl items-center item bg-gradient-to-br from-orange-300 via-amber-400 to-yellow-500">
@@ -254,6 +261,7 @@ function ClientDashboard() {
           <div class="w-1/2 rounded border bg-white shadow-xl">
             <h1 class="font-bold p-5">Work Progress:</h1>
             <div class="p-4 justify-center">
+              <Card>
               {workDetails
                 .filter((item) => item.status === "On-Going")
                 .map((item) => (
@@ -296,8 +304,10 @@ function ClientDashboard() {
                     </Card>
                   </Link>
                 ))}
+              </Card>
+              
 
-                {workDetails.filter((item) => item.status !== "On-Going").map((item) => (
+                {/* {workDetails.filter((item) => item.status !== "On-Going").map((item) => (
                   <Card>
                   <div class="flex flex-col items-center justify-center space-y-4 p-4">
                   <ExclamationCircleOutlined style={{ fontSize: "32px" }}/>
@@ -308,7 +318,7 @@ function ClientDashboard() {
                     </div>
                   </Card>
                 ))
-                }
+                } */}
             </div>
           </div>
         </div>

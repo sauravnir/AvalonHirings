@@ -59,7 +59,7 @@ class UpdatedContractView(APIView):
                 for i in range(4):
                     OTP += otp_digits[math.floor(random.random() * len(otp_digits))]
                 
-                subject = "One Transaction Pin";
+                subject = "Successufully Registered to Avalon Hirings!";
                 message = f"Here is your One Time Transaction PIN. Use it to login into the system : {OTP}";
                 recipient_list = [user_data.email];
                 if user_data.otp == "":

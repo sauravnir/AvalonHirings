@@ -216,7 +216,7 @@ function UserProfile() {
       <div class="flex flex-row justify-center py-5 w-screen mt-20">
   <div class="shadow border w-1/2 rounded bg-white">
     <div class="border">
-      <div class="flex flex-col items-center">
+      <div class="flex flex-col items-center bg-sky-800">
         
         {subscriptionDetails.is_subscribed === true ? <div class="flex bg-gradient-to-r from-amber-400 to-orange-500 w-full p-2 justify-center">
           
@@ -227,7 +227,7 @@ function UserProfile() {
 
         </div> :null}
         
-        <div
+        {/* <div
           class="flex items-center justify-center relative"
           style={{
             backgroundImage: `url(${require("../../images/profilebackground.jpg")})`,
@@ -237,8 +237,8 @@ function UserProfile() {
             height: "300px",
             opacity: 0.9,
           }}
-        >
-          <div class="flex flex-col relative items-center justify-center">
+        > */}
+          <div class="flex flex-col relative items-center justify-center p-5">
             <img
               class="w-40 h-40 mb-3 rounded-full shadow-2xl border object-cover"
               src={`http://127.0.0.1:8000${getProfile.profilepic}`}
@@ -261,7 +261,7 @@ function UserProfile() {
             <h1 class="hover:underline text-white text-lg">{getProfile.fullname}</h1>
             <h1 class="text-sm text-zinc-200 ">{getProfile.email}</h1>
           </div>
-        </div>
+        {/* </div> */}
       </div>
     </div>
     <Card>
