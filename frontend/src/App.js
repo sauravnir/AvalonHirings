@@ -32,6 +32,9 @@ import Announcements from "./Pages/Dashboard/AdminDashboard/Announcements.js";
 import ClientAnnouncement from "./Pages/Dashboard/ClientDashboard/ClientAnnouncement.js";
 import EmployeeAnnouncement from "./Pages/Dashboard/EmployeeDashboard/EmployeeAnnouncement.js";
 import AddUser from "./Pages/Dashboard/AdminDashboard/AddUser.js";
+import AllUsers from "./Pages/Dashboard/AdminDashboard/AllUsers.js";
+
+
 function App() {
   return (
   
@@ -80,6 +83,9 @@ function App() {
             <Route index element = {<AddUser />} />
           </Route>
 
+          <Route path="/all-users" element={<PrivateRoute />}>
+            <Route index element = {<AllUsers />}/>
+          </Route>
 
 
           {/* Employee Routes */}

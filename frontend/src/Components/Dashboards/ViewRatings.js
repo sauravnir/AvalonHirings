@@ -6,9 +6,10 @@ import {
   Table,
   Space,
   Rate,
-  Input
+  Input,
+  Breadcrumb
 } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined , HomeOutlined } from "@ant-design/icons";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 
 const RatingText = ({ rating }) => {
@@ -127,7 +128,7 @@ function ViewRatings() {
       key: "action",
       render : (_,record)=>(
         <Space>
-          <Button  size="small"
+          <Button  size="smed"
             icon={<EyeOutlined style={{ fontSize: "13px" }} />}
             onClick={() => handleModalClick(record.key)}
             >
@@ -173,10 +174,23 @@ function ViewRatings() {
     <div className="w-screen mt-8">
       {loading && <Spinner />}
       <div className="flex flex-col mt-5 p-6">  
-        <div className="flex w-full bg-white  rounded shadow p-3">
-          <h1 className="text-xl font-bold">All Ratings / Reviews</h1>
+        <div className="flex flex-row justify-between items-center w-full p-3">
+          <h1 className="text-xl font-bold">Ratings</h1>
+          <Breadcrumb items={[
+              {
+                href:"/admin-dashboard",
+                title:<HomeOutlined />
+              },
+              {
+                title:"Ratings and Services",
+              },
+              {
+                href:"/ratings",
+                title:"Ratings-Reviews"
+              }
+              ]}/>
         </div>
-        <div class="grid grid-row mt-4">
+        <div class="grid grid-row">
           <Card>
             <Table columns={tableColumns} dataSource={tableData} pagination={{
                   pageSize: 15,

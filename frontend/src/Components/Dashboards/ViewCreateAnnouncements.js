@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Table,
@@ -10,8 +10,9 @@ import {
   Space,
   Divider,
   Popconfirm,
+  Breadcrumb
 } from "antd";
-import { EyeOutlined, EditOutlined, DeleteOutlined } from "@ant-design/icons";
+import {HomeOutlined, EyeOutlined, EditOutlined, DeleteOutlined , PlusOutlined , SearchOutlined } from "@ant-design/icons";
 import DashboardFooter from "./DashboardFooter";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 function ViewCreateAnnouncements() {
@@ -31,11 +32,12 @@ function ViewCreateAnnouncements() {
   const [announcementDescription, setAnnouncementDescription] = useState("");
   const [singleAnnouncement, setSingleAnnouncement] = useState([]);
   const [changedDescription, setChangedDescription] = useState("");
-
+  const [searchQuery , setSearchQuery] = useState("");
+  const [userInput , setUserInput] = useState(false);
+  const originalAnnouncementDetails = useRef([]);
   const navigate = useNavigate();
   const localdata = localStorage.getItem("userData");
   const userType = JSON.parse(localdata);
-
   const setViewAnnouncement = (report) => {
     getSingleAnnouncements(report);
     setOpenModal1(true);
@@ -56,6 +58,7 @@ function ViewCreateAnnouncements() {
         );
         const data = await response.json();
         setGetAnnouncement(data);
+        originalAnnouncementDetails.current = data
         setLoading(false);
       } catch (error) {
         message.error(error.message);
@@ -94,7 +97,6 @@ function ViewCreateAnnouncements() {
   };
 
   //   Getting single announcements
-
   const getSingleAnnouncements = async (id) => {
     try {
       setLoading(true);
@@ -145,6 +147,41 @@ function ViewCreateAnnouncements() {
         message.error(error.message);
     }
   }
+
+const handleSearchChange =(e) => {
+  setSearchQuery(e.target.value);
+  setUserInput(true);
+}
+
+// handling search filter
+
+useEffect(()=>{
+  const applySearchAndFilter = async () => {
+    try {
+      let newData = [...originalAnnouncementDetails.current];
+
+      if (searchQuery.trim() !== "") {
+        newData = newData.filter(
+          (item) =>
+            item.title
+              .toLowerCase()
+              .includes(searchQuery.toLowerCase()) 
+          );
+      }
+
+      setGetAnnouncement(newData);
+    } catch (error) {
+      message.error(error.message)
+    } 
+  };
+
+  if(userInput) {
+    applySearchAndFilter();
+  }else { 
+    setGetAnnouncement([...originalAnnouncementDetails.current]);
+    setUserInput(false);
+    }
+},[searchQuery , userInput]);
 
   const announcementTable = [
     {
@@ -281,16 +318,44 @@ function ViewCreateAnnouncements() {
     <div class="w-screen mt-8">
       {loading && <Spinner />}
       <div class="flex flex-col mt-2 p-6">
-        <div class="flex py-3">
+        <div class="flex flex-row justify-between items-center py-3">
           <h1 class="text-xl font-bold">Announcements</h1>
+          <Breadcrumb items={[
+              {
+                href:userType.user_type === "Admin" ? '/admin-dashboard' : userType.user_type === "Client" ? '/client-dashboard' : '/employee-dashboard',
+                title:<HomeOutlined />
+              },
+              {
+                href:userType.user_type === "Admin" ? '/announcements' : userType.user_type === "Client" ? '/client-announcement' : '/employee-announcement',
+                title:"Announcements"
+              }
+              ]}/>
         </div>
+        
         <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
+          <div className="grid grid-cols-2 p-2">
+
+        <div class="flex flex-row justify-start w-60">
+          <Input 
+            prefix={<SearchOutlined />}
+            width ={50}
+            placeholder="Search Title"
+            value={searchQuery}
+            onChange={handleSearchChange}
+          />
+          </div>
+          <div className="flex flex-row justify-end">
+
+          {userType.user_type === "Admin" ? (<div><Button icon={<PlusOutlined/>} className="bg-sky-900 text-white hover:bg-sky-700 rounded" onClick={() => setOpenModal(true)}>
+                  Create Announcement
+                </Button></div>) : null}
+          </div>
+            
+        
+          </div>
           <div class="flex flex-row justify-end p-2 items-center">
             {userType.user_type === "Admin" ? (
               <div>
-                <Button type="default" onClick={() => setOpenModal(true)}>
-                  Create Announcement
-                </Button>
                 <Modal
                   title="Create Announcement"
                   open={openModal}

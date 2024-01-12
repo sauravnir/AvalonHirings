@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect , useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardFooter from "./DashboardFooter";
-import { Card, Button, Modal, Tabs, Table, Space, Descriptions, Tag } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { Card, Button, Modal, Table, Space, Descriptions, Tag , Breadcrumb, Select , message , Input } from "antd";
+import { EyeOutlined, HomeOutlined , SearchOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 import "react-toastify/dist/ReactToastify.css";
@@ -15,9 +15,16 @@ function ViewReports() {
   const navigate = useNavigate();
   const [actionResponse, setActionResponse] = useState(null);
   const [loading , setLoading] = useState(false);
-  const { TabPane } = Tabs;
+  const [searchQuery , setSearchQuery] = useState('');
+  const [userInput , setUserInput] = useState(false);
+  const onSearchChange = useRef([])
 
-  console.log(actionResponse);
+  const handleSearchQuery = (e) => {
+    setSearchQuery(e.target.value);
+    setUserInput(true);
+}
+
+
   const onApproval = () => {
     setAction("Approved");
   };
@@ -55,10 +62,9 @@ function ViewReports() {
         setLoading(true);
         const response = await fetch("http://127.0.0.1:8000/getreport/");
         const contentType = response.headers.get("content-type");
-        console.log("Content-Type:", contentType);
         const data = await response.json();
-        // console.log(data);
         setReportDetails(data);
+        onSearchChange.current = data ;
       } catch (error) {
         console.error("Error fetching report details:", error);
       }finally{
@@ -126,10 +132,40 @@ function ViewReports() {
   useEffect(() => {
     if (action) {
       postApproval();
-
+      message.success("Success!");
       navigate("/admin-dashboard");
     }
   }, [action]);
+
+
+// Searching Query 
+useEffect(() => {
+  const filterData = async () => {
+      try{
+          setLoading(true);
+          let newData = [...onSearchChange.current]
+
+          if(searchQuery.trim() !== ""){
+              newData = newData.filter((item)=>
+              item.user.fullname.toLowerCase().includes(searchQuery.toLowerCase())||
+              item.user.user_type.toLowerCase().includes(searchQuery.toLowerCase())
+              )
+          }
+          setReportDetails(newData);
+          setLoading(false)
+      }catch(error){
+          message.error('Failed To Load Data');
+      }
+  };
+
+  if(userInput){
+    filterData();
+  }else{
+    setReportDetails([...onSearchChange.current])
+    setUserInput(false);
+  }
+},[userInput , searchQuery])
+
 
   const pendingItems = [
     {
@@ -156,6 +192,12 @@ function ViewReports() {
       title: "Report Status",
       dataIndex: "report_status",
       key: "report_status",
+      filterMultiple: false,
+      filters: [
+        { text: "Approved", value: "Approved" },
+        { text: "Pending", value: "Pending" },
+        { text: "Denied", value: "Denied" },
+      ],
       render:(report_status ,record)=>{
         console.log(report_status)
         let color = report_status.length > 5 ? "geekblue" : "green";
@@ -171,7 +213,33 @@ function ViewReports() {
             {report_status}
           </Tag>
         )
-      }
+      },
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+        <div class="flex flex-col space-y-2" style={{ padding: 8 }}>
+          <Select
+            mode="multiple"
+            style={{ width: 200 }}
+            placeholder="Select Status"
+            onChange={(value) => setSelectedKeys(value || [])}
+            onDeselect={confirm}
+            value={selectedKeys}
+            options={["Approved", "Pending", "Denied"].map((status) => ({
+              value: status,
+              label: status,
+            }))}
+          />
+          <Button
+            type="default"
+            onClick={confirm}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+        </div>
+      ),
+      onFilter: (value, record) => record.report_status.includes(value),
     },
     {
       title: "Action",
@@ -191,20 +259,7 @@ function ViewReports() {
   ];
 
   
-  const pendingData = reportDetails
-  .filter((info) => info.report_action === "Pending")
-  .map((info, index) => ({
-    sn: index + 1,
-    key: info.id,
-    user_name: info.user.fullname,
-    user_type: info.user.user_type,
-    report_title: info.title,
-    report_status: info.report_action,
-  }));
-  
-  const approvedData = reportDetails
-  .filter((info) => info.report_action === "Approved")
-  .map((info, index) => ({
+  const pendingData = reportDetails.map((info, index) => ({
     sn: index + 1,
     key: info.id,
     user_name: info.user.fullname,
@@ -213,25 +268,35 @@ function ViewReports() {
     report_status: info.report_action,
   }));
 
-  const deniedData = reportDetails
-  .filter((info) => info.report_action === "Denied")
-  .map((info, index) => ({
-    sn: index + 1,
-    key: info.id,
-    user_name: info.user.fullname,
-    user_type: info.user.user_type,
-    report_title: info.title,
-    report_status: info.report_action,
-  }));
+  return (
+    <div class="w-screen mt-8">
+      {loading && <Spinner />}
+      <div class="flex flex-col mt-2 p-6">
+        <div className="flex flex-row justify-between items-center w-full p-3">
+          <h1 className="text-xl font-bold">Reports and Issues</h1>
+          <Breadcrumb items={[
+              {
+                href:"/admin-dashboard",
+                title:<HomeOutlined />
+              },
+              {
+                href:"/admin-view-reports",
+                title:"Reports"
+              }
+              ]}/>
+        </div>
+        <ToastContainer position="top-center" autoClose={5000} />
 
-  // Contents in the tab
-  const TabList = [
-    {
-      key: "1",
-      label: "Pending",
-      children: (
-        <TabPane tab="Pending" key="1">
-        
+        <div class="p-3 bg-white rounded shadow-xl shadow-gray-350">
+          <Card>
+            <div className="flex flex-row justify-start w-60 py-2">
+              <Input 
+              prefix = {<SearchOutlined />}
+              placeholder="Search Items"
+              value = {searchQuery}
+              onChange={handleSearchQuery}
+              />
+            </div>
           <Table
             columns={pendingItems}
             dataSource={pendingData}
@@ -240,56 +305,6 @@ function ViewReports() {
               showTotal: (total) => `Total ${total} items`,
             }}
           />
-        </TabPane>
-      ),
-    },
-    {
-      key: "2",
-      label: "Approved",
-      children: (
-        <TabPane tab="Approved" key="2">
-          <Table
-            columns={pendingItems}
-            dataSource={approvedData}
-            pagination={{
-              pageSize: 10,
-              showTotal: (total) => `Total ${total} items`,
-            }}
-          />
-        </TabPane>
-      ),
-    },
-    {
-      key: "3",
-      label: "Denied",
-      children: (
-        <TabPane tab="Denied" key="3">
-          <Table
-            columns={pendingItems}
-            dataSource={deniedData}
-            pagination={{
-              pageSize: 10,
-              showTotal: (total) => `Total ${total} items`,
-            }}
-          />
-        </TabPane>
-      ),
-    },
- 
-  ];
-
-  return (
-    <div class="w-screen mt-8">
-      {loading && <Spinner />}
-      <div class="flex flex-col mt-2 p-6">
-        <div className="flex w-full p-3">
-          <h1 className="text-xl font-bold">Reports and Issues</h1>
-        </div>
-        <ToastContainer position="top-center" autoClose={5000} />
-
-        <div class="p-3 bg-white rounded shadow-xl shadow-gray-350">
-          <Card>
-            <Tabs>{TabList.map((tab) => tab.children)}</Tabs>
             <Modal
               open={openModalClient}
               onCancel={modalCancelClient}

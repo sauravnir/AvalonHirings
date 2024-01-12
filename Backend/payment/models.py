@@ -20,7 +20,7 @@ class Payment(models.Model):
         return f"{self.service_use.id} - {self.amount} - {self.payment_date} - {self.payment_approval}"
     
 class Subscription(models.Model):
-    user = models.ForeignKey(Users, on_delete = models.CASCADE , null = True )
+    user = models.ForeignKey(Users, on_delete = models.CASCADE , null = True , related_name='subscriptions' )
     subscription_name = models.CharField(max_length=255, default="Premium Subscription Plan", blank=True)
     amount = models.IntegerField(default=2000 , blank=True)
     transaction_reference =models.CharField(max_length=255, blank=True, null=True)

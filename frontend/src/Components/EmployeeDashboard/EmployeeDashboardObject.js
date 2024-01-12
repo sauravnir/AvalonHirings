@@ -72,7 +72,7 @@ const daysDifference =timeDifference / (1000*3600*24)
       {loading && <Spinner/>}
       <div className="mt-2 w-10/14 p-6">
         <div className=" flex-col py-3 ">
-          <h1 className="text-2xl font-semibold ">Dashboard</h1>
+          <h1 className="text-xl font-semibold ">Dashboard</h1>
         </div>
         <div class="flex flex-row items-center justify-between bg-cyan-500 rounded-lg font-medium shadow h-12 mt-5">
           </div>

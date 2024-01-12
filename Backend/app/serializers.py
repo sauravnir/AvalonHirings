@@ -61,3 +61,8 @@ class PostAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Announcements 
         fields = "__all__"
+
+class AllUsersSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Users 
+        fields = "__all__"

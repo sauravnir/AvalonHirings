@@ -1,9 +1,9 @@
 import React, { useState, useEffect , useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import DashboardFooter from "../Dashboards/DashboardFooter";
-import { Drawer, Form, Input, Button, Tooltip } from "antd";
+import { Drawer, Form, Input, Button,  Card , Breadcrumb , Badge, InputNumber , TimePicker, message } from "antd";
 import { ToastContainer, toast } from "react-toastify";
-import { PlusOutlined, QuestionOutlined } from "@ant-design/icons";
+import { PlusOutlined , HomeOutlined } from "@ant-design/icons";
 
 import "react-toastify/dist/ReactToastify.css";
 import moment from "moment";
@@ -31,11 +31,12 @@ function ServiceRequestClient() {
   );
   const [pickValue, setPickValue] = useState("");
   const [finalPrice, setFinalPrice] = useState("");
+  const [startHour , setStartHour] = useState("");
+  const [endHour , setEndHour] = useState("");
   const [loading, setLoading] = useState("");
-
   const userdata = localStorage.getItem("userData");
   const username = JSON.parse(userdata);
-  // Preparing data to be entered into the model
+
   const requestData = {
     username: username.username,
     servicevalue: pickValue,
@@ -43,6 +44,8 @@ function ServiceRequestClient() {
     expiry_date: expiryDate,
     serviceid: selectedItems.id,
     servicelocation: location,
+    startHour : startHour , 
+    endHour : endHour,
   };
 
   const navigate = useNavigate();
@@ -54,11 +57,7 @@ function ServiceRequestClient() {
   const onClose = () => {
     setOpen(false);
   };
-  // Contact Us Alert
-  const infoAlert = () => {
-    toast.info("For further inqueries, contact us at +977 9815977947.");
-  };
-
+  
   // Calculating the date value
   const calculatedDate = () => {
     if (pickValue && selectedItems.serviceavailable) {
@@ -89,7 +88,7 @@ function ServiceRequestClient() {
         setLoading(true);
         const res = await fetch("http://127.0.0.1:8000/getservices/");
         const data = await res.json();
-        console.log(data);
+
         setGetServiceItems(data);
         onFilterChange.current = data ; 
       } catch (error) {
@@ -107,7 +106,6 @@ function ServiceRequestClient() {
     try {
       const res = await fetch(`http://127.0.0.1:8000/getservice/${serviceId}`);
       const data = await res.json();
-      console.log(data);
       setSelectedItems(data);
       showDrawer();
     } catch (error) {
@@ -125,13 +123,13 @@ function ServiceRequestClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
       });
-
       if (res.ok) {
-        toast.success("Successfully sent a request!");
+        const data = await res.json();
+        message.success(data.message);
         navigate("../client-view-service");
       }
-    } catch (error) {
-      navigate("./");
+    } catch(error) {
+      message.error("Error In Requesting Service");
     }
     finally{
       await new Promise((resolve) => setTimeout(resolve, 2000));
@@ -148,6 +146,7 @@ function ServiceRequestClient() {
     setFilterAvailability(value);
     setHandleUserInput(true);
   }
+
 
   useEffect(() => {
     const applySearchAndFilter = async () => {
@@ -183,19 +182,43 @@ function ServiceRequestClient() {
   }, [filterQuery, handleUserInput , filterAvailability]);
   
 
+// Setting the hours for time picker 
+
+const disabledHours = () => {
+  return Array.from({ length: 24 }, (_, i) => i).filter((hour) => hour < 10 || hour >= 18);
+}
+
   return (
     <div className="w-screen mt-8">
       {loading && <Spinner />}
       <div className="mt-2 w-10/14 py-2 px-3">
-        <div className="flex flex-col py-3">
-          <div className="flex flex-row items-center justify-between w-full bg-white rounded shadow   p-3">
-            <h1 className="text-2xl font-bold">Request For Service</h1>
-            {/* <h1 className="text-2xl text-white font-base">Issue Reports / Requests</h1> */}
-            <h1 className="text-sm hover:underline">
+       
+          <div className="flex flex-row items-center justify-between w-full p-3 mt-2">
+            <h1 className="text-xl font-bold">Request For Service</h1>
+            <Breadcrumb items={[
+              {
+                href:"/client-dashboard",
+                title:<HomeOutlined />
+              },
+              {
+                title:"Services",
+              },
+              {
+                href:"/request-service",
+                title:"Request For Service"
+              }
+              ]}/>
+          </div>
+       
+        
+        <ToastContainer position="bottom-center" autoClose={6000} />
+        <div class="flex items-center justify-center"></div>
+        <Card>
+        <div class="flex flex-row justify-between items-center p-2 space-x-2 mb-2">
+        <h1 className="text-sm hover:underline text-sky-900 hover:text-sky-700 font-bold">
               Total Services:  {Object.keys(getServiceItems).length} 
             </h1>
-            <div class="flex flex-row justify-end items-center space-x-2">
-            <h1 class="text-sm">Filter:</h1>
+            <div class="flex flex-row items-center space-x-2">
             <select class=" shadow-lg p-2 text-sm" value={filterQuery} onChange={(e) => handleFilterChange(e.target.value)}>
               <option disabled>Filter Service Targets</option>
               <option>All Service Areas</option>
@@ -209,38 +232,27 @@ function ServiceRequestClient() {
               <option>Not Available</option>
             </select>
             </div>
-          </div>
-        </div>
-        <ToastContainer position="bottom-center" autoClose={6000} />
-        <div class="flex items-center justify-center"></div>
-
+            
+            </div>
         <div class="grid grid-cols-4 space-x-4 flex-wrap">
+          
           {getServiceItems.map((info) => (
             <div
               key={info.id}
               className="p-4 rounded shadow-lg bg-white border flex flex-col justify-between mb-3"
             >
               <div className="space-y-5">
-                <button
-                  className="rounded-2xl w-1/3 shadow text-sm"
-                  style={{
-                    backgroundColor:
-                      info.status === "Available" ? "green" : "red",
-                    color: "white",
-                  }}
-                >
-                  {info.status}
-                </button>
+                {info.status === "Available" ? <Badge status="processing" text="Available" /> :<Badge status="warning" text="Unavailable" /> }
                 <h1 className="mt-2 font-bold text-xl">{info.servicename}</h1>
-                <p className="mt-4 text-sm font-normal">{info.servicedesc}</p>
+                {/* <p className="mt-4 text-sm font-normal">{info.servicedesc}</p> */}
                 <h1 className="mt-3 text-sm">
                   Service For:{" "}
                   {info.servicetarget === "Business" ? (
-                    <span className="bg-violet-200 text-sm px-3 py-1 rounded shadow border text-violet-700 border-violet-700">
+                    <span className="text-sm font-bold px-3 py-1">
                       Business
                     </span>
                   ) : (
-                    <span className="bg-sky-200 px-3 py-1 rounded shadow border text-sky-700 border-sky-700">
+                    <span className="text-sm font-bold px-3 py-1">
                       Household
                     </span>
                   )}
@@ -248,6 +260,30 @@ function ServiceRequestClient() {
                 <h1 class="text-sm">
                   Service Availability Time: {info.serviceavailable}
                 </h1>
+
+
+                <div className="flex flex-row items-center">
+
+                <h1 class="text-sm">
+                  Caliber Requirement : 
+                </h1>
+                {info.required_caliber === "Bronze" ? (
+  <div className="flex flex-row items-center">
+    <img className="w-5 h-5" src={require(`../../images/bronze.png`)} alt="Bronze" />
+    Bronze
+  </div>
+) : info.required_caliber === "Silver" ? (
+  <div className="flex flex-row items-center">
+    <img className="w-5 h-5" src={require(`../../images/silver.png`)} alt="Silver" />
+    Silver
+  </div>
+) : (
+  <div className="flex flex-row items-center">
+    <img className="w-5 h-5" src={require(`../../images/gold.png`)} alt="Gold" />
+    Gold
+  </div>
+)}
+                </div>
                 <h1 className="mt-3 text-sm">
                   Unit Price :{" "}
                   <span className="text-green-700  font-bold">
@@ -258,11 +294,11 @@ function ServiceRequestClient() {
               <div className="flex justify-end space-x-4">
                 <Button
                   size="small"
-                  shape="circle"
+                  className ="text-white bg-sky-900 hover:bg-sky-700 rounded"
                   icon={<PlusOutlined style={{ fontSize: "13px" }} />}
                   onClick={() => fetchServiceDetails(info.id)}
                   disabled={info.status === "Not Available"}
-                ></Button>
+                >Add</Button>
 
                 {/* <Button
                   onClick={infoAlert}
@@ -281,7 +317,7 @@ function ServiceRequestClient() {
                     size="large"
                   >
                     <div class="flex flex-col">
-                      <Form layout="vertical">
+                      <Form layout="vertical" onFinish={giveServiceDetails}>
                         <Form.Item label="Service Name">
                           <Input
                             value={selectedItems.servicename}
@@ -292,6 +328,13 @@ function ServiceRequestClient() {
                           <Input.TextArea
                             value={selectedItems.servicedesc}
                             defaultValue={selectedItems.servicedesc}
+                          />
+                        </Form.Item>
+
+                        <Form.Item label="Caliber Requirement:">
+                          <Input prefix={selectedItems.required_caliber === "Bronze" ? (<div><img className="w-5 h-5" src={require(`../../images/bronze.png`)} alt="Bronze" /></div>) : selectedItems.required_caliber === "Silver" ? (<div><img className="w-5 h-5" src={require(`../../images/silver.png`)} alt="Silver" /></div>):(<div><img className="w-5 h-5" src={require(`../../images/gold.png`)} alt="Gold" /></div>)}
+                          value={selectedItems.required_caliber}
+                          defaultValue={selectedItems.required_caliber}
                           />
                         </Form.Item>
                         <Form.Item label="Service for:">
@@ -308,18 +351,32 @@ function ServiceRequestClient() {
                           />
                         </Form.Item>
 
+                      
+
                         <Form.Item
-                          label={`Set the value for ${selectedItems.serviceavailable} service:` }
->
-                          <input
-                            class="p-2 rounded border w-full"
-                            type="number"
-                            placeholder={`For how many ${selectedItems.serviceavailable}`}
-                            onChange={(e) => setPickValue(e.target.value)}
-                            min="1"
-                           
-                          ></input>
+                          label={`For How Many ${selectedItems.serviceavailable}:` }
+                            name="value"
+                            rules={rules}
+                          >
+                            <InputNumber onChange={(value) => setPickValue(value)} min={1}/>
+        
                         </Form.Item>
+
+                       
+                        <Form.Item label="Provide the location of work:" name="location" rules={rules}>
+                          <Input onChange={(e) => setLocation(e.target.value)} placeholder="Eg: Budhanilkantha-2 , Bhangal , Nepal" />
+                        </Form.Item>
+                      
+
+                        <div className="flex flex-row space-x-2">
+                          <h1>Set Time Frame:</h1>
+                        <Form.Item label="From" name="from" rules={rules}>
+                          <TimePicker use12Hours placeholder="From" disabledHours={disabledHours} format="HH"  onChange={(time , timeString ) =>{const formattedTime = timeString.concat(":00.000000") ; setStartHour(formattedTime)}} />
+                        </Form.Item>
+                        <Form.Item label="To:" name="to" rules={rules}>
+                          <TimePicker use12Hours disabledHours={disabledHours} placeholder="To" format="HH" onChange={(time , timeString) => {const formattedTime = timeString.concat(":00.000000") ;setEndHour(formattedTime)}} />                          
+                        </Form.Item>
+                        </div>
 
                         <Form.Item label="Service will expire on:">
                           <Input
@@ -328,33 +385,17 @@ function ServiceRequestClient() {
                           />
                         </Form.Item>
 
-                        <Form.Item label="Provide the location of work:">
-                          <input
-                            class="p-2 rounded border w-full"
-                            type="text"
-                            placeholder="Eg: Budhanilkanthan-2 , Bhangal , Nepal"
-                            onChange={(e) => setLocation(e.target.value)}
-                           
-                          ></input>
-                        </Form.Item>
 
                         <Form.Item label="Service Price:">
                           <Input value={finalPrice} defaultValue={finalPrice} />
                         </Form.Item>
 
                         <div class="flex justify-center space-x-2 ">
-                          <button
-                            class="w-full p-2 bg-sky-700 rounded text-white hover:bg-sky-600"
-                            onClick={giveServiceDetails}
-                          >
-                            Request
-                          </button>
-                          <button
-                            class="w-full p-2 bg-red-700 rounded text-white hover:bg-red-600"
-                            onClick={onClose}
-                          >
-                            Cancel
-                          </button>
+                          <Button className="text-white bg-sky-900 hover:bg-sky-700 rounded" htmlType="submit"> Submit Details</Button>
+                          <Button className="text-white bg-red-900 hover:bg-red-700 rounded"  onClick={onClose}>
+                           Discard
+                          </Button>
+                  
                         </div>
                       </Form>
                     </div>
@@ -363,8 +404,11 @@ function ServiceRequestClient() {
               </div>
             </div>
           ))}
+          
+          
         </div>
-        <div></div>
+        </Card>
+        
         <DashboardFooter />
       </div>
     </div>

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-
+import { Link } from "react-router-dom";
 import DashboardFooter from "../Dashboards/DashboardFooter";
 import {
   Card,
@@ -14,10 +14,20 @@ import {
   Input,
   Form,
   Select,
-  message
+  message,
+  Tooltip,
+  Breadcrumb,
+  Divider,
 } from "antd";
 
-import { EyeOutlined, SearchOutlined } from "@ant-design/icons";
+import {
+  EyeOutlined,
+  SearchOutlined,
+  QuestionOutlined,
+  HomeOutlined,
+  PlusOutlined,
+  MoneyCollectOutlined,
+} from "@ant-design/icons";
 
 import { ToastContainer, toast } from "react-toastify";
 
@@ -30,9 +40,21 @@ import Spinner from "../../Pages/ProfileSettings/Spinner";
 const desc = ["Terrible", "Bad", "Average", "Good", "Perfectionist"];
 
 function ServiceStatus() {
+  const rules = [
+    {
+      required: true,
+      message: "required",
+    },
+  ];
   const [openModal, setOpenModal] = useState(false);
   const [openModal1, setOpenModal1] = useState(false);
   const [openModal2, setOpenModal2] = useState(false);
+  const [openModal3, setOpenModal3] = useState(false);
+  const [descOpen, setDescOpen] = useState(false);
+
+  const handleDescOpen = () => {
+    setDescOpen(!descOpen);
+  };
   const [singleService, setSingleService] = useState([]);
   const [paymentMethod, setPaymentMethod] = useState("");
   const [singleEmployee, setSingleEmployee] = useState({
@@ -41,7 +63,7 @@ function ServiceStatus() {
     contact: "",
     profilepic: "",
   });
-  const [loading , setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const onFilterChange = useRef([]);
   const [filterQuery, setFilterQuery] = useState("");
   const [userInput, setUserInput] = useState(false);
@@ -68,15 +90,17 @@ function ServiceStatus() {
       productUrl: "http://localhost:3000/",
       eventHandler: {
         onSuccess: async (payload) => {
+          setLoading(true);
           await sendPaymentToken(
             payload.token,
             payload.amount,
             payload.product_identity
           );
+          setLoading(false);
         },
+
         onError: (error) => {
-          // Handle errors
-          console.log(error);
+          message.error(error.message);
         },
         onClose: () => {
           navigate("/client-dashboard");
@@ -86,7 +110,7 @@ function ServiceStatus() {
     };
     try {
       const checkout = new KhaltiCheckout(config);
-      checkout.show({ amount: totalPrice / 10 });
+      checkout.show({ amount: Math.floor(totalPrice / 100) });
     } catch (error) {
       console.log(error);
     }
@@ -107,15 +131,15 @@ function ServiceStatus() {
           serviceuseid: serviceuseid,
         }),
       });
+
+      setLoading(false);
       if (res.ok) {
+        const data = await res.json();
+        message.success(data.message);
         navigate("/client-dashboard");
-        alert("Payment Completed!");
       }
     } catch (error) {
-      toast.error(error);
-    }finally{
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setLoading(false);
+      message.error("Failed To Make Payment");
     }
   };
 
@@ -130,11 +154,13 @@ function ServiceStatus() {
         body: JSON.stringify({ service_use_id: id, total_price: totalPrice }),
       });
       if (response.ok) {
+        const data = await response.json();
         navigate("/client-dashboard");
+        message.success(data.message);
       }
     } catch (error) {
-      console.log(error);
-    }finally{
+      message.error(error.message);
+    } finally {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setLoading(false);
     }
@@ -149,6 +175,7 @@ function ServiceStatus() {
         );
         const data = await res.json();
         setSingleService(data);
+        console.log(data);
         const { assigned_employee } = data[0];
         const viewAssignedEmployee = {
           id: assigned_employee?.assigned_employee?.id || "",
@@ -185,13 +212,11 @@ function ServiceStatus() {
               .includes(filterQuery.toLowerCase())
           );
         }
-        // if(filterQuery.trim() !== "" && filterQuery !== "All"){
-        //   newData = newData.filter((item) => item.status.includes(filterQuery));
-        // }
+
         setSingleService(newData);
         setLoading(false);
       } catch (error) {
-        message.error('Failed To Load  The Data')
+        message.error("Failed To Load  The Data");
       }
     };
 
@@ -206,6 +231,7 @@ function ServiceStatus() {
   // Handling Client Ratings
   const handleRatings = async (Id) => {
     try {
+      setLoading(true);
       const response = await fetch("http://127.0.0.1:8000/rateemployee/", {
         method: "POST",
         headers: {
@@ -218,12 +244,14 @@ function ServiceStatus() {
           client_id: client_id,
         }),
       });
-
+      setLoading(false);
       if (response.ok) {
+        const data = await response.json();
+        message.success(data.message);
         navigate("/client-dashboard");
       }
     } catch (error) {
-      toast.error(error);
+      message.error(error.message);
     }
   };
 
@@ -254,12 +282,81 @@ function ServiceStatus() {
       key: "service_till",
     },
     {
+      title: "Time Frame",
+      dataIndex: "time_frame",
+      key: "time_frame",
+      render: (_, record) => {
+        return (
+          <div class="flex flex-row">
+            <h1>
+              {record.time_frame.startHour.split(":")[0]} -{" "}
+              {record.time_frame.endHour.split(":")[0]}
+            </h1>
+          </div>
+        );
+      },
+    },
+    {
       title: "Total Price",
       dataIndex: "total_price",
       key: "total_price",
     },
     {
-      title: "Status",
+      title: "Service Caliber",
+      dataIndex: "service_caliber",
+      key: "service_caliber",
+      render: (record) => {
+        return (
+          <div>
+            {record === "Bronze" ? (
+              <div className="flex flex-row items-center">
+                <img
+                  className="w-5 h-5"
+                  src={require(`../../images/bronze.png`)}
+                  alt="Bronze"
+                />
+                Bronze
+              </div>
+            ) : record === "Silver" ? (
+              <div className="flex flex-row items-center">
+                <img
+                  className="w-5 h-5"
+                  src={require(`../../images/silver.png`)}
+                  alt="Silver"
+                />
+                Silver
+              </div>
+            ) : (
+              <div className="flex flex-row items-center">
+                <img
+                  className="w-5 h-5"
+                  src={require(`../../images/gold.png`)}
+                  alt="Gold"
+                />
+                Gold
+              </div>
+            )}
+          </div>
+        );
+      },
+    },
+    {
+      title: (
+        <div className="flex flex-row space-x-2">
+          <span>Status</span>
+          <div class="flex flex-row items-center">
+            <Tooltip
+              title="Note: The service will only be available once the payment is
+      done."
+            >
+              <Button
+                size="small"
+                icon={<QuestionOutlined style={{ fontSize: "13px" }} />}
+              ></Button>
+            </Tooltip>
+          </div>
+        </div>
+      ),
       dataIndex: "service_status",
       key: "service_status",
       filterMultiple: false,
@@ -329,7 +426,7 @@ function ServiceStatus() {
       onFilter: (value, record) => record.service_status.includes(value),
     },
     {
-      title: "Actions",
+      title: "Action",
       key: "process",
       render: (_, record) => (
         <Space>
@@ -374,7 +471,7 @@ function ServiceStatus() {
               <Descriptions.Item label="Service Name:">
                 <a>{record.service_name}</a>
               </Descriptions.Item>
-
+              {console.log(record.total_price)}
               <Descriptions.Item label="Service Duration:">
                 <a>
                   {(() => {
@@ -406,12 +503,124 @@ function ServiceStatus() {
           </Modal>
 
           {record.service_status.includes("On-Going") ? (
-            <div>
+            <div class="flex flex-row items-center space-x-2">
+              <Button size="small" onClick={() => setOpenModal1(true)}>
+                Assigned Maid
+              </Button>
+
+              {/* Requesting a refund */}
               <Button
                 size="small"
-                onClick={() => setOpenModal1(true)}
-                icon={<EyeOutlined style={{ fontSize: "13px" }} />}
-              ></Button>
+                className="bg-red-900 hover:bg-red-700 text-white"
+                onClick={() => setOpenModal3(true)}
+              >
+                Request Refund
+              </Button>
+              <Modal
+                title={
+                  <div className="flex flex-row justify-start mt-4">
+                    <h1 className="text-lg font-bold p-1">Request A Refund</h1>
+                  </div>
+                }
+                open={openModal3}
+                onCancel={() => setOpenModal3(false)}
+                footer={null}
+                width={1000}
+                centered
+              >
+                <div className="flex flex-col p-2 ">
+                  <div className="flex flex-row ">
+                    <Descriptions layout="vertical">
+                      <Descriptions.Item label="Service Name">
+                        {record.service_name}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Activation Date">
+                        {record.service_from}
+                      </Descriptions.Item>
+                      <Descriptions.Item label="Refund Amount">
+                        Rs.{Math.round(record.total_price * 0.9)}
+                      </Descriptions.Item>
+                    </Descriptions>
+                  </div>
+                  <Divider />
+                  <div className="flex flex-col">
+                    {/* <h1 className="text-gray-900 font-bold">Why are you requesting a refund?</h1> */}
+                    <Form layout="vertical">
+                      <Form.Item
+                        label="Why are you requesting a refund?"
+                        name="reason"
+                        rules={rules}
+                      >
+                        <Select
+                          options={[
+                            {
+                              value: "Choose From The Options Below",
+                              label: "Choose From The Options Below",
+                              disabled: true,
+                            },
+                            {
+                              value: "Quality of service is below expectation",
+                              label: "Quality of service is below expectation",
+                            },
+                            {
+                              value: "Maid's Irregularity",
+                              label: "Maid's Irregularity",
+                            },
+                            {
+                              value: "Others",
+                              label: "Others",
+                            },
+                          ]}
+                        />
+                      </Form.Item>
+                      <Form.Item
+                        label="Description:"
+                        name="description"
+                        rules={rules}
+                      >
+                        <Input.TextArea />
+                      </Form.Item>
+
+                      <div className="flex flex-row justify-between space-x-2">
+                        <div className="space-x-2">
+                          <Button
+                            className="text-white bg-sky-900 hover:bg-sky-700 rounded"
+                            htmlType="submit"
+                          >
+                            REQUEST REFUND
+                          </Button>
+                          <Button onClick={()=>setOpenModal3(false)} className="text-white bg-red-900 hover:bg-red-700 rounded">
+                            CANCEL
+                          </Button>
+                        </div>
+                        <div className="items-center">
+                          <Button size="small" onClick={handleDescOpen}>
+                            How do refunds work?
+                          </Button>
+                        </div>
+                      </div>
+                    </Form>
+                    <Divider />
+                    {descOpen ? (
+                      <div>
+                        <h1 className="font-bold">How do refunds work?</h1>
+                        <p>
+                          Should you ever require a refund for a service, please
+                          reach out to our customer support team, providing the
+                          necessary details for a swift review and processing.
+                          It's important to note that a 10% processing fee will
+                          be deducted from the total service amount to cover
+                          administrative expenses related to the refund. We
+                          appreciate your understanding and value your continued
+                          trust in our services. Our dedicated support team is
+                          ready to assist with any inquiries or concerns you may
+                          have.
+                        </p>
+                      </div>
+                    ) : null}
+                  </div>
+                </div>
+              </Modal>
               <Modal
                 open={openModal1}
                 onCancel={() => setOpenModal1(false)}
@@ -444,16 +653,18 @@ function ServiceStatus() {
                 </Descriptions>
                 {/* Employee Rating */}
                 <div class="flex justify-end mt-5">
-                  <button
-                    class="flex flex-row items-center p-2 border rounded hover:bg-gradient-to-r from-amber-400 to-orange-500 hover:text-white"
+                  <Button
+                    className="flex flex-row items-center p-2 border rounded hover:bg-gradient-to-r from-amber-400 to-orange-500 hover:text-white"
                     onClick={() => setOpenModal2(true)}
+                    icon={
+                      <img
+                        class="w-5 h-5 mr-2"
+                        src={require(`../../images/rate.png`)}
+                      ></img>
+                    }
                   >
-                    <img
-                      class="w-5 h-5 mr-2"
-                      src={require(`../../images/rate.png`)}
-                    ></img>
                     Rate User
-                  </button>
+                  </Button>
                 </div>
                 <Modal
                   title="Rate User"
@@ -467,16 +678,6 @@ function ServiceStatus() {
                 >
                   <div class="flex flex-col p-4 ">
                     <Card>
-                      {/* <div class="flex flex-row items-center justify-center shadow p-3">
-                          <img
-                            class="w-12 h-12 rounded-full object-cover mr-4"
-                            src={singleEmployee.profilepic}
-                          ></img>
-                          <div class="flex flex-col">
-                            <h1 class="text-lg">{singleEmployee.fullname}</h1>
-                            <h1>{singleEmployee.contact}</h1>
-                          </div>
-                        </div> */}
                       <div class="flex flex-col justify-center ">
                         <Form layout="vertical">
                           <Form.Item label="Give Ratings">
@@ -523,8 +724,13 @@ function ServiceStatus() {
     location: info.servicelocation,
     service_from: new Date(info.approved_date).toLocaleDateString(),
     service_till: new Date(info.expiry_date).toLocaleDateString(),
+    time_frame: {
+      startHour: info.startHour,
+      endHour: info.endHour,
+    },
     total_price: info.totalprice,
     approved_date: info.approved_date,
+    service_caliber: info.services.required_caliber,
     service_status: [info.status],
   }));
 
@@ -533,40 +739,55 @@ function ServiceStatus() {
       {loading && <Spinner />}
       <div className="flex flex-col mt-2 py-3 px-4 ">
         <ToastContainer />
-        <div className="flex w-full items-center mt-3 justify-between bg-white rounded shadow border p-3">
-          <h1 className="text-xl font-bold">View Progress / Status</h1>
-          <div class="flex flex-row justify-end space-x-2 items-center">
-            <input
-              class="shadow rounded border border-gray-200 w-60 py-2 px-3 text-gray-700 text-sm mb-3 leading-tight invalid:border-red-500  focus:shadow-outline"
-              type="text"
-              value={filterQuery}
-              onChange={handleFilterChange}
-              placeholder="Search for service names"
-            />
-          </div>
+        <div className="flex flex-row justify-between items-center mt-3 p-3">
+          <h1 className="text-xl font-bold">Service Status</h1>
+          <Breadcrumb
+            items={[
+              {
+                href: "/client-dashboard",
+                title: <HomeOutlined />,
+              },
+              {
+                title: "Services",
+              },
+              {
+                href: "/client-view-service",
+                title: "Service Status",
+              },
+            ]}
+          />
         </div>
 
-        <div class="space-y-12">
-          <div className="p-3 mt-5 bg-white rounded shadow-xl shadow-gray-350">
-            <div class="flex justify-center items-center p-3">
-              <div class="bg-sky-700 rounded p-2 px-10">
-                <h1 class="hover:underline text-white">
-                  Note: The service will only be available once the payment is
-                  done.
-                </h1>
-              </div>
+        <div className="p-3 bg-white rounded shadow-xl shadow-gray-350">
+          <Card>
+            <div class="flex flex-row p-2 justify-between items-center">
+              <Input
+                prefix={<SearchOutlined />}
+                className="w-60 "
+                value={filterQuery}
+                onChange={handleFilterChange}
+                placeholder="Search Service Names"
+              />
+              <Link to="/request-service">
+                <Button
+                  icon={<PlusOutlined />}
+                  className="bg-sky-900 hover:bg-sky-700 text-white rounded"
+                >
+                  Request Service
+                </Button>
+              </Link>
             </div>
-            <Card>
-              <Table
-                columns={requestContent}
-                dataSource={tableData}
-                pagination={{
-                  pageSize: 5,
-                  showTotal: (total) => `Total ${total} items`,
-                }}
-              ></Table>
-            </Card>
-          </div>
+            <Table
+              columns={requestContent}
+              dataSource={tableData}
+              pagination={{
+                pageSize: 5,
+                showTotal: (total) => `Total ${total} items`,
+              }}
+            ></Table>
+
+            <div className="flex flex-row items-center justify-start mt-10"></div>
+          </Card>
         </div>
       </div>
       <DashboardFooter />

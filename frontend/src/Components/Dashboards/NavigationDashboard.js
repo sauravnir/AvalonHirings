@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Avatar, Dropdown, Space, Divider, theme, Modal, Tooltip , Badge } from "antd";
+import { Avatar, Dropdown, Space, Divider, theme, Modal, Tooltip , Badge  } from "antd";
 import { BellOutlined } from "@ant-design/icons";
 import Logo from "../../images/Abnw.png";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
@@ -144,7 +144,7 @@ function NavigationDashboard() {
 
             <div class="justify-self">
               {userType.user_type === "Admin" ? (
-                <Link to="/admin-dashboard">
+                <Link to="/add-user">
                   <h1 class=" h-full py-1 text-xs ml-5 rounded text-white ">
                     ADD USERS
                   </h1>
@@ -192,7 +192,7 @@ function NavigationDashboard() {
                 </Space>
               </button>
             </Dropdown>
-
+            
             {getEmployeeCaliber !== null && (
               <>
               <Link to="/employee-review-ratings">
@@ -243,7 +243,7 @@ function NavigationDashboard() {
                  </Link>
               </>
             )}
-
+              
             {subscriptionDetails.is_subscribed === true ? (
               <div class="flex flex-row justify-end">
                 <div class="flex flex-row items-center rounded w-fit p-2 justify-end">

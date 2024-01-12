@@ -1,5 +1,6 @@
 import React, { useState, useEffect} from "react";
-import { Table, Button, message } from "antd";
+import { Table, Button, message , Breadcrumb } from "antd";
+import { HomeOutlined} from "@ant-design/icons";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 import DashboardFooter from "../Dashboards/DashboardFooter";
 function EmployeeTransactionObject() {
@@ -60,8 +61,18 @@ function EmployeeTransactionObject() {
     <div class="w-screen mt-8">
       {loading && <Spinner />}
       <div class="flex flex-col mt-2 p-6">
-        <div class="flex py-3">
-          <h1 class="text-2xl font-bold">All Transactions</h1>
+        <div class="flex flex-row justify-between items-center py-3">
+          <h1 class="text-xl font-bold">All Transactions</h1>
+          <Breadcrumb items={[
+              {
+                href:"/employee-dashboard",
+                title:<HomeOutlined />
+              },
+              {
+                href:"/employee-transaction",
+                title:"Transaction"
+              }
+              ]}/>
         </div>
         <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
           <div class="m-1">

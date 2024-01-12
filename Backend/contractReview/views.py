@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404
 from .models import Contract
-from .serializers import UserContractSerializer , ContractUpdateSerializer
+from .serializers import UserContractSerializer , ContractUpdateSerializer , CaliberAssignSerilizer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
@@ -11,7 +11,7 @@ import math , random
 from rest_framework.generics import RetrieveAPIView
 from services.models import AssignedEmployees
 from payment.models import Caliber
-# Create your views here.
+
 
 class ContractList(APIView):
     def get(self , request ):
@@ -24,7 +24,6 @@ class ContractObjectView(RetrieveAPIView):
     queryset = Contract.objects.all()
     serializer_class = UserContractSerializer
         
-
 class UpdatedContractView(APIView):
     def post(self , request ,id) : 
         contract = get_object_or_404(Contract,id = id)
@@ -84,3 +83,20 @@ class UpdatedContractView(APIView):
                 return Response({'message': 'Report updated successfully'}, status=status.HTTP_200_OK)
                 
         return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class AdminUpdateCaliberView(APIView):
+    def post(self , request , pk):
+        contract = get_object_or_404(Contract , id = pk )
+        caliber_level = request.data.get('caliber')
+        user = get_object_or_404(Users , id = contract.user_id)
+        user_id = user.id
+        caliber_object = get_object_or_404(Caliber , employee =user_id )
+        if caliber_object:
+            caliber_object.caliber_level = caliber_level
+            caliber_object.save()
+            return Response({"message" : "Caliber Updated Successfully"} , status = status.HTTP_200_OK)
+        else:
+            return Response({"error" : "Bad Request"} , status = status.HTTP_400_BAD_REQUEST)
+        

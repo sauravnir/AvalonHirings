@@ -9,8 +9,9 @@ import {
   Card,
   Descriptions,
   Badge,
+  Breadcrumb
 } from "antd";
-import { EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined, HomeOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 
 import "react-toastify/dist/ReactToastify.css";
@@ -34,9 +35,10 @@ function WorkSchedules() {
     profilepicture: "",
     workstatus: "",
     approved_date: "",
+    startHour : "",
+    endHour : "",
   });
 
-  console.log("Active Service", activeService);
   const data = localStorage.getItem("userData");
 
   const userType = JSON.parse(data);
@@ -64,6 +66,8 @@ function WorkSchedules() {
           profilepicture: client_details?.profilepic || "",
           workstatus: data.work_status,
           approved_date: assigned_service_details?.approved_date || "",
+          startHour : service_request?.startHour || "",
+          endHour : service_request?.endHour || "",
         };
 
         setActiveService(viewActiveService);
@@ -147,9 +151,9 @@ function WorkSchedules() {
                   <Descriptions.Items label="Description">
                     {activeService.servicedes}
                   </Descriptions.Items>
-                  <Descriptions.Items label="Service Time">
+                  {/* <Descriptions.Items label="Service Time">
                     {activeService.serviceavailable}
-                  </Descriptions.Items>
+                  </Descriptions.Items> */}
 
                   <Descriptions.Items label="From">
                     {new Date(activeService.approved_date).toLocaleDateString()}
@@ -158,6 +162,9 @@ function WorkSchedules() {
                   <Descriptions.Items label="Till">
                     {new Date(activeService.expiry_date).toLocaleDateString()}
                   </Descriptions.Items>
+                  <Descriptions.Items label="Working Hours" >
+                    {(activeService.startHour).split(':')[0]} to {(activeService.endHour).split(':')[0]}
+                    </Descriptions.Items>
                   <Descriptions.Items label="Status">
                     <Badge status="processing" text="Active" />
                   </Descriptions.Items>
@@ -207,8 +214,18 @@ function WorkSchedules() {
     <div className="w-screen mt-8">
       {loading && <Spinner />}
       <div className="flex flex-col mt-2 p-6">
-        <div className="flex w-full bg-white items-center justify-between rounded shadow p-3">
-          <h1 className="text-2xl  font-bold">Work Schedules</h1>
+        <div className="flex flex-row w-full items-center justify-between p-3">
+          <h1 className="text-xl  font-bold">Work Schedules</h1>
+          <Breadcrumb items={[
+              {
+                href:"/employee-dashboard",
+                title:<HomeOutlined />
+              },
+              {
+                href:"/employee-review-ratings",
+                title:"Work Schedule"
+              }
+              ]}/>
         </div>
         <ToastContainer position="bottom-center" autoClose={6000} />
         <div class="p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">

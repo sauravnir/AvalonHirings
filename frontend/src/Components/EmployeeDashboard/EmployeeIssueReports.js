@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, Button, Modal, Form, Input, Tabs, Table , Tag, Select } from "antd";
+import { Card, Button, Modal, Form, Input,Table , Tag, Select , Tooltip , message , Breadcrumb} from "antd";
 import {
-  SearchOutlined
+  SearchOutlined,
+  QuestionOutlined,
+  HomeOutlined,
+  MoneyCollectOutlined
 } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -10,12 +13,20 @@ import DashboardFooter from "../Dashboards/DashboardFooter.js";
 import Spinner from "../../Pages/ProfileSettings/Spinner.js";
 
 function EmployeeIssueReports() {
+  const rules=[{
+    required: true,
+    message:"required"
+  }]
   const [openModal, setOpenModal] = useState(false);
+  const [openModal1 , setOpenModal1] = useState(false);
   const [reportTitle, setReportTitle] = useState("");
   const [reportDesc, setReportDesc] = useState("");
   const navigate = useNavigate();
   const [reportDetails, setReportDetails] = useState([]);
   const [loading , setLoading] = useState(false);
+  const get_userdata = localStorage.getItem("userData");
+  const parsedata = JSON.parse(get_userdata);
+  const get_username = parsedata.username;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -23,10 +34,6 @@ function EmployeeIssueReports() {
     try {
       setLoading(true);
       const formData = new FormData();
-      const get_userdata = localStorage.getItem("userData");
-      const parsedata = JSON.parse(get_userdata);
-      const get_username = parsedata.username;
-      console.log(get_username);
       formData.append("title", reportTitle);
       formData.append("description", reportDesc);
       formData.append("username", get_username);
@@ -38,18 +45,19 @@ function EmployeeIssueReports() {
       
       if (response.ok) {
         const user_type = reportDetails[0].user.user_type
+        const data = await response.json();
+        message.success(data.message);
         if(user_type === "Client"){
           navigate("/client-dashboard");
         } else {
           navigate("/employee-dashboard")
         }
-        toast.success("Registered Successfully");
       } else {
-        toast.error("Failed to register");
+        message.error('Form Data Missing')
       }
     } catch (error) {
-      console.log(error.message);
-      toast.error("Err..something is wrong!");
+      
+      
     }finally{
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setLoading(false);
@@ -184,28 +192,39 @@ const data = reportDetails.map((info , index)=>({
     <div className="w-screen mt-8 ">
       {loading && <Spinner />}
       <div className="flex flex-col mt-2 p-6">
-        <div className="flex w-full p-3">
-          <h1 className="text-xl font-bold">Issue Reports / Requests</h1>
+        <div className="flex flex-row items-center justify-between w-full p-3">
+          <h1 className="text-xl font-bold">Reports / Requests</h1>
+          <Breadcrumb items={[
+              {
+                href:parsedata.user_type === "Client" ? '/client-dashboard' : '/employee-dashboard',
+                title:<HomeOutlined />
+              },
+              {
+                href:parsedata.user_type === "Client" ? '/client-reports' : '/employee-reports',
+                title:"Issue Reports"
+              }
+              ]}/>
         </div>
 
         <div className=" flex flex-col p-3 rounded shadow-xl bg-white shadow-gray-350">
           
             <Card>
-              <div className="text-red-600">
-                *Fill with necessary and valid information!*
+              <div className="flex flex-row justify-between text-red-600">
+                <h1>*Fill with necessary and valid information!*</h1>
+                
               </div>
-              <form onSubmit={handleSubmit} encType="multipart/form-data">
-                <Form layout="vertical">
-                  <Form.Item label="Title:">
+              
+                <Form layout="vertical" onFinish={handleSubmit}>
+                  <Form.Item label="Title:" name="title" rules={rules}>
                     <Input onChange={(e) => setReportTitle(e.target.value)} />
                   </Form.Item>
-                  <Form.Item label="Description">
+                  <Form.Item label="Description" name="description" rules={rules}>
                     <Input.TextArea
                       rows={4}    
                       onChange={(e) => setReportDesc(e.target.value)}
                     /></Form.Item>
                   <Form.Item>
-                    <Button style={{background:"green" , borderColor :"green"}} onClick={() => setOpenModal(true)}><span class="text-white">Submit</span></Button>
+                    <Button className="bg-sky-900 text-white hover:bg-sky-700 rounded" onClick={() => setOpenModal(true)}><span class="text-white">Submit</span></Button>
                     {/* <button onClick={() => setOpenModal(true)} class="bg-green-500 w-1/4 text-white items-center p-2 rounded border border-green-700 hover:bg-green-700" >Submit</button> */}
                     <Modal
                       title="Are you sure you want to submit?"
@@ -215,11 +234,14 @@ const data = reportDetails.map((info , index)=>({
                       onCancel={() => setOpenModal(false)}
                       onOk={handleSubmit}
                       okType="default"
+                      footer={<div className="flex flex-row justify-center space-x-2"><Button onClick={handleSubmit} className="text-white bg-sky-900 hover:bg-sky-700 rounded">Submit</Button>
+                      <Button className="text-white bg-red-900 hover:bg-red-700 rounded" onClick={() => setOpenModal(false)}>Discard</Button>
+                      </div>}
                       width={400}
                     />
                   </Form.Item>
                 </Form>
-              </form>
+              
             </Card>
           
           <div>
@@ -231,10 +253,10 @@ const data = reportDetails.map((info , index)=>({
           
         </div>
         <div class="mt-12 p-3 bg-white rounded shadow-lg">
-          <div class="flex flex-row justify-between">
+          <div class="flex flex-row justify-start space-x-2 items-center">
             <h1 class="text-lg p-2 font-bold hover:underline">View Reports</h1>
+            <Tooltip title="Note: Once approved , the related department will contact you for further processing."><Button className="rounded-full" size="small" icon={<QuestionOutlined style={{ fontSize: "13px" }}/>}></Button></Tooltip>
           </div>
-            <h1 class="text-sm p-2 mb-4 text-red-500">Note: Once approved , the related department will contact you for further processing.</h1>
             <Table columns={contents} dataSource={data} pagination={{
               pageSize:5,
               showTotal:(total) => `Total ${total} items`

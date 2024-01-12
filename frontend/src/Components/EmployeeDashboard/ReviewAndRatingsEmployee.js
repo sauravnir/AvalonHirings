@@ -2,8 +2,10 @@ import React, { useState, useEffect } from "react";
 import DashboardFooter from "../Dashboards/DashboardFooter";
 import {
   Collapse,
+  Breadcrumb
 } from "antd";
 import { GiFallingStar, GiUpgrade } from "react-icons/gi";
+import { HomeOutlined} from "@ant-design/icons";
 
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 
@@ -163,6 +165,18 @@ function ReviewAndRatingsEmployee() {
     <div className="w-screen mt-8">
       {loading && <Spinner />}
       <div className="flex flex-col mt-10 p-6">
+        <div className = "flex flex-row justify-end items-center">
+        <Breadcrumb items={[
+              {
+                href:"/employee-dashboard",
+                title:<HomeOutlined />
+              },
+              {
+                href:"/employee-review-ratings",
+                title:"Caliber"
+              }
+              ]}/>
+        </div>
         <div class="p-3 mt-2 bg-white h-auto rounded items-center shadow">
           {getEmployeeCaliber === "bronze" ? (
             <div className="flex flex-row items-center rounded justify-center h-full p-4 border bg-gradient-to-r from-amber-600 to-yellow-900 space-y-2">

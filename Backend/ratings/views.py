@@ -47,9 +47,9 @@ class EmployeeRating(APIView):
             rating.save()
             employee_ratings.save()
             
-            return Response({"message":"Ratings Saved Successfully"} , status = status.HTTP_200_OK)
+            return Response({"message":"Rating Successful"} , status = status.HTTP_200_OK)
 
-        return Response({'message': "Bad Request"}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': "Bad Request"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Getting the single ratings for the employee

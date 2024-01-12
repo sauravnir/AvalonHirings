@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Form, Input, Button, Tabs, Card , Tooltip } from "antd";
+import { Form, Input, Button, Tabs, Card , message } from "antd";
 import Sidebar from "../../Components/Dashboards/Sidebar";
 import NavigationDashboard from "../../Components/Dashboards/NavigationDashboard";
 
@@ -9,6 +9,10 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 
 function UserProfile() {
+  const rules = [{
+    required : true ,
+    message : "required"
+  }]
   const [newPass, setNewPass] = useState("");
   const [newConfirmPass, setNewConfirmPass] = useState("");
   const [profilePic, setProfilePic] = useState("");
@@ -104,9 +108,11 @@ function UserProfile() {
           navigate("/admin-dashboard");
         }
       } else {
-        toast.error("Please Select a Picture");
+        message.error("Select a profile picture")
       }
-    } catch (error) {}
+    } catch (error) {
+      message.error(error.message)
+    }
   };
 
   const TabList = [
@@ -117,7 +123,7 @@ function UserProfile() {
         <TabPane tab="Profile Details" key="1">
           <div class="p-5 items-center">
             <Form layout="vertical">
-              <Form.Item label="Fullname:">
+              <Form.Item label="Full Name:">
                 <Input
                   value={getProfile.fullname}
                   default={getProfile.fullname}
@@ -146,12 +152,10 @@ function UserProfile() {
               </Form.Item>
             </Form>
             <div class="flex justify-center">
-              <button
-                class="text-white px-4 py-2 rounded bordered bg-green-600"
-                onClick={updatePicture}
-              >
+              <Button className ="text-white rounded bg-sky-900 hover:bg-sky-700" onClick={updatePicture}>
                 Update Profile Picture
-              </button>
+              </Button>
+              
             </div>
           </div>
         </TabPane>
@@ -174,12 +178,9 @@ function UserProfile() {
                 />
               </Form.Item>
               <div class="flex justify-center">
-                <button
-                  class="text-white px-4 py-2 rounded bordered bg-green-600"
-                  type="submit"
-                >
-                  Save Changes
-                </button>
+                <Button htmlType="submit" className = "text-white bg-sky-900 hover:bg-sky-700 rounded">
+                Change Password
+                </Button>
               </div>
             </form>
             </Form>
@@ -226,18 +227,7 @@ function UserProfile() {
           </button>
 
         </div> :null}
-        
-        {/* <div
-          class="flex items-center justify-center relative"
-          style={{
-            backgroundImage: `url(${require("../../images/profilebackground.jpg")})`,
-            backgroundSize: "cover",
-            backgroundPosition: "center",
-            width: "100%",
-            height: "300px",
-            opacity: 0.9,
-          }}
-        > */}
+      
           <div class="flex flex-col relative items-center justify-center p-5">
             <img
               class="w-40 h-40 mb-3 rounded-full shadow-2xl border object-cover"
@@ -249,14 +239,17 @@ function UserProfile() {
               for="profilePictureInput"
               class="absolute top-0 left-0 w-full h-full cursor-pointer opacity-0"
             >
-              <form enctype="multipart/form-data">
-                <input
+              <Form enctype="multipart/form-data">
+                <Form.Item label="Profile Picture" name="profile" rules={rules}>
+
+                <Input
                   type="file"
                   id="profilePictureInput"
                   class="text-sm"
                   onChange={(e) => setProfilePic(e.target.files[0])}
-                ></input>
-              </form>
+                />
+                </Form.Item>
+              </Form>
             </label>
             <h1 class="hover:underline text-white text-lg">{getProfile.fullname}</h1>
             <h1 class="text-sm text-zinc-200 ">{getProfile.email}</h1>

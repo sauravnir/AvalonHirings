@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from django.contrib.auth import authenticate , login
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer, UserLoginSerializer , UserForgotPasswordSerializer  , OTPTransactionSerializer , UpdateUserProfileSerializer , ViewUserProfileSerializer , UpdateProfilePictureSerializer , EmployeeCaliberSerializer , PostAnnouncementSerializer
+from .serializers import UserRegisterSerializer, UserLoginSerializer , UserForgotPasswordSerializer  , OTPTransactionSerializer , UpdateUserProfileSerializer , ViewUserProfileSerializer , UpdateProfilePictureSerializer , EmployeeCaliberSerializer , PostAnnouncementSerializer , AllUsersSerializer
 from rest_framework.generics import RetrieveAPIView
 from rest_framework import status
 
@@ -54,7 +54,7 @@ class UserLoginView(APIView):
                         'token' : token.key, 
                         'user_type' : user_type,
                         'username': user_name, 
-                        # 'otp': user.otp,
+                        'otp': user.otp,
                         'employee_count' : employees_count,
                         'clients_count' : clients_count,
                         'total_reports' : total_reports,
@@ -272,3 +272,11 @@ class GetAllAnnouncementView(APIView):
             announcements = Announcements.objects.all()
             serializer = PostAnnouncementSerializer(announcements, many=True)
             return Response(serializer.data, status=status.HTTP_200_OK)
+        
+
+# All User Details View 
+class AllUsersView(APIView):
+    def get(self,request):
+        users = Users.objects.all()
+        serializer = AllUsersSerializer(users , many=True)
+        return Response(serializer.data , status = status.HTTP_200_OK)

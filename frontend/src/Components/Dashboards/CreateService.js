@@ -14,10 +14,12 @@ import {
   Tag,
   Descriptions,
   Divider,
-  message
+  message,
+  Breadcrumb,
+  Tooltip
 } from "antd";
 
-import { EyeOutlined } from "@ant-design/icons";
+import { EyeOutlined, HomeOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
@@ -30,7 +32,7 @@ function CreateService() {
       required: true,
       message: "required",
     },
-  ]; 
+  ];
   const [openModal, setOpenModal] = useState(false);
   const [openModal1, setOpenModal1] = useState(false);
   const [serviceName, setServiceName] = useState("");
@@ -39,9 +41,10 @@ function CreateService() {
   const [serviceDescription, setServiceDescription] = useState("");
   const [status, setStatus] = useState("Available");
   const [serviceAvailable, setServiceAvailable] = useState("");
+  const [serviceCaliber, setServiceCaliber] = useState("");
   const navigate = useNavigate();
   const { TabPane } = Tabs;
-  const[loading , setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [viewServicesModal, setViewServicesModal] = useState(false);
   const [viewRequestedServices, setViewRequestedServices] = useState([]);
   const [singleRequestedService, setSingleRequestedService] = useState({
@@ -56,6 +59,8 @@ function CreateService() {
     contact: "",
     payment_method: "",
     payment_approval: "",
+    status: "",
+    required_caliber: "",
   });
 
   const [selectedRecordKey, setSelectedRecordKey] = useState(null);
@@ -87,6 +92,7 @@ function CreateService() {
     serviceprice: servicePricing,
     status: status,
     serviceavailable: serviceAvailable,
+    required_caliber: serviceCaliber,
   };
 
   //   GET Method to insert the data
@@ -100,15 +106,15 @@ function CreateService() {
         },
         body: JSON.stringify(serviceData),
       });
-      
+
       if (response.ok) {
         const data = await response.json();
-        message.success(data.message)
+        message.success(data.message);
         navigate("/admin-dashboard");
       }
     } catch (error) {
       message.error(error.message);
-    }finally{
+    } finally {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setLoading(false);
     }
@@ -122,11 +128,9 @@ function CreateService() {
         const res = await fetch("http://127.0.0.1:8000/getservices/");
         const data = await res.json();
         setCreatedService(data);
-        console.log(data);
-       
       } catch (error) {
         toast.error(error);
-      }finally{
+      } finally {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         setLoading(false);
       }
@@ -134,11 +138,11 @@ function CreateService() {
     fetchServiceData();
   }, []);
 
-  const [updateDesc,setUpdatedDesc] = useState('')
-  const [updatedServiceTarget,setUpdatedServiceTarget] = useState('');
-  const [updatedServiceAvailable,setUpdatedServiceAvailable] = useState('');
-  const [updatedServicePricing,setUpdatedServicePricing] = useState('')
-  const [updatedAvailability,setUpdatedAvailability] = useState('')
+  const [updateDesc, setUpdatedDesc] = useState("");
+  const [updatedServiceTarget, setUpdatedServiceTarget] = useState("");
+  const [updatedServiceAvailable, setUpdatedServiceAvailable] = useState("");
+  const [updatedServicePricing, setUpdatedServicePricing] = useState("");
+  const [updatedAvailability, setUpdatedAvailability] = useState("");
 
   // Getting the details for the single created service to update
   const fetchSingleServiceData = async (Id) => {
@@ -151,34 +155,36 @@ function CreateService() {
     }
   };
 
-  // Updating the created services by the admin
-  // const updateSingleServiceData = async (id) =>  {
-  //   try {
-  //     const response = await fetch("http://127.0.0.1:8000/updatecreatedservice/",{
-  //      method: 'POST', 
-  //     )} 
-  // }
-
   const updateSingleServiceData = async (id) => {
-    try{
+    try {
       setLoading(true);
-      const response = await fetch("http://127.0.0.1:8000/updatecreatedservice/",{
-        method: 'POST', 
-        headers: { 'Content-Type': 'application/json'},
-        body : JSON.stringify({service_list_id : id , servicedesc : updateDesc , servicetarget : updatedServiceTarget ,serviceavailable : updatedServiceAvailable , servicepricing: updatedServicePricing , serviceavailability : updatedAvailability})
-      })
-      if(response.ok){
-        const data = await response.json()
-        message.success(data.message)
-        navigate('/admin-dashboard')
+      const response = await fetch(
+        "http://127.0.0.1:8000/updatecreatedservice/",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            service_list_id: id,
+            servicedesc: updateDesc,
+            servicetarget: updatedServiceTarget,
+            serviceavailable: updatedServiceAvailable,
+            servicepricing: updatedServicePricing,
+            serviceavailability: updatedAvailability,
+          }),
+        }
+      );
+      if (response.ok) {
+        const data = await response.json();
+        message.success(data.message);
+        navigate("/admin-dashboard");
       }
-    }catch(error){
-      message.error(error.message)
-    }finally{
+    } catch (error) {
+      message.error(error.message);
+    } finally {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setLoading(false);
     }
-  }
+  };
 
   // Loading all requested services
   useEffect(() => {
@@ -188,10 +194,9 @@ function CreateService() {
         const res = await fetch("http://127.0.0.1:8000/getrequestedservice/");
         const data = await res.json();
         setViewRequestedServices(data);
-        
       } catch (error) {
         toast.error("Failed to fetch services!");
-      }finally{
+      } finally {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         setLoading(false);
       }
@@ -202,12 +207,10 @@ function CreateService() {
   // Loading singular requested service
   const fetchRequestedService = async (id) => {
     try {
-
       const res = await fetch(
         `http://127.0.0.1:8000/singlerequestedservice/${id}`
       );
       const data = await res.json();
-      console.log(data);
       const {
         user,
         services,
@@ -217,6 +220,9 @@ function CreateService() {
         totalprice,
         servicevalue,
         payments,
+        startHour,
+        endHour,
+        status,
       } = data;
 
       const updateSingleRequestedService = {
@@ -231,13 +237,16 @@ function CreateService() {
         contact: user?.contact || "",
         payment_method: payments[0]?.payment_method || "",
         payment_approval: payments[0]?.payment_approval || "",
+        startHour: startHour.split(":")[0] || "",
+        endHour: endHour.split(":")[0] || "",
+        status: status || "",
+        required_caliber: services?.required_caliber || "",
       };
 
       setSingleRequestedService(updateSingleRequestedService);
-      
     } catch (error) {
       toast.error(error);
-    } 
+    }
   };
 
   // Update Service Request / Status
@@ -251,7 +260,7 @@ function CreateService() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
       };
-      
+
       // Include assigned employee details only when approvalType is "Payment Required"
       if (approvalType === "On-Going") {
         requestOptions.body = JSON.stringify({
@@ -266,14 +275,15 @@ function CreateService() {
       const response = await fetch(url, requestOptions);
 
       if (response.ok) {
-        toast.success(response.ok);
+        const data = await response.json();
+        message.succes(data.message);
         navigate("/admin-dashboard");
       } else {
         toast.error("Failed to update status.");
       }
     } catch (error) {
-      toast.error(error.message);
-    }finally{
+      message.error("Failed To Assign Maid!")
+    } finally {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setLoading(false);
     }
@@ -287,6 +297,7 @@ function CreateService() {
       const res = await fetch("http://127.0.0.1:8000/freeemployees/");
       const data = await res.json();
       setFreeEmployees(data);
+      console.log(data);
     };
     setLoading(false);
     getAssignedEmployees();
@@ -344,23 +355,32 @@ function CreateService() {
             // onOk={() =>updateSingleServiceData(record.key)}
             centered
           >
-            <Form layout="vertical" onFinish={() => updateSingleServiceData(selectedRecordKey)} >
-              <Form.Item label="Service Name" >
+            <Form
+              layout="vertical"
+              onFinish={() => updateSingleServiceData(selectedRecordKey)}
+            >
+              <Form.Item label="Service Name">
                 <Input
                   value={singleCreatedService.servicename}
                   defaultValue={singleCreatedService}
                   disabled
                 />
               </Form.Item>
-              <Form.Item label="Service Description" name="description" rules={rules}>
+              <Form.Item
+                label="Service Description"
+                name="description"
+                rules={rules}
+              >
                 <Input.TextArea
                   placeholder={singleCreatedService.servicedesc}
-                  onChange = {(e)=>setUpdatedDesc(e.target.value)}
+                  onChange={(e) => setUpdatedDesc(e.target.value)}
                   rows={5}
                 />
               </Form.Item>
               <Form.Item label="Service For" name="For" rules={rules}>
-                <Radio.Group onChange={(e) => setUpdatedServiceTarget(e.target.value)} >
+                <Radio.Group
+                  onChange={(e) => setUpdatedServiceTarget(e.target.value)}
+                >
                   <Radio.Button value="Select:" disabled>
                     Select:
                   </Radio.Button>
@@ -368,19 +388,39 @@ function CreateService() {
                   <Radio.Button value="Business">Business</Radio.Button>
                 </Radio.Group>
               </Form.Item>
-              <Form.Item label="Select Service Available Days" name="Available" rules={rules}>
-                <select class="p-2 border rounded w-60" onChange={(e) => setUpdatedServiceAvailable(e.target.value)}>
+              <Form.Item
+                label="Select Service Available Days"
+                name="Available"
+                rules={rules}
+              >
+                <select
+                  class="p-2 border rounded w-60"
+                  onChange={(e) => setUpdatedServiceAvailable(e.target.value)}
+                >
                   <option>Select From Below</option>
                   <option disabled>Hours (currently disabled)</option>
                   <option>Months</option>
                   <option>Weeks</option>
                 </select>
               </Form.Item>
-              <Form.Item label="Service Base Pricing" name="Pricing" rules={rules}>
-                <InputNumber addonBefore="Rs"  onChange={(value) => setUpdatedServicePricing(value)} />
+              <Form.Item
+                label="Service Base Pricing"
+                name="Pricing"
+                rules={rules}
+              >
+                <InputNumber
+                  addonBefore="Rs"
+                  onChange={(value) => setUpdatedServicePricing(value)}
+                />
               </Form.Item>
-              <Form.Item label="Select Availability" name="Availability" rules={rules}>
-                <Radio.Group onChange={(e) => setUpdatedAvailability(e.target.value)}>
+              <Form.Item
+                label="Select Availability"
+                name="Availability"
+                rules={rules}
+              >
+                <Radio.Group
+                  onChange={(e) => setUpdatedAvailability(e.target.value)}
+                >
                   <Radio.Button value="Select" disabled>
                     Select:
                   </Radio.Button>
@@ -391,8 +431,10 @@ function CreateService() {
                 </Radio.Group>
               </Form.Item>
               <div class="space-x-2">
-              <Button htmlType="submit">Update</Button>
-              <Button onClick={() => setViewServicesModal(false)}>Discard</Button>
+                <Button htmlType="submit">Update</Button>
+                <Button onClick={() => setViewServicesModal(false)}>
+                  Discard
+                </Button>
               </div>
             </Form>
           </Modal>
@@ -412,11 +454,64 @@ function CreateService() {
       title: "Client Name",
       dataIndex: "client_name",
       key: "client_name",
+      render: (_, record) => {
+        return (
+          <div className="flex flex-col">
+            {record.client_name.subscribed !== "N/A" ? (
+              <Tooltip title="Premium Client"><img className="w-4 h-4" src={require(`../../images/crown.png`)} alt="subscribe-icon"/></Tooltip>
+            ) : null}
+            <h1>{record.client_name.fullname}</h1>
+          </div>
+        );
+      },
+      sorter:(a,b) => {
+        return a.client_name.subscribed != "N/A" ? -1 : b.client_name.subscribed !== "N/A" ? 1 : 0;
+      },
     },
+
     {
       title: "Service Name",
       dataIndex: "service_name",
       key: "service_name",
+    },
+    {
+      title: "Service Caliber",
+      dataIndex: "service_caliber",
+      key: "service_caliber",
+      render: (record) => {
+        return (
+          <div>
+            {record === "Bronze" ? (
+              <div className="flex flex-row items-center">
+                <img
+                  className="w-5 h-5"
+                  src={require(`../../images/bronze.png`)}
+                  alt="Bronze"
+                />
+                Bronze
+              </div>
+            ) : record === "Silver" ? (
+              <div className="flex flex-row items-center">
+                <img
+                  className="w-5 h-5"
+                  src={require(`../../images/silver.png`)}
+                  alt="Silver"
+                />
+                Silver
+              </div>
+            ) : (
+              <div className="flex flex-row items-center">
+                <img
+                  className="w-5 h-5"
+                  src={require(`../../images/gold.png`)}
+                  alt="Gold"
+                />
+                Gold
+              </div>
+            )}
+          </div>
+        );
+      },
     },
     {
       title: "Requested Date",
@@ -469,17 +564,21 @@ function CreateService() {
             width={1500}
             centered
             footer={[
-              <Button key="back" onClick={() => setOpenModal(false)}>
+              <Button
+                key="back"
+                className="text-white bg-red-900 hover:bg-red-700 rounded"
+                onClick={() => setOpenModal(false)}
+              >
                 Back
               </Button>,
               // Conditionally rendering the buttons
               <Button
-                style={{ backgroundColor: "green", color: "white" }}
+                className="text-white bg-sky-900 hover:bg-sky-700 rounded"
                 onClick={() => updateServiceRequest("On-Going", record.key)}
                 disabled={freeEmployees.length === 0}
               >
-                {record.request_status === "On-Going" ||
-                record.request_status === "Completed"
+                {singleRequestedService.status === "On-Going" ||
+                singleRequestedService.status === "Completed"
                   ? "Employee Assigned"
                   : "Assign & Approve"}
               </Button>,
@@ -492,6 +591,38 @@ function CreateService() {
               <Descriptions.Item label="Service Name">
                 {singleRequestedService.servicename}
               </Descriptions.Item>
+
+              <Descriptions.Item label="Service Caliber">
+                {singleRequestedService.required_caliber === "Bronze" ? (
+                  <div className="flex flex-row items-center">
+                    <img
+                      className="w-5 h-5"
+                      src={require(`../../images/bronze.png`)}
+                      alt="Bronze"
+                    />
+                    Bronze
+                  </div>
+                ) : singleRequestedService.required_caliber === "Silver" ? (
+                  <div className="flex flex-row items-center">
+                    <img
+                      className="w-5 h-5"
+                      src={require(`../../images/silver.png`)}
+                      alt="Silver"
+                    />
+                    Silver
+                  </div>
+                ) : (
+                  <div className="flex flex-row items-center">
+                    <img
+                      className="w-5 h-5"
+                      src={require(`../../images/gold.png`)}
+                      alt="Gold"
+                    />
+                    Gold
+                  </div>
+                )}
+              </Descriptions.Item>
+
               <Descriptions.Item label="Requested Date">
                 {moment(singleRequestedService.approved_date).format(
                   "YYYY-MM-DD"
@@ -516,9 +647,11 @@ function CreateService() {
               <Descriptions.Item label="Contact no:">
                 {singleRequestedService.contact}
               </Descriptions.Item>
-              {record.request_status === "Paid (Waiting For Approval)" ||
-              record.request_status === "On-Going" ||
-              record.request_status === "Completed" ? (
+
+              {singleRequestedService.status ===
+                "Paid (Waiting For Approval)" ||
+              singleRequestedService.status === "On-Going" ||
+              singleRequestedService.status === "Completed" ? (
                 <Descriptions.Item label="Payment Status">
                   <div class="flex flex-row items-center">
                     <img
@@ -548,11 +681,15 @@ function CreateService() {
                   Cash Payment
                 </Descriptions.Item>
               )}
+
+              <Descriptions.Item label="Time Frame:">
+                {singleRequestedService.startHour} -{" "}
+                {singleRequestedService.endHour}
+              </Descriptions.Item>
               <Descriptions.Item label="Approve Payment" name="Approve">
                 <Radio.Group
                   onChange={(e) => setPaymentApproval(e.target.value)}
                 >
-
                   <Radio.Button value="Select" disabled>
                     Select
                   </Radio.Button>
@@ -568,7 +705,9 @@ function CreateService() {
             <Divider></Divider>
 
             <div class="flex flex-col items-center justify-center space-y-2">
-              <h1 class="items-center mt-4 font-bold">Assign a maid:</h1>
+              <h1 class="items-center font-bold">
+                All Available Maids:
+              </h1>
               <select
                 class="border rounded h-8"
                 onChange={(e) => setAssignedEmployee(e.target.value)}
@@ -587,14 +726,18 @@ function CreateService() {
                       Choose from the option below:
                     </option>
                     {/* Fetching the employees from the database and then assigning to any of the requested services */}
-                    {freeEmployees.map((info) => (
-                      <option
-                        key={info.id}
-                        value={info.assigned_employee.fullname}
-                      >
-                        {info.assigned_employee.fullname}
-                      </option>
-                    ))}
+                    {freeEmployees.map((info) => {
+                        return (
+                          <option
+                            key={info.id}
+                            value={info.assigned_employee.fullname}
+                          >
+                            <div class="flex flex-row items-center">
+                              {info.assigned_employee.fullname}({(info.caliber.caliber_level).toUpperCase()}) 
+                            </div>
+                          </option>
+                        );
+                    })}
                   </>
                 )}
               </select>
@@ -614,17 +757,27 @@ function CreateService() {
     service_price: info.serviceprice,
     status: info.status,
   }));
+  
 
   // Data Source For Requested Services
   const allRequestedService = viewRequestedServices.map((info, index) => ({
     sn: index + 1,
     key: info.id,
-    client_name: info.user.fullname,
+    client_name: {
+      fullname : info.user.fullname,
+      subscribed: info.subscription ? info.subscription : 'N/A' ,
+    } ,
     service_name: info.services.servicename,
+    service_caliber: info.services.required_caliber,
     requested_date: moment(info.approved_date).format("YYYY-MM-DD"),
     request_status: info.status,
   }));
 
+  // Filtering the table data based on subscription
+  const subscribedClients = allRequestedService.filter((client) => client.client_name.subscribed !== "N/A");
+  const otherClients = allRequestedService.filter((client) => client.client_name.subscribed === "N/A");
+
+  const sortedData = [...subscribedClients, ...otherClients];
   //   Setting Tabs list
 
   const TabList = [
@@ -633,59 +786,105 @@ function CreateService() {
       label: "Add Service",
       children: (
         <TabPane tab="Add Service" key="1">
-          
-            <Form layout="vertical" onFinish={handleFormSubmit}>
-              <Form.Item label="Package Name" name="Package" rules={rules}>
-                <Input
-                  onChange={(e) => setServiceName(e.target.value)}
-                  validationErrors={{
-                    isDefaultRequiredValue: "Field is required",
-                  }}
-                />
-              </Form.Item>
-              <Form.Item label="Service For" name="For" rules={rules}>
-                <Radio.Group onChange={(e) => setServiceTarget(e.target.value)}>
-                  <Radio.Button value="Select:" disabled>
-                    Select:
-                  </Radio.Button>
-                  <Radio.Button value="Household">Household</Radio.Button>
-                  <Radio.Button value="Business">Business</Radio.Button>
-                </Radio.Group>
-              </Form.Item>
-              <Form.Item label="Service Description" name="Description" rules={rules}>
-                <Input.TextArea
-                  rows={4}
-                  onChange={(e) => setServiceDescription(e.target.value)}
-                />
-              </Form.Item>
-              <Form.Item label="Select Service Available Days" name="Days" rules={rules}>
-                <select
-                  class="p-2 border rounded w-60"
-                  onChange={(e) => setServiceAvailable(e.target.value)}
-                >
-                  <option>Select From Below</option>
-                  <option disabled>Hours (currently disabled)</option>
-                  <option>Months</option>
-                  <option>Weeks</option>
-                </select>
-              </Form.Item>
-              <Form.Item label="Service Base Pricing" name="Price" rules={rules}>
-                <InputNumber
-                  addonBefore="Rs"
-                  defaultValue={1000}
-                  onChange={(value) => setServicePricing(value)}
-                />
-              </Form.Item>
-              <Form.Item>
-                <Button
-                  style={{ background: "green", color: "white" }}
-                  // onClick={() => setOpenModal1(true)}
-                  htmlType="submit"
-                >
-                  Create
-                </Button>
-              </Form.Item>
-            </Form>
+          <Form layout="vertical" onFinish={handleFormSubmit}>
+            <Form.Item label="Package Name" name="Package" rules={rules}>
+              <Input
+                onChange={(e) => setServiceName(e.target.value)}
+                validationErrors={{
+                  isDefaultRequiredValue: "Field is required",
+                }}
+              />
+            </Form.Item>
+            <Form.Item label="Service For" name="For" rules={rules}>
+              <Radio.Group onChange={(e) => setServiceTarget(e.target.value)}>
+                <Radio.Button value="Select:" disabled>
+                  Select:
+                </Radio.Button>
+                <Radio.Button value="Household">Household</Radio.Button>
+                <Radio.Button value="Business">Business</Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+            <Form.Item
+              label="Caliber Requirement:"
+              name="caliberrequire"
+              rules={rules}
+            >
+              <Radio.Group onChange={(e) => setServiceCaliber(e.target.value)}>
+                <Radio.Button value="Select:" disabled>
+                  Select:
+                </Radio.Button>
+                <Radio.Button value="Bronze">
+                  <div class="flex flex-row items-center ">
+                    <img
+                      class="w-3 h-3 mr-2"
+                      src={require(`../../images/bronze.png`)}
+                    ></img>{" "}
+                    Bronze
+                  </div>
+                </Radio.Button>
+                <Radio.Button value="Silver">
+                  <div class="flex flex-row items-center ">
+                    <img
+                      class="w-3 h-3 mr-2"
+                      src={require(`../../images/silver.png`)}
+                    ></img>{" "}
+                    Silver
+                  </div>
+                </Radio.Button>
+                <Radio.Button value="Gold">
+                  <div class="flex flex-row items-center ">
+                    <img
+                      class="w-3 h-3 mr-2"
+                      src={require(`../../images/gold.png`)}
+                    ></img>{" "}
+                    Gold
+                  </div>
+                </Radio.Button>
+              </Radio.Group>
+            </Form.Item>
+            <Form.Item
+              label="Service Description"
+              name="Description"
+              rules={rules}
+            >
+              <Input.TextArea
+                rows={4}
+                onChange={(e) => setServiceDescription(e.target.value)}
+              />
+            </Form.Item>
+            <Form.Item
+              label="Select Service Available Days"
+              name="Days"
+              rules={rules}
+            >
+              <select
+                class="p-2 border rounded w-60"
+                onChange={(e) => setServiceAvailable(e.target.value)}
+              >
+                <option>Select From Below</option>
+                <option disabled>Hours (currently disabled)</option>
+                <option>Months</option>
+                <option>Weeks</option>
+              </select>
+            </Form.Item>
+            <Form.Item label="Service Base Pricing" name="Price" rules={rules}>
+              <InputNumber
+                addonBefore="Rs"
+                defaultValue={1000}
+                onChange={(value) => setServicePricing(value)}
+              />
+            </Form.Item>
+
+            <Form.Item>
+              <Button
+                className="text-white bg-sky-900 hover:bg-sky-700 rounded"
+                // onClick={() => setOpenModal1(true)}
+                htmlType="submit"
+              >
+                Create
+              </Button>
+            </Form.Item>
+          </Form>
         </TabPane>
       ),
     },
@@ -713,7 +912,7 @@ function CreateService() {
         <TabPane tab="Service Requests" key="3">
           <Table
             columns={serviceRequestTable}
-            dataSource={allRequestedService}
+            dataSource={sortedData}
             bordered
             pagination={{
               pageSize: 10,
@@ -729,8 +928,23 @@ function CreateService() {
     <div class="w-screen mt-8">
       {loading && <Spinner />}
       <div class="flex flex-col mt-2 p-6">
-        <div className="flex w-full p-3">
-          <h1 className="text-xl  font-bold">Add / View services</h1>
+        <div className="flex flex-row justify-between items-center w-full p-3">
+          <h1 className="text-xl  font-bold">Add - View services</h1>
+          <Breadcrumb
+            items={[
+              {
+                href: "/admin-dashboard",
+                title: <HomeOutlined />,
+              },
+              {
+                title: "Ratings and Services",
+              },
+              {
+                href: "/create-service",
+                title: "Add - View Services",
+              },
+            ]}
+          />
         </div>
         <ToastContainer position="top-center" autoClose={5000} />
 

@@ -2,11 +2,14 @@ import React, { useEffect, useState } from "react";
 import DashboardFooter from "./DashboardFooter";
 // import {  } from 'react-router-dom';
 import { useNavigate, Link } from "react-router-dom";
-import { Table , Button , Tabs } from "antd";
+import { Table , Button , Tabs , Input , Breadcrumb} from "antd";
+import {  
+  SearchOutlined,
+  HomeOutlined ,
+  PlusOutlined
+} from "@ant-design/icons";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 function PaymentDashboard() {
-
- 
 
   const navigate = useNavigate();
   const [loading , setLoading] = useState(false);
@@ -119,6 +122,9 @@ const premiumPayments = paymentDetails?.subscription_details?.data?.map((info , 
       label:'Service Payments',
       children :(
         <TabPane tab="Service Payments" key="1">
+          <div class="w-60 p-2">
+          <Input prefix={<SearchOutlined />} placeholder="Search Item"/>
+          </div>
           <Table
           columns = {paymentColumn}
           dataSource={servicePayments}
@@ -137,6 +143,9 @@ const premiumPayments = paymentDetails?.subscription_details?.data?.map((info , 
       label:'Salary Payments',
       children :(
         <TabPane tab="Salary Payments" key="2">
+          <div class="w-60 p-2">
+          <Input prefix={<SearchOutlined />} placeholder="Search Item"/>
+          </div>
           <Table
           columns = {paymentColumn}
           bordered
@@ -154,6 +163,9 @@ const premiumPayments = paymentDetails?.subscription_details?.data?.map((info , 
       label:'Premium Membership',
       children :(
         <TabPane tab="Premium Membership" key="3">
+          <div class="w-60 p-2">
+          <Input prefix={<SearchOutlined />} placeholder="Search Item"/>
+          </div>
           <Table
           columns = {paymentColumn}
           bordered
@@ -171,36 +183,30 @@ const premiumPayments = paymentDetails?.subscription_details?.data?.map((info , 
     <div class="w-screen mt-8">
       {loading && <Spinner />}
       <div class="flex flex-col mt-2 p-6">
-        <div class="flex py-3">
-          <h1 class="text-2xl font-bold">Transcations</h1>
+        <div class="flex flex-row justify-between items-center py-3">
+          <h1 class="text-xl font-bold">All Transactions</h1>
+          <Breadcrumb items={[
+              {
+                href:"/admin-dashboard",
+                title:<HomeOutlined />
+              },
+              {
+                title:"Transactions"
+              },
+              {
+                href:"/admin-payment",
+                title:"All Transactions"
+              }
+              ]}/>
         </div>
 
-        <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
-          <div class="grid p-3 grid-cols-2">
-            <div>
-                <input
-                  class="shadow rounded border border-gray-200 w-60 py-2 px-3 text-gray-700 text-sm mb-3 leading-tight invalid:border-red-500  focus:shadow-outline"
-                  type="text"
-                  placeholder="Search an item..."
-                  name="SearchBarForPayments"
-                />
-                
-            </div>
+        <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">        
             <div class="justify-self-end ">
-              <div class="flex flex-row space-x-2">
-                  <select
-                    class="rounded border border-gray-200 text-sm text-gray-500 px-2 py-1"
-                    type="text"
-                  >
-                    <option class="">Choose From The List Below</option>
-                    <option>Test</option>
-                    <option>Test</option>
-                  </select>
+              <div class="flex flex-row space-x-2 justify-end">
                   <Link to='/create-transaction'>
-                  <Button>Add Transaction</Button>
+                  <Button className="text-white bg-sky-900 rounded hover:bg-sky-700" icon={<PlusOutlined/>}>Add Transaction</Button>
                   </Link>
               </div>
-            </div>
           </div>
           <div class="m-1">
             <Tabs>{TabList.map((tab)=>tab.children)}</Tabs>

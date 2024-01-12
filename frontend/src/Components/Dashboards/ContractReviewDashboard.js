@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from "react";
-
+import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import {
   Space,
@@ -10,13 +10,21 @@ import {
   Modal,
   Descriptions,
   Select,
+  Input,
+  message,
+  Breadcrumb,
+  Form
 } from "antd";
 
 import {
+  EyeOutlined,
   CheckOutlined,
   QuestionCircleOutlined,
   DeleteOutlined,
   SearchOutlined,
+  HomeOutlined,
+  StarOutlined
+  
 } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 
@@ -27,24 +35,23 @@ import DashboardFooter from "./DashboardFooter";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 
 function ContractReviewDashboard() {
+
+  const rules = [{
+    required : true , 
+    message : "required"
+  }]
+
   const [openModal, setOpenModal] = useState(false);
+  
   const [contractDetails, setContractDetails] = useState([]);
   const originalContractDetails = useRef([]);
   const [loading, setLoading] = useState(false);
   const [singleData, setSingleData] = useState([]);
   const navigate = useNavigate();
-
+  const [caliber , setCaliber] = useState('')
+  console.log(caliber);
   const [searchQuery, setSearchQuery] = useState("");
   const [userInputReceived, setUserInputReceived] = useState(false);
-  // console.log(contractDetails);
-
-  // const onApproval = () => {
-  //   setTableAction("Approved");
-  // };
-
-  // const onTerminate = () => {
-  //   setTableAction("Terminated");
-  // };
 
   // Fetching the data in the table
   useEffect(() => {
@@ -55,14 +62,11 @@ function ContractReviewDashboard() {
         const data1 = await response.json();
         const data = data1.slice(1);
         setContractDetails(data);
+        console.log(data);
         originalContractDetails.current = data;
-
-        
+        setLoading(false);
       } catch (error) {
         toast.error(error.message);
-      }finally{
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        setLoading(false);
       }
     };
 
@@ -84,20 +88,20 @@ function ContractReviewDashboard() {
           body: JSON.stringify({ action: actionType }),
         }
       );
-        
+
       if (response.ok) {
         // Handle success
-
         // window.location.reload();
+        const data = await response.json();
+        message.success(data.message);
         navigate("/admin-dashboard");
-        toast.success(`Request ${actionType} Successfully`);
       } else {
         // Handle error
         toast.error(`Failed to ${actionType} request`);
       }
     } catch (error) {
       toast.error("Error Occured!");
-    }finally{
+    } finally {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setLoading(false);
     }
@@ -111,7 +115,6 @@ function ContractReviewDashboard() {
   useEffect(() => {
     const applySearchAndFilter = async () => {
       try {
-        setLoading(true);
         let newData = [...originalContractDetails.current];
 
         if (searchQuery.trim() !== "") {
@@ -126,14 +129,12 @@ function ContractReviewDashboard() {
               item.contract_id.toLowerCase().includes(searchQuery.toLowerCase())
           );
         }
-        
-        setContractDetails(newData);
 
+        setContractDetails(newData);
       } catch (error) {
         toast.error(error.message);
-      }finally{
+      } finally {
         await new Promise((resolve) => setTimeout(resolve, 2000));
-        setLoading(false);
       }
     };
     if (userInputReceived) {
@@ -144,23 +145,28 @@ function ContractReviewDashboard() {
     }
   }, [searchQuery, userInputReceived]);
 
-  // Fetch Singular Data
 
-  // const fetchSingularData = async(id) => {
-  //   try{
-  //     const res = await fetch(`http://127.0.0.1:8000/contractinfo/${id}`);
-  //     const data = await res.json();
-  //     setSingleData(data)
-  //   }
-  //   catch(error){
-  //     toast.error(error)
-  //   }
-  // }
 
-  // const handleInfoClick =(id)=>{
-  //   fetchSingularData(id);
-  //   setOpenModal(true);
-  // }
+  const handleCaliberSubmit = async (id) => {
+    try {
+      setLoading(true);
+      const response = await fetch(`http://127.0.0.1:8000/assigncaliber/${id}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({caliber :caliber}), 
+      });
+      setLoading(false);
+  
+      if (response.ok) {
+        const data = await response.json();
+        message.success(data.message);
+        navigate('/admin-dashboard')
+      }
+    } catch (error) {
+      message.error(error.message);
+    }
+  };
+  
 
   // Table Contents
   const contents = [
@@ -184,11 +190,55 @@ function ContractReviewDashboard() {
       title: "For User Type",
       dataIndex: "user_type",
       key: "user_type",
+      filterMultiple : false , 
+      filters :[
+        { text: "Client", value: "Client" },
+        { text: "Employee", value: "Employee" },
+      ],
+     filterDropdown :({ setSelectedKeys , selectedKeys, confirm}) => (
+      <div class="flex flex-col space-y-2" style={{ padding: 8 }}>
+          <Select
+            mode="multiple"
+            style={{ width: 200 }}
+            placeholder="Select User Type"
+            onChange={(value) => setSelectedKeys(value || [])}
+            onDeselect={confirm}
+            value={selectedKeys}
+            options={["Employee" , "Client"].map((status) => ({
+              value: status,
+              label: status,
+            }))}
+          />
+          <Button
+            type="default"
+            onClick={confirm}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+        </div>
+     ),
+     onFilter : (value  ,record ) => record.user_type.includes(value)
     },
     {
       title: "Requested Date",
       dataIndex: "created_date",
       key: "created_date",
+    },
+    {
+      title:"Caliber Level",
+      dataIndex : "caliber_level",
+      key : "caliber_level",
+      render : (record) => {
+        return(
+          <div className="flex flex-row space-x-2 items-center">
+            {record !== "N/A" && <img className="w-8 h-8" src={require(`../../images/${record}.png`)} alt={record} />}
+            <h1>{(record).toUpperCase()}</h1>
+          </div>
+        )
+      }
     },
     {
       title: "Approval Status",
@@ -262,7 +312,9 @@ function ContractReviewDashboard() {
             <Button
               size="small"
               icon={<CheckOutlined style={{ fontSize: "13px" }} />}
-            ></Button>
+            >
+
+            </Button>
           </Popconfirm>
           <Popconfirm
             title="Do you want to terminate this user?"
@@ -280,28 +332,64 @@ function ContractReviewDashboard() {
             ></Button>
           </Popconfirm>
 
+          {record.user_type ==="Employee" ? (<div>
           <Button
-            icon={<QuestionCircleOutlined style={{ fontSize: "13px" }} />}
-            size="small"
-            onClick={() => toast.info("In Development")}
-          ></Button>
-          <Modal
-            title="Details:"
-            description
-            open={openModal}
-            okType="default"
-            onCancel={() => setOpenModal(false)}
-            cancelButtonProps={{
-              disabled: true,
-            }}
-            onOk={() => setOpenModal(false)}
-            width={1000}
-            centered
+          size="small"
+          icon = {<StarOutlined />}
+          onClick={() => setOpenModal(true)}
           >
-            <Descriptions bordered>
-              {/* <Descriptions.Item label="User Name">{singleData.user.fullname}</Descriptions.Item> */}
-            </Descriptions>
-          </Modal>
+          </Button></div>) : null}
+
+          <Modal
+          title="Assign a caliber"
+          open={openModal}
+          onCancel={()=>setOpenModal(false)}
+          footer={null}
+          centered
+          >
+            <Form layout="vertical" onFinish={()=>handleCaliberSubmit(record.key)}>
+            <Form.Item label="Set Caliber:" name="caliber" rules={rules}>
+              <Select 
+              onChange={(value) => setCaliber(value)}
+              options={[
+                {
+                  value: "Choose From The Options Below",
+                  label: "Choose From The Options Below",
+                  disabled: true,
+                },
+                {
+                  value: "bronze",
+                  label: "Bronze",
+                },
+                {
+                  value: "silver",
+                  label:  "Silver",
+                },
+                {
+                  value: "gold",
+                  label:"Gold"
+                },
+              ]}
+              />
+              
+            </Form.Item>
+            <div className="flex flex-row space-x-2 mt-2">
+                <Button
+                  className = "text-white bg-sky-900 hover:bg-sky-700 rounded"
+                  htmlType="submit"
+                >
+                  CONFIRM
+                </Button>
+                <Button
+                className="text-white bg-red-900 hover:bg-red-700 rounded"
+                onClick={() => setOpenModal(false)}
+                >
+                  CANCEL
+                </Button>
+              </div>
+            </Form>
+          </Modal> 
+          
         </Space>
       ),
     },
@@ -314,35 +402,57 @@ function ContractReviewDashboard() {
     user_name: info.user.fullname,
     user_type: info.user.user_type,
     created_date: info.created_date,
+    caliber_level : (info.caliber? info.caliber.caliber_level : "N/A" ), 
     contract_status: [info.contract_status],
   }));
-
+  
   return (
     <div class="w-screen mt-8">
       {loading && <Spinner />}
       <div class="flex flex-col mt-2 p-6">
-        <div className="flex w-full p-3">
-          <h1 className="text-xl font-bold">User Requests</h1>
+        <div className="flex flex-row justify-between items-center w-full p-3">
+          <h1 className="text-xl font-bold">Member Requests</h1>
+          <Breadcrumb
+            items={[
+              {
+                href: "/admin-dashboard",
+                title: <HomeOutlined />,
+              },
+              {
+                title:"Users & Requests",
+              },
+              {
+                href: "/admin-contractreview",
+                title: "Member Requests",
+              },
+            ]}
+          />
         </div>
+        
         <ToastContainer />
         <div class="grid p-3 bg-white rounded shadow-xl shadow-gray-350">
-          <div class="grid p-3 grid-cols-2">
-            <div>
-              {/* <form class="space-x-5"> */}
-              <input
-                class="shadow rounded border border-gray-200 w-60 py-2 px-3 text-gray-700 text-sm mb-3 leading-tight invalid:border-red-500  focus:shadow-outline"
-                type="text"
-                value={searchQuery}
-                onChange={handleSearchChange}
-                placeholder="Search For Contracts"
-                name="SearchBarForContracts"
-              />
-              {/* </form> */}
-            </div>
+        <div class="grid grid-cols-2 p-2">
+          <div class="flex flex-row justify-start w-60">
+            <Input
+              prefix={<SearchOutlined />}
+              width={100}
+              value={searchQuery}
+              onChange={handleSearchChange}
+              placeholder="Seach Item"
+            />
           </div>
-          {/* Horiziontal Line */}
-          <div class="w-full h-0.5 bg-gray-500 border"></div>
-
+          <div class="flex flex-row justify-end">
+            <Link to="/all-users">
+              <Button
+                icon={<EyeOutlined />}
+                className="bg-sky-900 text-white rounded hover:bg-sky-700"
+                type="default"
+              >
+                View All Users
+              </Button>
+            </Link>
+          </div>
+        </div>
           <div class="grid grid-row pt-3">
             <Table
               columns={contents}

@@ -21,6 +21,9 @@ class Users(AbstractBaseUser , PermissionsMixin):
     is_auth = models.BooleanField(default = False)
     contact = models.CharField(max_length=255)
     profilepic = models.ImageField(upload_to ="", default="WebsiteFiles/UserProfile/A.png")
+    citizenship_image = models.ImageField(upload_to ="" , default = None, blank = True)
+    work_cv = models.ImageField(upload_to ="", default = None, blank = True)
+
 
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
@@ -52,7 +55,6 @@ class CustomToken(models.Model):
 
     def __str__(self):
         return f'Token for {self.user.username}'
-    
 
 class Announcements(models.Model):
     title = models.CharField(max_length=255)

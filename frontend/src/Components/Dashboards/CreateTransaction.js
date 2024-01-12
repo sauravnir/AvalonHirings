@@ -1,6 +1,10 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, Form, Input, Row, Col, Select , Button, InputNumber , message } from "antd";
+import { Card, Form, Input, Row, Col, Select , Button, InputNumber , message , Breadcrumb } from "antd";
+import {  
+  HomeOutlined,
+  PlusOutlined
+} from "@ant-design/icons";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 
 function CreateTransaction() {
@@ -88,8 +92,21 @@ const createTransaction = async () => {
     <div className="w-screen mt-8 ">
       {loading && <Spinner />}
       <div className="flex flex-col mt-2 py-3 px-4 ">
-        <div className="flex w-full items-center mt-3 justify-between p-3">
+        <div className="flex flex-row w-full items-center mt-3 justify-between p-3">
           <h1 className="text-xl font-bold">Add Transaction</h1>
+          <Breadcrumb items={[
+              {
+                href:"/admin-dashboard",
+                title:<HomeOutlined />
+              },
+              {
+                title:"Transactions"
+              },
+              {
+                href:"/create-transaction",
+                title:"Add Transaction"
+              }
+              ]}/>
         </div>
         <div className="p-3 mt-1 bg-white rounded shadow-xl shadow-gray-350">
           <div class="flex justify-center items-center p-3"></div>
@@ -151,10 +168,10 @@ const createTransaction = async () => {
                 />
               </Form.Item>
               <div class="flex flex-row justify-end space-x-3">
-              <Button htmlType="submit">
+              <Button htmlType="submit" className = "text-white bg-sky-900 hover:bg-sky-700 rounded">
                 Create
               </Button>
-              <Button onClick={handleDiscard}>
+              <Button className = "text-white bg-red-900 hover:bg-red-700 rounded" onClick={handleDiscard}>
                 Discard
               </Button>
             </div>

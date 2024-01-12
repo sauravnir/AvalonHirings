@@ -1,5 +1,6 @@
 import React, {useState , useEffect , useRef} from 'react'
-import { Table , Button , message } from "antd";
+import { Table , Button , message , Input , Breadcrumb , Card} from "antd";
+import {SearchOutlined , HomeOutlined} from "@ant-design/icons";
 import Spinner from '../../Pages/ProfileSettings/Spinner';
 import DashboardFooter from '../Dashboards/DashboardFooter';
 function ClientTransactionObject() {
@@ -109,30 +110,35 @@ const tableData = data.map((info, index) =>({
     <div class="w-screen mt-8">
         {loading && <Spinner />}
         <div class="flex flex-col mt-2 p-6">
-        <div class="flex py-3">
-          <h1 class="text-2xl font-bold">All Transactions</h1>
+        <div class="flex flex-row justify-between items-center py-3">
+          <h1 class=" text-xl  font-bold">All Transactions</h1>
+          <Breadcrumb 
+          items = {[{
+            href : '/client-dashboard',
+            title:<HomeOutlined />
+          },
+          {
+            href:'client-transaction',
+            title:'Transaction'
+          }
+        ]}
+          />
         </div>
 
-        <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
-          <div class="flex flex-row justify-end">
-            <div>
-                <input
-                  class="shadow rounded border border-gray-200 w-60 py-2 px-3 text-gray-700 text-sm mb-3 leading-tight invalid:border-red-500  focus:shadow-outline"
-                  type="text"
-                  value = {searchQuery}
-                  onChange = {handleSearchQuery}
-                  placeholder="Search for service names"
-                  name="SearchBarForPayments"
-                />
-                
-            </div>
+          
+        <div class="flex flex-col p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
+          
+            <Card>
+            <div class="flex flex-row justify-start p-2">
+              <Input className='w-60' prefix={<SearchOutlined />} value = {searchQuery} onChange={handleSearchQuery} placeholder='Search Service Names'/>
+               
           </div>
-          <div class="m-1">
-            <Table columns={clientContents} dataSource={tableData} pagination={{
+          <Table columns={clientContents} dataSource={tableData} pagination={{
                 pageSize:10,
                 showTotal:(total) => `Total ${total} items`
             }}></Table>
-          </div>
+            </Card>
+          
         </div>
 
 

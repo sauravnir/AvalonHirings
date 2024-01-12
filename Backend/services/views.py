@@ -9,14 +9,14 @@ from rest_framework.response import Response
 from .models import ServiceList , ServiceUse , AssignedEmployees
 from app.models import Users 
 from payment.models import Payment
-
+from datetime import datetime
 # Creating Service By The Admin
 class CreateServiceView(APIView):
     def post (self, request):
         serializer = ServiceCreateSerializer(data = request.data) 
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data , status=status.HTTP_201_CREATED)
+            return Response({"message" : "Service Created Successfully"} , status=status.HTTP_201_CREATED)
         return Response(serializer.errors , status = status.HTTP_200_OK)
        
 # Fetching all the services from the database
@@ -32,7 +32,6 @@ class GetSingleServiceView(RetrieveAPIView):
     serializer_class = ServiceCreateSerializer
 
 # updating the single services created by the admin 
-
 class UpdateSingleServiceView(APIView):
     def post(self, request):
         service_list_id = request.data.get('service_list_id')
@@ -65,8 +64,8 @@ class UpdateSingleServiceView(APIView):
 class UserServiceRequestView(APIView):
     def post(self , request):
         serializer = UserServiceRequestSerializer(data = request.data)
-        
         if serializer.is_valid():
+           
             username = request.data.get('username')
             userdata = get_object_or_404(Users , username = username)
             user_id = userdata.id
@@ -79,15 +78,16 @@ class UserServiceRequestView(APIView):
                  servicevalue = request.data.get('servicevalue'),
                  totalprice = request.data.get('totalprice'),
                  servicelocation = request.data.get('servicelocation'),   
-                 status = "Payment Required"
+                 status = "Payment Required",
+                 startHour = request.data.get('startHour') ,
+                 endHour = request.data.get('endHour')
              )
 
             service_use.save();
           
             return Response({"message": "Service request created successfully"}, status=status.HTTP_201_CREATED)
         else:
-                print(serializer.errors)
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error" :'Error Performing Request'}, status=status.HTTP_400_BAD_REQUEST)
 
 # Viewing ALl Requested Services from the Client
 class ViewServiceRequestView(APIView):
@@ -100,10 +100,6 @@ class ViewServiceRequestView(APIView):
 class SingleRequestedServiceView(RetrieveAPIView):
      queryset = ServiceUse.objects.prefetch_related('payments').all()
      serializer_class = ViewServiceRequestedSerializer 
-
-
-
-
 
 # Updating the requested service 
 class UpdateServiceRequestView(RetrieveAPIView):
@@ -119,7 +115,6 @@ class UpdateServiceRequestView(RetrieveAPIView):
             assigned_employee_data = Users.objects.get(fullname=assigned_employee_fullname)
             assigned_employee_id = assigned_employee_data.id
             payment_object = get_object_or_404(Payment , service_use_id = service_use.id)
-            print(payment_object , serviceuse_status , payment_approval , assigned_employee_id)
             if serviceuse_status == "On-Going":
                 if assigned_employee_id:
                     assigned_employee_table = AssignedEmployees.objects.filter(assigned_employee=assigned_employee_id).first()
@@ -134,10 +129,6 @@ class UpdateServiceRequestView(RetrieveAPIView):
                 payment_object.save()
                 service_use.status = serviceuse_status
                 service_use.approved_date = timezone.now()
-                service_use.save()
-
-            elif serviceuse_status == "Declined":
-                service_use.status = serviceuse_status
                 service_use.save()
 
             return Response({'message': 'Status updated!'}, status=status.HTTP_200_OK)

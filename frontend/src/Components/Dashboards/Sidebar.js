@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { Popconfirm, Spin } from "antd";
+import { Button, Popconfirm, Spin } from "antd";
 import { LogoutOutlined } from "@ant-design/icons";
 
 function Sidebar() {
@@ -24,7 +24,7 @@ function Sidebar() {
   const toggleDropdown1 = () => {
     setIsOpen1(!isOpen1);
   };
-
+  
   const [isOpen, setIsOpen] = useState(false);
   const [isOpen2, setIsOpen2] = useState(false);
   const toggleDropdown = () => {
@@ -273,7 +273,7 @@ function Sidebar() {
                         </button>
                       </Link>
 
-                      <Link to="/admin-dashboard">
+                      <Link to="/all-users">
                         {/* <img src={require(``)}></img> */}
                         <button className="flex flex-row items-center w-full block px-4 py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
                           <img
@@ -290,7 +290,7 @@ function Sidebar() {
                             class="w-5 h-5 mr-3"
                             src={require(`../../images/adduser.png`)}
                           ></img>
-                          Add Users
+                          Add User
                         </a>
                       </Link>
                     </div>
@@ -689,7 +689,7 @@ function Sidebar() {
             </nav>
           )}
 
-          <button class="flex items-center px-4 py-2 mb-10 text-sm transition-colors duration-300 transform rounded-lg hover:bg-red-800 dark:hover:bg-red-800 dark:hover:text-gray-200 hover:text-gray-700">
+              <div className="flex flex-row p-4">
             <Popconfirm
               title="Logout?"
               description="Are you sure?"
@@ -699,10 +699,10 @@ function Sidebar() {
               danger
               onConfirm={handleLogout}
             >
-              <LogoutOutlined />
-              <button class="ml-4">Logout</button>
+              <Button className="w-full hover:bg-red-900" icon={<LogoutOutlined />}>Logout</Button>
             </Popconfirm>
-          </button>
+              </div>
+          
         </div>
       </aside>
     </div>

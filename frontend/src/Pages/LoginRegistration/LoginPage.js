@@ -36,30 +36,21 @@ function LoginPage() {
         },
         body: JSON.stringify(loginData),
       });
+  
       setLoading(false);
+  
       if (response.ok) {
         const data = await response.json();
-        setToken(data.token);
-        localStorage.setItem("token", data.token);
-        const userData = JSON.stringify(data);
-        localStorage.setItem("userData", userData);
-
+        setTokenAndUserData(data);
+  
         message.success(data.message);
-
+  
         if (data.user_type === "Admin") {
           navigate("/admin-dashboard");
-        }
-        // Assuming you define userType somewhere
-        if (data.is_auth === true && data.otp !== null) {
-          if (data.user_type === "Client" || data.user_type === "Employee") {
-            navigate("/otp");
-          }
+        } else if (!data.is_auth && data.otp === null) {
+          navigate("/otp");
         } else {
-          {
-            data.user_type === "Client"
-              ? navigate("/client-dashboard")
-              : navigate("/employee-dashboard");
-          }
+          navigate(data.user_type === "Client" ? "/client-dashboard" : "/employee-dashboard");
         }
       } else {
         message.error("Invalid Credentials");
@@ -68,6 +59,15 @@ function LoginPage() {
       message.error("Failed to Log In");
     }
   };
+  
+  const setTokenAndUserData = (data) => {
+    setToken(data.token);
+    localStorage.setItem("token", data.token);
+  
+    const userData = JSON.stringify(data);
+    localStorage.setItem("userData", userData);
+  };
+  
 
   return (
     <div>

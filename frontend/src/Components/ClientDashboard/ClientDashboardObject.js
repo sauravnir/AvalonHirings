@@ -34,12 +34,9 @@ function ClientDashboard() {
         );
         const data = await res.json();
         setWorkDetails(data);
-     
+        setLoading(false);
       } catch (error) {
         return error;
-      }finally{
-        await new Promise((resolve) => setTimeout(resolve, 2000));
-        setLoading(false);
       }
     };
 
@@ -213,7 +210,7 @@ function ClientDashboard() {
       </Modal>
       <div className="mt-2 w-10/14 p-6">
         <div className=" flex-col py-3 ">
-          <h1 className="text-2xl font-semibold ">Dashboard</h1>
+          <h1 className="text-xl font-semibold ">Dashboard</h1>
         </div>
         <div class="flex flex-row items-center justify-between bg-cyan-500 rounded-lg font-medium shadow h-12 mt-5">
           <h1 class="flex px-8 items-center text-white text-base">

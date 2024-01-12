@@ -12,6 +12,8 @@ from django.http import JsonResponse
 import requests
 from services.models import ServiceUse
 from datetime import datetime
+from django.core.mail import EmailMessage
+import math , random
 
 class ServicePaymentView(APIView):
     def post(self , request ):
@@ -30,8 +32,6 @@ class ServicePaymentView(APIView):
             'token' : payment_token,
             'amount' : payment_amount,
         }
-
-
         response = requests.post(verification_url, headers=headers, json=payload)
 
         if response.status_code == 200 :
@@ -44,11 +44,12 @@ class ServicePaymentView(APIView):
                 payment_method = "Khalti Payment",
                 payment_date = datetime.now()
             )
+
             payment.save();
             serviceuse.save();    
-            return JsonResponse({'message': 'Payment successful'}, status=200)
+            return Response({'message': 'Payment successful'}, status=200)
         else:
-         return JsonResponse({'message': 'Payment verification failed'}, status=400)
+         return Response({'message': 'Payment verification failed'}, status=400)
 
 
 class CashPaymentView(APIView):
@@ -59,17 +60,23 @@ class CashPaymentView(APIView):
         serviceuse = get_object_or_404(ServiceUse , id = service_use_id)
         if serviceuse is not None:
            serviceuse.status = "Paid (Waiting For Approval)";
+            # Generating random traansaction reference  
+           transaction_digits = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
+           ref = ""
+           for i in range(22):
+                ref += transaction_digits[math.floor(random.random() * len(transaction_digits))]
            payment = Payment.objects.create(
               service_use = serviceuse, 
               amount = total_price , 
               payment_method = "Cash Payment",
-              payment_date = datetime.now()   
+              payment_date = datetime.now(),
+              transaction_reference = ref 
            )
            payment.save()
            serviceuse.save()
-           return Response({'message' :'Payment Successful'} , status = status.HTTP_200_OK)
+           return Response({'message':'Payment Made Successfully'} , status = status.HTTP_200_OK)
         else:
-            return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Failed To Make Payment'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -147,7 +154,8 @@ class CreateEmployeeSalaryView(APIView):
                         amount = amount , 
                         payment_date = datetime.now(),
                         description = description ,
-                        caliber_id = caliber_object.id
+                        caliber_id = caliber_object.id  
+                        
 
                     )
                     salary_object.save()
@@ -158,7 +166,6 @@ class CreateEmployeeSalaryView(APIView):
             
 
 # Single Client Payment View 
-            
 class ClientTransactionView(APIView):
     def get(self , request ,user_id):
         try:
@@ -172,7 +179,7 @@ class ClientTransactionView(APIView):
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
-class EmployeeSalaryView(APIView):
+class EmployeeDashboardSalaryView(APIView):
     def get(self , request , user_id):
         try :
             salary = Salary.objects.filter(caliber__employee = user_id)

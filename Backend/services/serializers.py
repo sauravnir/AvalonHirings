@@ -1,7 +1,8 @@
 from rest_framework import serializers
 from .models import ServiceList , ServiceUse , AssignedEmployees
 from app.models import Users
-from payment.models import Payment
+from payment.models import Caliber
+from payment.models import Payment , Subscription
 
 # Creating Services by the admin
 class ServiceCreateSerializer(serializers.ModelSerializer):
@@ -13,12 +14,17 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
 class UserServiceRequestSerializer(serializers.ModelSerializer):
     class Meta : 
         model = ServiceUse 
-        fields = ["expiry_date" , "servicevalue" , "totalprice" , "servicelocation"]
+        fields = ["expiry_date" , "servicevalue" , "totalprice" , "servicelocation" , "startHour", "endHour"]
 
 # Viewing all the services 
 class ViewUserSerializer(serializers.ModelSerializer):
     class Meta :        
         model = Users
+        fields = "__all__"
+# Getting the employee caliber
+class EmployeeCaliberSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Caliber
         fields = "__all__"
 
 
@@ -31,18 +37,33 @@ class ClientPaymentInfoSerializer(serializers.ModelSerializer):
 
 class AssignedEmployeesSerializer(serializers.ModelSerializer):
     assigned_employee= ViewUserSerializer()
+    caliber = EmployeeCaliberSerializer(source ='assigned_employee.employee_caliber' , read_only=True)
     class Meta : 
         model = AssignedEmployees
         fields = "__all__"
+
+class SubscriptionView(serializers.ModelSerializer):
+    # user = ViewUserSerializer()
+    class Meta:
+        model = Subscription
+        fields= "__all__"
 
 # Viewing all the combined service using the user and services instance
 class ViewServiceRequestedSerializer(serializers.ModelSerializer):
     user = ViewUserSerializer()
     services = ServiceCreateSerializer()
     payments = ClientPaymentInfoSerializer(many=True)
+    subscription = serializers.SerializerMethodField()
     class Meta: 
         model = ServiceUse
         fields = "__all__"
+
+    def get_subscription(self , obj):
+        user_id = obj.user_id
+        subscription = Subscription.objects.filter(user_id=user_id).first()
+        if subscription:
+            return SubscriptionView(subscription).data
+        return None
 
 class ViewServiceRequestedEmployeeSerializer(serializers.ModelSerializer):
     user = ViewUserSerializer()
@@ -57,16 +78,7 @@ class UpdateServiceStatusSerializer(serializers.Serializer):
     action = serializers.CharField(required=True)
     assignedEmployee = serializers.CharField(required=False , allow_blank=True)
     paymentApproval = serializers.CharField(required=False, allow_blank=True   )
-    # def validate(self, data):
-    #     action = data.get('action')
-
-    #     if action == 'On-Going' and not data.get('assignedEmployee'):
-    #         raise serializers.ValidationError("assignedEmployee is required for Payment Required status.")
-
-    #     return data
-
-
-
+   
 class EmployeeAssignedServiceSerializer(serializers.ModelSerializer):
     assigned_employee= ViewUserSerializer()
     service_request = UserServiceRequestSerializer()

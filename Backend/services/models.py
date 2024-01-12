@@ -11,7 +11,7 @@ class ServiceList(models.Model):
     serviceprice = models.IntegerField(default=None)
     status = models.CharField(max_length=255 , default=None)
     serviceavailable= models.CharField(max_length=255, default=None)
-
+    required_caliber = models.CharField(max_length=255, default="Bronze")
     def __str__(self):
         return self.servicename
 
@@ -25,6 +25,8 @@ class ServiceUse(models.Model):
     servicevalue = models.IntegerField(default=None)
     totalprice = models.IntegerField(default=None)
     servicelocation = models.CharField(max_length=255, default=None)
+    startHour = models.TimeField(default = None);
+    endHour = models.TimeField(default = None)
 
     def __str__(self):
        return f"{self.user.username} - {self.services.servicename}"
@@ -35,3 +37,6 @@ class AssignedEmployees(models.Model):
     work_status = models.CharField(max_length=255 , default='Free For Work')
     def __str__(self):
         return f"{self.service_request} - {self.assigned_employee.username}"
+
+
+

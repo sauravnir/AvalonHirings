@@ -13,7 +13,15 @@ import {
   Radio,
   Card,
   DatePicker,
+  Breadcrumb
 } from "antd";
+import {  
+  CheckOutlined,
+  QuestionCircleOutlined,
+  DeleteOutlined,
+  SearchOutlined,
+  HomeOutlined
+} from "@ant-design/icons";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 import DashboardFooter from "./DashboardFooter";
 
@@ -75,8 +83,21 @@ function AddUserObject() {
     <div class="w-screen mt-8">
       {loading && <Spinner />}
       <div class="flex flex-col mt-2 p-6">
-        <div class="flex py-3">
+        <div class="flex flex-row justify-between items-center py-3">
           <h1 class="text-xl font-bold">Add User</h1>
+          <Breadcrumb items={[
+              {
+                href:"/admin-dashboard",
+                title:<HomeOutlined />
+              },
+              {
+                title:"Users & Requests"
+              },
+              {
+                href:"/add-user",
+                title:"Add User"
+              }
+              ]}/>
         </div>
         <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
           <div class="m-1">
@@ -134,8 +155,8 @@ function AddUserObject() {
                   </Form.Item>
 
                   <div class="flex flex-row justify-end space-x-2">
-                    <Button htmlType="submit">Create User</Button>
-                    <Button onClick={()=>navigate('/admin-dashboard')}>Discard</Button>
+                    <Button className="text-white bg-sky-900 hover:bg-sky-700 rounded" htmlType="submit">Create User</Button>
+                    <Button className="text-white bg-red-900 hover:bg-red-700 rounded" onClick={()=>navigate('/admin-dashboard')}>Discard</Button>
                   </div>
                 </Form>
               </div>
