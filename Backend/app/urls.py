@@ -18,7 +18,8 @@ urlpatterns = [
     path('deleteannouncement/<int:pk>' ,PostAnnouncementView.as_view() , name ="Delete Announcement" ),
     path('getannouncement/' , GetAllAnnouncementView.as_view() , name="All Announcements"),
     path('getannouncement/<int:pk>' , GetAllAnnouncementView.as_view() , name="Single Announcement"),
-    path('allusers/', AllUsersView.as_view() ,name="All Users")
+    path('allusers/', AllUsersView.as_view() ,name="All Users"),
+    path('allusers/<int:pk>' , AllUsersView.as_view(), name="Single Users")
 ]
 
 

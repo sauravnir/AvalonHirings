@@ -6,6 +6,7 @@ import { Link } from "react-router-dom";
 import { Input, Form, message } from "antd";
 import Spinner from "../ProfileSettings/Spinner";
 
+
 function LoginPage() {
   const rules = [
     {
@@ -43,22 +44,28 @@ function LoginPage() {
         const data = await response.json();
         setTokenAndUserData(data);
   
-        message.success(data.message);
-  
-        if (data.user_type === "Admin") {
-          navigate("/admin-dashboard");
-        } else if (!data.is_auth && data.otp === null) {
-          navigate("/otp");
+        if (data.is_auth) {
+          if (data.user_type === "Admin") {
+            navigate("/admin-dashboard");
+          } else {
+            if (data.otp) {
+              navigate("/otp");
+            } else {
+              navigate(data.user_type === "Client" ? "/client-dashboard" : "/employee-dashboard");
+            }
+          }
+          message.success(data.message);
         } else {
-          navigate(data.user_type === "Client" ? "/client-dashboard" : "/employee-dashboard");
+          message.error("Authentication Failed");
         }
       } else {
-        message.error("Invalid Credentials");
+        message.error("Failed to Log In");
       }
     } catch (error) {
       message.error("Failed to Log In");
     }
   };
+  
   
   const setTokenAndUserData = (data) => {
     setToken(data.token);

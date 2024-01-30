@@ -199,7 +199,6 @@ useEffect(() => {
         { text: "Denied", value: "Denied" },
       ],
       render:(report_status ,record)=>{
-        console.log(report_status)
         let color = report_status.length > 5 ? "geekblue" : "green";
         if (report_status === "Pending"){
           color = "yellow";

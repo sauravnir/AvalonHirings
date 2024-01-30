@@ -43,33 +43,94 @@ function AddUserObject() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userName, setUserName] = useState("");
+  const [citizenshipFront , setCitizenshipFront] = useState("")
+  const [citizenshipBack , setCitizenshipBack] = useState("")
+  const [workCV , setWorkCV] = useState("")
+  const [fileOpen , setFileOpen] = useState(false);
+  const handleFileOpen = () => {
+    if (userType === "Employee") {
+      setFileOpen(false);
+    } else {
+      setFileOpen(true);
+    }
+  }
 
   const userCreate = async () => {
     try {
-      const registeredData = {
-        fullname: fullName,
-        user_type: userType,
-        date_of_birth:new Date(dateOfBirth).toISOString().split('T')[0],
-        email: email,
-        contact: contact,
-        password: password,
-        username: userName, 
-      };
+      const symbolRegex = /[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/]/;
+  
       if (password === confirmPassword && contact.length === 10) {
-
-        setLoading(true);
-        const response = await fetch("http://127.0.0.1:8000/app/register/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(registeredData),
-        });
-        setLoading(false);
-        if(response.ok){
-            const data = await response.json();
-            message.success(data.message);
-            navigate('/admin-dashboard')
+        if (password.length >= 8 && symbolRegex.test(password)) {
+          const validateFileType = (file, allowedTypes) => {
+            const fileType = file ? file.type : null;
+            return allowedTypes.includes(fileType);
+          };
+  
+          const formData = new FormData();
+          formData.append("fullname", fullName);
+          formData.append("user_type", userType);
+          formData.append("date_of_birth", new Date(dateOfBirth).toISOString().split('T')[0]);
+          formData.append("email", email);
+          formData.append("contact", contact);
+          formData.append("password", password);
+          formData.append("username", userName);
+          formData.append("citizenship_back", citizenshipBack);
+          formData.append("citizenship_front", citizenshipFront);
+  
+          if (userType === "Employee" && workCV) {
+            formData.append("work_cv", workCV);
+          }
+  
+          if (userType === "Client") {
+            if (
+              validateFileType(citizenshipBack, ["image/jpeg", "image/png"]) &&
+              validateFileType(citizenshipFront, ["image/jpeg", "image/png"])
+            ) {
+              setLoading(true);
+              const response = await fetch("http://127.0.0.1:8000/app/register/", {
+                method: "POST",
+                body: formData,
+              });
+              setLoading(false);
+  
+              if (response.ok) {
+                const data = await response.json();
+                message.success(data.message);
+                navigate('/admin-dashboard');
+              } else {
+                message.error("User Already Exists");
+              }
+            } else {
+              message.error("Invalid file type. Please upload JPEG or PNG images.");
+            }
+          }
+  
+          if (userType === "Employee") {
+            if (
+              validateFileType(citizenshipBack, ["image/jpeg", "image/png"]) &&
+              validateFileType(citizenshipFront, ["image/jpeg", "image/png"]) &&
+              (!workCV || validateFileType(workCV, ["application/pdf"]))
+            ) {
+              setLoading(true);
+              const response = await fetch("http://127.0.0.1:8000/app/register/", {
+                method: "POST",
+                body: formData,
+              });
+              setLoading(false);
+  
+              if (response.ok) {
+                const data = await response.json();
+                message.success(data.message);
+                navigate('/admin-dashboard');
+              } else {
+                message.error("User Already Exists");
+              }
+            } else {
+              message.error("Invalid File Type.");
+            }
+          }
+        } else {
+          message.error("Password must be at least 8 characters long and contain symbols.");
         }
       } else {
         message.error("Wrong credentials. Try checking the passwords or the contact number!");
@@ -78,7 +139,7 @@ function AddUserObject() {
       message.error(error.message);
     }
   };
-
+  
   return (
     <div class="w-screen mt-8">
       {loading && <Spinner />}
@@ -125,7 +186,7 @@ function AddUserObject() {
                   </Form.Item>
 
                   <Form.Item label="User-Type" name="usertype" rules={rules}>
-                    <Radio.Group onChange={(e) => setUserType(e.target.value)}>
+                    <Radio.Group defaultValue="Client" onChange={(e) => {setUserType(e.target.value) ; handleFileOpen()}}>
                       <Radio.Button value="Select" disabled>
                         Select:
                       </Radio.Button>
@@ -153,6 +214,36 @@ function AddUserObject() {
                   >
                     <Input.Password onChange={(e) => setConfirmPassword(e.target.value)}/>
                   </Form.Item>
+
+                  <Form.Item label="Upload Citizenship">
+                    <Form.Item label="Front-Side" name="front" rules={rules}>
+                      <Input 
+                      type="file"
+                      id="citizenshipFront"
+                      class="text-sm"
+                      onChange={(e) => setCitizenshipFront(e.target.files[0])}
+                      />
+                      </Form.Item>
+                      <Form.Item label="Back-Side" name="back" rules={rules}>
+                      <Input 
+                      type="file"
+                      id="citizenshipBack"
+                      class="text-sm"
+                      onChange={(e) => setCitizenshipBack(e.target.files[0])}
+                      />
+                      </Form.Item>
+                    </Form.Item>
+
+                    {fileOpen &&(
+                    <Form.Item label="Upload Work CV" name="cv" >
+                      <Input 
+                      type="file"
+                      id="workcv"
+                      class="text-sm"
+                      onChange={(e) => setWorkCV(e.target.files[0])}
+                      />
+                    </Form.Item>
+                    ) }
 
                   <div class="flex flex-row justify-end space-x-2">
                     <Button className="text-white bg-sky-900 hover:bg-sky-700 rounded" htmlType="submit">Create User</Button>

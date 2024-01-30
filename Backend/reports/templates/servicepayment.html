@@ -1,0 +1,64 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+
+    <title>Payment Receipt</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.6; color: #333;">
+    <div style="background-color: #f5f5f5; padding: 20px; text-align: center;">
+
+        
+        <h3 style="color: #04334e; font-size: 30px; font-weight: bold; margin-bottom: 10px;"><img style="width:50px ; height: 50px;" src="https://i.ibb.co/LvttLw5/A.png"></img>Avalon Hirings</h3>
+        <h4 style="color: #333333;">Payment Receipt</h4>
+
+        <p align="justify">
+            Dear {{ name }},
+            <br>
+            <h1 style="font-size: medium;">Your payment has been successfully successfully received. Below are the details:</h1><br>
+
+            <!-- Add border directly to the table elements -->
+            <table style="border-collapse: collapse; width: 100%; margin-top: 20px; border: 1px solid #333;">
+                <tr style="border: 1px solid #333;">
+                    <td style="border: 1px solid #333; padding: 8px;"><strong>Service Name:</strong></td>
+                    <td style="border: 1px solid #333; padding: 8px;">{{ servicename }}</td>
+                </tr>
+                <tr style="border: 1px solid #333;">
+                    <td style="border: 1px solid #333; padding: 8px;"><strong>Payment Date:</strong></td>
+                    
+                        <td style="border: 1px solid #333; padding: 8px;"><span class="badge badge-info">{{payment_time}}</span></td>
+                                    </tr>
+                <tr style="border: 1px solid #333;">
+                    <td style="border: 1px solid #333; padding: 8px;"><strong>Payment Method:</strong></td>
+                    <td style="border: 1px solid #333; padding: 8px;"> {{ mode }}</td>
+                </tr>
+                <tr style="border: 1px solid #333;">
+                    <td style="border: 1px solid #333; padding: 8px;"><strong>Total Amount:</strong></td>
+                    <td style="border: 1px solid #333; padding: 8px;"> <i id="amount" value="" style="color: rgb(7, 159, 37);">Rs.{{amount}}</i> </td>
+                </tr>
+            </table>
+        </p>
+
+
+        <div style="margin-top: 20px; text-align: left; padding: 20px; color: #333333;">
+            <p>Regards,<br>Avalon Hirings Pvt.Ltd
+                <br>Budhanilkantha, Nepal<br>9815977947</p>
+        </div>
+
+    </div>
+
+    <!-- Footer Section -->
+    <div style="text-align: center; background-color: #0b2457; padding: 10px; color: white;">
+        <p style="margin: 0;">Copyright&copy; 2024, Avalon Hirings Pvt.Ltd. All Rights Reserved.</p>
+    </div>
+
+</body>
+
+</html>
+

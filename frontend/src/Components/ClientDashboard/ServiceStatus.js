@@ -103,7 +103,7 @@ function ServiceStatus() {
           message.error(error.message);
         },
         onClose: () => {
-          navigate("/client-dashboard");
+          navigate("/client-view-service");
         },
       },
       paymentPreference: ["KHALTI"],
@@ -131,7 +131,6 @@ function ServiceStatus() {
           serviceuseid: serviceuseid,
         }),
       });
-
       setLoading(false);
       if (res.ok) {
         const data = await res.json();
@@ -158,12 +157,10 @@ function ServiceStatus() {
         navigate("/client-dashboard");
         message.success(data.message);
       }
+      setLoading(false);
     } catch (error) {
       message.error(error.message);
-    } finally {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setLoading(false);
-    }
+    } 
   };
 
   // Fetching client requested services using user_id
@@ -183,6 +180,7 @@ function ServiceStatus() {
           contact: assigned_employee?.assigned_employee?.contact || "",
           profilepic: assigned_employee?.assigned_employee?.profilepic || "",
         };
+        console.log(viewAssignedEmployee);
         setSingleEmployee(viewAssignedEmployee);
         onFilterChange.current = data;
       } catch (error) {
@@ -471,7 +469,6 @@ function ServiceStatus() {
               <Descriptions.Item label="Service Name:">
                 <a>{record.service_name}</a>
               </Descriptions.Item>
-              {console.log(record.total_price)}
               <Descriptions.Item label="Service Duration:">
                 <a>
                   {(() => {
@@ -496,8 +493,8 @@ function ServiceStatus() {
                 onChange={(e) => getPayment(e.target.value)}
               >
                 <Radio.Button disabled>Esewa</Radio.Button>
-                <Radio.Button value="Khalti">Khalti</Radio.Button>
-                <Radio.Button value="Cash">Cash</Radio.Button>
+                <Radio.Button className="bg-violet-700 text-white" value="Khalti">Khalti</Radio.Button>
+                <Radio.Button className="bg-green-700 text-white" value="Cash">Cash</Radio.Button>
               </Radio.Group>
             </div>
           </Modal>
@@ -508,8 +505,7 @@ function ServiceStatus() {
                 Assigned Maid
               </Button>
 
-              {/* Requesting a refund */}
-              <Button
+              {record.service_status.includes("On-Going") ? (<><Button
                 size="small"
                 className="bg-red-900 hover:bg-red-700 text-white"
                 onClick={() => setOpenModal3(true)}
@@ -620,7 +616,8 @@ function ServiceStatus() {
                     ) : null}
                   </div>
                 </div>
-              </Modal>
+              </Modal></>) : null } 
+              
               <Modal
                 open={openModal1}
                 onCancel={() => setOpenModal1(false)}

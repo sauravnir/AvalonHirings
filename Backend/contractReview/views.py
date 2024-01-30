@@ -33,8 +33,6 @@ class UpdatedContractView(APIView):
             contract_status = serializer.validated_data.get('action');
             if contract_status == "Approved":
                 contract.contract_status = "Approved"
-
-
                 # Populating the AssignedEmployee model 
 
                 if (user_data.user_type == "Employee"):
@@ -58,7 +56,7 @@ class UpdatedContractView(APIView):
                 for i in range(4):
                     OTP += otp_digits[math.floor(random.random() * len(otp_digits))]
                 
-                subject = "Successufully Registered to Avalon Hirings!";
+                subject = "Successufully Registered into Avalon Hirings!";
                 message = f"Here is your One Time Transaction PIN. Use it to login into the system : {OTP}";
                 recipient_list = [user_data.email];
                 if user_data.otp == "":
@@ -78,6 +76,7 @@ class UpdatedContractView(APIView):
                     user_data.is_auth = False;
                 
                 AssignedEmployees.objects.filter(assigned_employee = user_data).delete()
+                Caliber.objects.filter(employee = user_data).delete();
                 user_data.save()
                 contract.save()
                 return Response({'message': 'Report updated successfully'}, status=status.HTTP_200_OK)

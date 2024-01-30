@@ -1,14 +1,14 @@
 from rest_framework import serializers
 from .models import Users , Announcements
-from payment.models import Caliber
-
+from payment.models import Caliber , Payment , Salary
+from services.models import ServiceUse
 class UserRegisterSerializer(serializers.ModelSerializer):
     class Meta:
         model = Users
-        fields = ('fullname', 'user_type','date_of_birth','email','password','username','contact')
-
+        fields = ('fullname', 'user_type','date_of_birth','email','password','username','contact' ,'citizenship_front', 'citizenship_back' , 'work_cv')
         extra_kwargs = {
-            'password': {'write_only': True}, 
+            'password': {'write_only': True},
+            'work_cv' : {'required' : False}, 
         }
 
     def create(self, validated_data):
@@ -61,6 +61,28 @@ class PostAnnouncementSerializer(serializers.ModelSerializer):
     class Meta:
         model = Announcements 
         fields = "__all__"
+
+# class ClientServiceUseSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = ServiceUse
+#         fields = "__all__"
+
+# class EmployeeCaliberSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = Caliber 
+#         fields = "__all__"
+
+# class ClientPaymentSerializer(serializers.ModelSerializer):
+#     service_use = ClientServiceUseSerializer()
+#     class Meta:
+#         model = Payment 
+#         fields = ['amount' , 'payment_date']
+
+# class EmployeeSalarySerializer(serializers.ModelSerializer):
+#     caliber = EmployeeCaliberSerializer()
+#     class Meta:
+#         model = Salary
+#         fields = ['amount' , 'payment_date']
 
 class AllUsersSerializer(serializers.ModelSerializer):
     class Meta:

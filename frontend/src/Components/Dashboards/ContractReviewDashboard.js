@@ -19,7 +19,6 @@ import {
 import {
   EyeOutlined,
   CheckOutlined,
-  QuestionCircleOutlined,
   DeleteOutlined,
   SearchOutlined,
   HomeOutlined,
@@ -49,10 +48,9 @@ function ContractReviewDashboard() {
   const [singleData, setSingleData] = useState([]);
   const navigate = useNavigate();
   const [caliber , setCaliber] = useState('')
-  console.log(caliber);
   const [searchQuery, setSearchQuery] = useState("");
   const [userInputReceived, setUserInputReceived] = useState(false);
-
+  const [caliberRecordKey , setCaliberRecordKey] = useState();
   // Fetching the data in the table
   useEffect(() => {
     const fetchContractDetails = async () => {
@@ -62,7 +60,6 @@ function ContractReviewDashboard() {
         const data1 = await response.json();
         const data = data1.slice(1);
         setContractDetails(data);
-        console.log(data);
         originalContractDetails.current = data;
         setLoading(false);
       } catch (error) {
@@ -75,15 +72,13 @@ function ContractReviewDashboard() {
 
   const fetchModalData = async (actionType, contractId) => {
     try {
-      // console.log('Record:', record);
       setLoading(true);
       const response = await fetch(
         `http://127.0.0.1:8000/contractupdate/${contractId}`,
         {
-          method: "POST", // Adjust the method as needed
+          method: "POST", 
           headers: {
             "Content-Type": "application/json",
-            // Add other headers if needed
           },
           body: JSON.stringify({ action: actionType }),
         }
@@ -162,6 +157,7 @@ function ContractReviewDashboard() {
         message.success(data.message);
         navigate('/admin-dashboard')
       }
+      setLoading(false);
     } catch (error) {
       message.error(error.message);
     }
@@ -336,7 +332,7 @@ function ContractReviewDashboard() {
           <Button
           size="small"
           icon = {<StarOutlined />}
-          onClick={() => setOpenModal(true)}
+          onClick={() =>{setCaliberRecordKey(record.key);setOpenModal(true)} }
           >
           </Button></div>) : null}
 
@@ -347,7 +343,7 @@ function ContractReviewDashboard() {
           footer={null}
           centered
           >
-            <Form layout="vertical" onFinish={()=>handleCaliberSubmit(record.key)}>
+            <Form layout="vertical" onFinish={()=>handleCaliberSubmit(caliberRecordKey)}>
             <Form.Item label="Set Caliber:" name="caliber" rules={rules}>
               <Select 
               onChange={(value) => setCaliber(value)}

@@ -16,7 +16,7 @@ from django.conf import settings
 import math , random 
 from django.http import FileResponse
 import uuid
-from rest_framework.parsers import MultiPartParser
+from rest_framework.parsers import MultiPartParser , FormParser
 from app.models import Users , CustomToken , Announcements
 from reports.models import Reports
 
@@ -28,7 +28,7 @@ class UserLoginView(APIView):
             password = serializer.validated_data['password']
             user = authenticate(request, email=email, password=password)
 
-            if user.is_auth is True:
+            if user.is_auth is True :
                 if user:
                     login(request, user)
                     user_type = user.user_type
@@ -40,27 +40,20 @@ class UserLoginView(APIView):
                     expiration_time = timezone.now() + timedelta(seconds=10);
                     token.expiration = expiration_time 
 
-                    # Saving the token 
+                    
                     token.save();
                     is_auth =  user.is_auth;
                     user_id = user.id;
                    
-                    
-                    employees_count = Users.objects.filter(user_type = 'Employee').count();
-                    clients_count = Users.objects.filter(user_type='Client').count()
-                    total_reports = Reports.objects.all().count();
+                
                     if (user_type == "Admin"):
                         return Response({
                         'token' : token.key, 
                         'user_type' : user_type,
                         'username': user_name, 
                         'otp': user.otp,
-                        'employee_count' : employees_count,
-                        'clients_count' : clients_count,
-                        'total_reports' : total_reports,
                         'user_id': user_id,
                         'is_auth':is_auth,
-                        
                         'message' : 'Login Successful'} , status = status.HTTP_200_OK)
                     else:
                         return Response({
@@ -81,14 +74,16 @@ class UserLoginView(APIView):
 
 # New User Creation
 class UserCreateView(APIView):
-    def post(self, request, *args, **kwargs):
-        print(request.data)
-        serializer = UserRegisterSerializer(data=request.data)
-        if serializer.is_valid():
-            print(serializer)
-            serializer.save()
-            return Response({'message':'User Registered Successfully'}, status=status.HTTP_201_CREATED)
-        return Response({"error" : "Failed to register user"}, status=status.HTTP_400_BAD_REQUEST)
+    parser_classes = (MultiPartParser,) 
+    def post(self, request):
+        serializers = UserRegisterSerializer(data=request.data)
+        if serializers.is_valid():
+            serializers.save()
+            return Response({'message': 'User Registered Successfully'}, status=status.HTTP_201_CREATED)
+        else:
+            print({'error' : 'User already exists'}) 
+        return Response({"error": "Failed to register user"}, status=status.HTTP_400_BAD_REQUEST)
+
     
 # Forgot Password 
     
@@ -132,7 +127,6 @@ class OTPTransactionView(APIView):
 
 
 # Download File
-        
 class UserDownloadFileView(APIView):
     def get(self, request, *args, **kwargs):
         file_path = "../WebsiteFiles/TermsAndConditions/TermsAndConditions.txt"
@@ -204,7 +198,7 @@ class UpdateProfilePictureView(APIView):
     parser_classes = (MultiPartParser,)
     def post(self,request):
         serializers = UpdateProfilePictureSerializer(data=request.data)
-        if  serializers.is_valid():
+        if serializers.is_valid():
             username = serializers.validated_data['username']
             profilepic = request.FILES['profilepicture']
             user = get_object_or_404(Users , username = username)
@@ -276,7 +270,11 @@ class GetAllAnnouncementView(APIView):
 
 # All User Details View 
 class AllUsersView(APIView):
-    def get(self,request):
-        users = Users.objects.all()
-        serializer = AllUsersSerializer(users , many=True)
-        return Response(serializer.data , status = status.HTTP_200_OK)
+    def get(self, request, pk=None):
+        if pk:
+            user = Users.objects.get(id=pk)
+            serializer = AllUsersSerializer(user)
+        else:
+            users = Users.objects.all()
+            serializer = AllUsersSerializer(users, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)

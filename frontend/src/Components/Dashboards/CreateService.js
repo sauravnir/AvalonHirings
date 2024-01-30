@@ -16,10 +16,11 @@ import {
   Divider,
   message,
   Breadcrumb,
-  Tooltip
+  Tooltip,
+  Select
 } from "antd";
 
-import { EyeOutlined, HomeOutlined } from "@ant-design/icons";
+import { EyeOutlined, HomeOutlined , SearchOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
@@ -276,7 +277,7 @@ function CreateService() {
 
       if (response.ok) {
         const data = await response.json();
-        message.succes(data.message);
+        message.success(data.message);
         navigate("/admin-dashboard");
       } else {
         toast.error("Failed to update status.");
@@ -330,6 +331,7 @@ function CreateService() {
       title: "Status",
       dataIndex: "status",
       key: "status",
+     
     },
     {
       title: "Actions",
@@ -440,6 +442,7 @@ function CreateService() {
           </Modal>
         </Space>
       ),
+
     },
   ];
 
@@ -478,6 +481,7 @@ function CreateService() {
       title: "Service Caliber",
       dataIndex: "service_caliber",
       key: "service_caliber",
+      filterMultiple : false , 
       render: (record) => {
         return (
           <div>
@@ -512,6 +516,7 @@ function CreateService() {
           </div>
         );
       },
+      
     },
     {
       title: "Requested Date",
@@ -522,6 +527,15 @@ function CreateService() {
       title: "Request Status",
       dataIndex: "request_status",
       key: "request_status",
+      filters: [
+        { text: "Payment Required", value: "Payment Required" },
+        {
+          text: "Paid (Waiting For Approval)",
+          value: "Paid (Waiting For Approval)",
+        },
+        { text: "On-Going", value: "On-Going" },
+        { text: "Completed", value: "Completed" },
+      ],
       render: (requestStatus) => {
         let color = requestStatus.length > 5 ? "geekblue" : "green";
         if (requestStatus === "On-Going") {
@@ -539,6 +553,37 @@ function CreateService() {
           </Tag>
         );
       },
+      filterDropdown : ({setSelectedKeys , selectedKeys , confirm }) => (
+        <div className="flex flex-col space-y-2" style={{ padding: 8 }}>
+          <Select
+            mode="multiple"
+            style={{ width: 200 }}
+            placeholder="Select Status"
+            onChange={(value) => setSelectedKeys(value || [])}
+            onDeselect={confirm}
+            value={selectedKeys}
+            options={[
+              "Payment Required",
+              "Paid (Waiting For Approval)",
+              "On-Going",
+              "Completed",
+            ].map((status) => ({
+              value: status,
+              label: status,
+            }))}
+          />
+          <Button
+            type="default"
+            onClick={confirm}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+        </div>
+      ),
+      onFilter : (value , record) => record.request_status.includes(value),
     },
     {
       title: "Actions",

@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render
 from rest_framework.views import APIView
 from rest_framework.generics import RetrieveAPIView , ListAPIView
 from django.http import HttpResponse
-from .serializers import ServiceCreateSerializer , UserServiceRequestSerializer ,ViewServiceRequestedSerializer  , UpdateServiceStatusSerializer , AssignedEmployeesSerializer , ViewServiceRequestedEmployeeSerializer , EmployeeAssignedServiceSerializer
+from .serializers import ServiceCreateSerializer , UserServiceRequestSerializer ,ViewServiceRequestedSerializer  , UpdateServiceStatusSerializer , AssignedEmployeesSerializer , ViewServiceRequestedEmployeeSerializer , EmployeeAssignedServiceSerializer , SoloServiceClientSerializer
 from rest_framework import status
 from rest_framework.response import Response
 from .models import ServiceList , ServiceUse , AssignedEmployees
@@ -30,6 +30,7 @@ class GetCreatedServiceView(APIView):
 class GetSingleServiceView(RetrieveAPIView):
     queryset = ServiceList.objects.all()
     serializer_class = ServiceCreateSerializer
+
 
 # updating the single services created by the admin 
 class UpdateSingleServiceView(APIView):
@@ -148,6 +149,10 @@ class ClientServiceView(ListAPIView):
              service_use.assigned_employee = assigned_employee 
         return service_uses     
 
+class SingleClientServiceView(RetrieveAPIView):
+    queryset = ServiceUse.objects.all();
+    serializer_class = SoloServiceClientSerializer
+    lookup_field= "id"
 
 # Fetching the free for work employees in the requested service panel in admin 
 class AssignedEmployeesView(APIView):

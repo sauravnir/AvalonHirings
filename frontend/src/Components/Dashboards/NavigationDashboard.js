@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Avatar, Dropdown, Space, Divider, theme, Modal, Tooltip , Badge  } from "antd";
+import { Avatar, Dropdown, Space, Divider, theme, Modal, Tooltip , Badge , message  } from "antd";
 import { BellOutlined } from "@ant-design/icons";
-import Logo from "../../images/Abnw.png";
+import Logo from "../../images/A.png";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
@@ -65,6 +65,7 @@ function NavigationDashboard() {
         );
         const data = await respone.json();
         setGetProfile(data);
+        console.log(data);
         const employee_caliber = data.employee_caliber?.caliber_level;
         if (
           employee_caliber &&
@@ -87,13 +88,15 @@ function NavigationDashboard() {
   useEffect(() => {
     const fetchSubscriptionDetails = async () => {
       try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/subscriptiondetails/${userType.user_id}`
-        );
-        const data = await response.json();
-        setSubscriptionDetails(data);
+        if (userType.user_type === "Client"){
+          const response = await fetch(
+            `http://127.0.0.1:8000/subscriptiondetails/${userType.user_id}`
+          );
+          const data = await response.json();
+          setSubscriptionDetails(data);
+        }
       } catch (error) {
-        toast.error("Unable To Fetch The Details");
+        message.error(error.messsage);
       }finally{
         await new Promise((resolve) => setTimeout(resolve, 2000));
         setLoading(false);
@@ -105,18 +108,17 @@ function NavigationDashboard() {
   return (
     <nav class="z-50">
       {loading && <Spinner />}
-      <div class="container fixed bg-gray-800 dark:bg-gray-800 p-7 py-3 shadow-lg ">
+      <div class="container fixed bg-white p-7 py-3 shadow-lg ">
         <div class="flex flex-row items-center justify-between h-8">
           <div class="flex flex-row items-center justify-start space-x-1 ">
             <img src={Logo} class="h-5" alt="FlowBite Logo" />
-            <h4 class=" text-lg font-medium text-gray-800 dark:text-gray-200">
+            <h4 class="text-lg font-bold text-sky-900 dark:text-sky-900">
               Avalon Hirings
             </h4>
 
             <div class="justify-self ">
-             
                 <Link to="/">
-                  <h1 class="h-full py-1  text-xs ml-5 text-white ">
+                  <h1 class="h-full py-1 text-gray-500 text-xs ml-5  ">
                     VIEW WEBSITE
                   </h1>
                 </Link>
@@ -125,7 +127,7 @@ function NavigationDashboard() {
             <div class="justify-self">
               {userType.user_type === "Client" ? (
                 <Link to="/request-service">
-                  <h1 class=" h-full py-1 text-xs ml-5 rounded text-white ">
+                  <h1 class=" h-full py-1 text-xs ml-5 text-gray-500 rounded ">
                     REQUEST SERVICE
                   </h1>
                 </Link>
@@ -135,7 +137,7 @@ function NavigationDashboard() {
             <div class="justify-self">
               {userType.user_type === "Admin" ? (
                 <Link to="/create-service">
-                  <h1 class=" h-full py-1 text-xs ml-5 rounded text-white ">
+                  <h1 class=" h-full py-1 text-xs ml-5 text-gray-500 rounded  ">
                     CREATE SERVICE
                   </h1>
                 </Link>
@@ -145,7 +147,7 @@ function NavigationDashboard() {
             <div class="justify-self">
               {userType.user_type === "Admin" ? (
                 <Link to="/add-user">
-                  <h1 class=" h-full py-1 text-xs ml-5 rounded text-white ">
+                  <h1 class=" h-full py-1 text-xs ml-5 text-gray-500 rounded ">
                     ADD USERS
                   </h1>
                 </Link>
@@ -157,7 +159,7 @@ function NavigationDashboard() {
 
           <div class="flex space-x-4 items-center">
               
-            <h1 class="text-white text-sm ">{userType.username}</h1>
+            <h1 class="text-sm text-gray-500">{userType.username}</h1>
             <Dropdown
               menu={{
                 items,

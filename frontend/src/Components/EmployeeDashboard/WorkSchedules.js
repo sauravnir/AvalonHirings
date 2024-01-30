@@ -151,10 +151,7 @@ function WorkSchedules() {
                   <Descriptions.Items label="Description">
                     {activeService.servicedes}
                   </Descriptions.Items>
-                  {/* <Descriptions.Items label="Service Time">
-                    {activeService.serviceavailable}
-                  </Descriptions.Items> */}
-
+                
                   <Descriptions.Items label="From">
                     {new Date(activeService.approved_date).toLocaleDateString()}
                   </Descriptions.Items>
@@ -177,14 +174,23 @@ function WorkSchedules() {
     },
   ];
 
+  
   const workTableData = [
     {
       sn: 1,
-      key: activeService.id,
-      service_name: activeService.servicename,
-      client_name: activeService.fullname,
+      key: activeService?.id || null,
+      service_name: activeService?.servicename || null,
+      client_name: activeService?.fullname || null,
     },
   ];
+
+  // const workTableData = activeService? activeService.map((index,info)=>({
+  //   sn:index+1,
+  //   key:info.id,
+  //   service_name:info.servicename,
+  //   client_name:info.client_name, 
+  // })) : [];
+
 
   const TabList = [
     {

@@ -28,41 +28,71 @@ function EmployeeIssueReports() {
   const parsedata = JSON.parse(get_userdata);
   const get_username = parsedata.username;
 
+  console.log(reportTitle , reportDesc , get_username);
+
+  // const handleSubmit = async (e) => {
+  //   e.preventDefault();
+
+  //   try {
+  //     // setLoading(true);
+  //     const formData = new FormData();
+  //     formData.append("title", reportTitle);
+  //     formData.append("description", reportDesc);
+  //     formData.append("username", get_username);
+
+  //     const response = await fetch("http://127.0.0.1:8000/report/", {
+  //       method: "POST",
+  //       body: formData,
+  //     });
+      
+  //     if (response.ok) {
+  //       const user_type = reportDetails[0].user.user_type
+  //       const data = await response.json();
+  //       message.success(data.message);
+  //       if(user_type === "Client"){
+  //         navigate("/client-dashboard");
+  //       } else {
+  //         navigate("/employee-dashboard")
+  //       } 
+  //     } 
+  //   } catch (error) {
+      
+      
+  //   }
+  // };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+  
     try {
-      setLoading(true);
       const formData = new FormData();
       formData.append("title", reportTitle);
       formData.append("description", reportDesc);
       formData.append("username", get_username);
-
+  
       const response = await fetch("http://127.0.0.1:8000/report/", {
         method: "POST",
         body: formData,
       });
-      
+  
       if (response.ok) {
         const user_type = reportDetails[0].user.user_type
         const data = await response.json();
         message.success(data.message);
-        if(user_type === "Client"){
+        if (user_type === "Client") {
           navigate("/client-dashboard");
         } else {
           navigate("/employee-dashboard")
         }
       } else {
-        message.error('Form Data Missing')
+        throw new Error("Failed to submit report");
       }
     } catch (error) {
-      
-      
-    }finally{
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setLoading(false);
+      console.error("Error submitting report:", error);
+      message.error("Failed to submit report. Please try again later.");
     }
   };
+  
 
   const userdata = localStorage.getItem("userData");
   const userId = JSON.parse(userdata)

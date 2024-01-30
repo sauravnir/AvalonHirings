@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CreateServiceView,GetCreatedServiceView,GetSingleServiceView,UserServiceRequestView ,ClientServiceView, ViewServiceRequestView,SingleRequestedServiceView, UpdateServiceRequestView ,AssignedEmployeesView,EmployeeWorkScheduleView,UpdateSingleServiceView 
+from .views import CreateServiceView,GetCreatedServiceView,GetSingleServiceView,UserServiceRequestView ,ClientServiceView, ViewServiceRequestView,SingleRequestedServiceView, UpdateServiceRequestView ,AssignedEmployeesView,EmployeeWorkScheduleView,UpdateSingleServiceView , SingleClientServiceView
 urlpatterns=[
     path("createservice/" , CreateServiceView.as_view() , name="Services"),
     path("getservices/" ,GetCreatedServiceView.as_view() , name="Created Services"),
@@ -8,7 +8,8 @@ urlpatterns=[
     path('getrequestedservice/',ViewServiceRequestView.as_view() , name= "Get Requested Service"),
     path('singlerequestedservice/<int:pk>',SingleRequestedServiceView.as_view() , name = "Single Requested Service"),
     path("updateservicerequest/<int:id>" , UpdateServiceRequestView.as_view() , name="Update Service Request"),
-    path("viewclientservice/<int:user_id>",ClientServiceView.as_view() , name="Single Client Service View"),
+    path("viewclientservice/<int:user_id>",ClientServiceView.as_view() , name="All Client Service View"),
+    path("viewsoloclientservice/<int:id>", SingleClientServiceView.as_view() , name="Single Client Servic View") , 
     path("freeemployees/" , AssignedEmployeesView.as_view() , name="Free Employees View"),
     path("assignedservices/<int:assigned_employee_id>",EmployeeWorkScheduleView.as_view() , name="Employee Service Assigned"),
     path("updatecreatedservice/" , UpdateSingleServiceView.as_view() , name="Update Created Service")

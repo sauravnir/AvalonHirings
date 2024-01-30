@@ -6,7 +6,7 @@ import EmployeeDashboardObject from '../../../Components/EmployeeDashboard/Emplo
 
 function EmployeeDashboard(){
     return(
-        <div class="bg-gray-200 flex">
+        <div class="bg-zinc-100 flex">
             
             <NavigationDashboard />
             <Sidebar />

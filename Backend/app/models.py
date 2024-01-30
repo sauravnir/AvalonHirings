@@ -10,6 +10,15 @@ from django.db.models.signals import post_save
 def default_profilepic_path(instance , filename):
     return f"WebsiteFiles/UserProfile/"
 
+def default_citizenship_front_path(instance , filename):
+    return f"Citizenship/"
+
+def default_citizenship_back_path(instance , filename):
+    return f"Citizenship/"
+
+def default_work_cv_path(instance , filename):
+    return f"CV/"
+
 class Users(AbstractBaseUser , PermissionsMixin):
     username = models.CharField(max_length=255, unique=True)
     email = models.EmailField(max_length=255, unique=True)
@@ -21,10 +30,10 @@ class Users(AbstractBaseUser , PermissionsMixin):
     is_auth = models.BooleanField(default = False)
     contact = models.CharField(max_length=255)
     profilepic = models.ImageField(upload_to ="", default="WebsiteFiles/UserProfile/A.png")
-    citizenship_image = models.ImageField(upload_to ="" , default = None, blank = True)
-    work_cv = models.ImageField(upload_to ="", default = None, blank = True)
-
-
+    citizenship_front = models.ImageField(upload_to ="" , default = None, blank = True)
+    citizenship_back = models.ImageField(upload_to ="", default = None, blank = True)
+    work_cv = models.FileField(upload_to ="", default = None, blank = True)
+    
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
 

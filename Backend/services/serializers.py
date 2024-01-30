@@ -65,6 +65,7 @@ class ViewServiceRequestedSerializer(serializers.ModelSerializer):
             return SubscriptionView(subscription).data
         return None
 
+
 class ViewServiceRequestedEmployeeSerializer(serializers.ModelSerializer):
     user = ViewUserSerializer()
     services = ServiceCreateSerializer()
@@ -77,7 +78,7 @@ class ViewServiceRequestedEmployeeSerializer(serializers.ModelSerializer):
 class UpdateServiceStatusSerializer(serializers.Serializer):
     action = serializers.CharField(required=True)
     assignedEmployee = serializers.CharField(required=False , allow_blank=True)
-    paymentApproval = serializers.CharField(required=False, allow_blank=True   )
+    paymentApproval = serializers.CharField(required=False, allow_blank=True)
    
 class EmployeeAssignedServiceSerializer(serializers.ModelSerializer):
     assigned_employee= ViewUserSerializer()
@@ -100,3 +101,9 @@ class EmployeeAssignedServiceSerializer(serializers.ModelSerializer):
         }
         
         return service_request_data
+    
+class SoloServiceClientSerializer(serializers.ModelSerializer):
+    services = ServiceCreateSerializer()
+    class Meta:
+        model = ServiceUse 
+        fields = "__all__"

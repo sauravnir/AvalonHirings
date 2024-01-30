@@ -10,10 +10,12 @@ from rest_framework.generics import RetrieveAPIView , ListAPIView
 from .models import Payment , Subscription , Caliber , Salary
 from django.http import JsonResponse
 import requests
-from services.models import ServiceUse
+from services.models import ServiceUse , ServiceList
 from datetime import datetime
 from django.core.mail import EmailMessage
 import math , random
+from django.template.loader import render_to_string
+from django.utils import timezone
 
 class ServicePaymentView(APIView):
     def post(self , request ):
@@ -36,6 +38,7 @@ class ServicePaymentView(APIView):
 
         if response.status_code == 200 :
             serviceuse = get_object_or_404(ServiceUse , id = service_use_id)
+            print(serviceuse);
             serviceuse.status = "Paid (Waiting For Approval)"
             payment = Payment.objects.create(
                 service_use = serviceuse,
@@ -44,6 +47,28 @@ class ServicePaymentView(APIView):
                 payment_method = "Khalti Payment",
                 payment_date = datetime.now()
             )
+        
+            userdata = get_object_or_404(Users , id = serviceuse.user_id)    
+            servicename = serviceuse.services
+            user_email = userdata.email
+            email_data = {
+                'name' : userdata.fullname ,
+                'servicename' : servicename , 
+                'payment_time' : timezone.now().date(),
+                'amount' : payment_amount * 100,
+                'mode' : 'Online Payment (Khalti)'
+            }    
+
+            email_body = render_to_string('servicepayment.html' , email_data);
+            email = EmailMessage(
+                'Payment For Service Subscription',
+                email_body ,
+                settings.EMAIL_HOST_USER,
+                [user_email] ,
+            )
+
+            email.content_subtype = "html"
+            email.send(fail_silently=False)
 
             payment.save();
             serviceuse.save();    
@@ -60,7 +85,6 @@ class CashPaymentView(APIView):
         serviceuse = get_object_or_404(ServiceUse , id = service_use_id)
         if serviceuse is not None:
            serviceuse.status = "Paid (Waiting For Approval)";
-            # Generating random traansaction reference  
            transaction_digits = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
            ref = ""
            for i in range(22):
@@ -81,39 +105,59 @@ class CashPaymentView(APIView):
 
 
 class SubscriptionView(APIView):
-   def post(self , request):
-    payment_token = request.data.get('payment_token');
-    payment_amount = request.data.get('payment_amount');
-    user_id = request.data.get('user_id');
-    print('The user id is' , user_id)
-    khalti_secret_key = "test_secret_key_2e2a4748321a4cc4b3b13f1d42929907"
-    verification_url = "https://khalti.com/api/v2/payment/verify/"
+    def post(self, request):
+        payment_token = request.data.get('payment_token')
+        payment_amount = request.data.get('payment_amount')
+        user_id = request.data.get('user_id')
+        print('The user id is', user_id)
+        khalti_secret_key = "test_secret_key_2e2a4748321a4cc4b3b13f1d42929907"
+        verification_url = "https://khalti.com/api/v2/payment/verify/"
 
-    headers = {
-            'Authorization' : f'key {khalti_secret_key}',
+        headers = {
+            'Authorization': f'key {khalti_secret_key}',
         }
 
-    payload = {
-       'token' : payment_token,
-        'amount' : payment_amount,
-    }          
+        payload = {
+            'token': payment_token,
+            'amount': payment_amount,
+        }
 
-    response = requests.post(verification_url, headers=headers, json=payload)
+        response = requests.post(verification_url, headers=headers, json=payload)
 
-    if response.status_code == 200:
-       user = get_object_or_404(Users , id = user_id)   
-       subscription_model = Subscription.objects.create(
-          user = user , 
-          amount = payment_amount/10 ,
-          transaction_reference = payment_token ,
-          is_subscribed = True, 
-          payment_date = datetime.now()
-       )
+        if response.status_code == 200:
+            user = get_object_or_404(Users, id=user_id)
+            subscription_model = Subscription.objects.create(
+                user=user,
+                amount=payment_amount / 10,
+                transaction_reference=payment_token,
+                is_subscribed=True,
+                payment_date=datetime.now()
+            )
 
-       subscription_model.save()
-       return JsonResponse({'message': 'Payment successful'}, status=200)
-    else:
-         return JsonResponse({'message': 'Payment verification failed'}, status=400)
+            email_data = {
+                'name': user.fullname,
+                'servicename': 'Premium Subscription Plan',
+                'amount': payment_amount / 10,
+                'payment_time': timezone.now().date(),
+                'mode': "Khalti Payment",
+            }
+
+            email_body = render_to_string('servicepayment.html', email_data)
+            email = EmailMessage(
+                'Payment For Premium Subscription',
+                email_body,
+                settings.EMAIL_HOST_USER,
+                [user.email],
+            )
+
+            email.content_subtype = "html"
+            email.send(fail_silently=False)
+
+            subscription_model.save()
+            return JsonResponse({'message': 'Payment successful'}, status=200)
+        else:
+            return JsonResponse({'message': 'Payment verification failed'}, status=400)
+
     
 
 

@@ -60,7 +60,6 @@ class GetSingleRatingsView(ListAPIView):
         return Rating.objects.filter(employee__id = employee_id , ratings__gt=3)
     
 # Getting all the ratings
-    
 class GetAllRatingsView(ListAPIView):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer

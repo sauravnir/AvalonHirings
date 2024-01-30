@@ -2,26 +2,17 @@ import React from "react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import {
-  Table,
   Button,
   message,
-  Modal,
   Form,
   Input,
-  Space,
-  Divider,
-  Popconfirm,
   Radio,
   Card,
   DatePicker,
 } from "antd";
 import { DownloadOutlined } from "@ant-design/icons";
-import { ToastContainer, toast } from 'react-toastify';
-import 'react-toastify/dist/ReactToastify.css';
-
 import Logo from "../../images/Abnw.png";
 import Spinner from "../ProfileSettings/Spinner";
-import { maxLength } from "khalti-checkout-web";
 function Registration() {
   const rules = [
     {
@@ -40,33 +31,94 @@ function Registration() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [userName, setUserName] = useState("");
+  const [citizenshipFront , setCitizenshipFront] = useState("")
+  const [citizenshipBack , setCitizenshipBack] = useState("")
+  const [workCV , setWorkCV] = useState("")
+  const [fileOpen , setFileOpen] = useState(false);
+  const handleFileOpen = () => {
+    if (userType === "Employee") {
+      setFileOpen(false);
+    } else {
+      setFileOpen(true);
+    }
+  }
 
-  const userCreate = async () => {
+ const userCreate = async () => {
     try {
-      const registeredData = {
-        fullname: fullName,
-        user_type: userType,
-        date_of_birth:new Date(dateOfBirth).toISOString().split('T')[0],
-        email: email,
-        contact: contact,
-        password: password,
-        username: userName, 
-      };
+      const symbolRegex = /[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/]/;
+  
       if (password === confirmPassword && contact.length === 10) {
-
-        setLoading(true);
-        const response = await fetch("http://127.0.0.1:8000/app/register/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(registeredData),
-        });
-        setLoading(false);
-        if(response.ok){
-            const data = await response.json();
-            message.success(data.message);
-            navigate('/admin-dashboard')
+        if (password.length >= 8 && symbolRegex.test(password)) {
+          const validateFileType = (file, allowedTypes) => {
+            const fileType = file ? file.type : null;
+            return allowedTypes.includes(fileType);
+          };
+  
+          const formData = new FormData();
+          formData.append("fullname", fullName);
+          formData.append("user_type", userType);
+          formData.append("date_of_birth", new Date(dateOfBirth).toISOString().split('T')[0]);
+          formData.append("email", email);
+          formData.append("contact", contact);
+          formData.append("password", password);
+          formData.append("username", userName);
+          formData.append("citizenship_back", citizenshipBack);
+          formData.append("citizenship_front", citizenshipFront);
+  
+          if (userType === "Employee" && workCV) {
+            formData.append("work_cv", workCV);
+          }
+  
+          if (userType === "Client") {
+            if (
+              validateFileType(citizenshipBack, ["image/jpeg", "image/png"]) &&
+              validateFileType(citizenshipFront, ["image/jpeg", "image/png"])
+            ) {
+              setLoading(true);
+              const response = await fetch("http://127.0.0.1:8000/app/register/", {
+                method: "POST",
+                body: formData,
+              });
+              setLoading(false);
+  
+              if (response.ok) {
+                const data = await response.json();
+                message.success(data.message);
+                navigate('/admin-dashboard');
+              } else {
+                message.error("User Already Exists");
+              }
+            } else {
+              message.error("Invalid file type. Please upload JPEG or PNG images.");
+            }
+          }
+  
+          if (userType === "Employee") {
+            if (
+              validateFileType(citizenshipBack, ["image/jpeg", "image/png"]) &&
+              validateFileType(citizenshipFront, ["image/jpeg", "image/png"]) &&
+              (!workCV || validateFileType(workCV, ["application/pdf"]))
+            ) {
+              setLoading(true);
+              const response = await fetch("http://127.0.0.1:8000/app/register/", {
+                method: "POST",
+                body: formData,
+              });
+              setLoading(false);
+  
+              if (response.ok) {
+                const data = await response.json();
+                message.success(data.message);
+                navigate('/admin-dashboard');
+              } else {
+                message.error("User Already Exists");
+              }
+            } else {
+              message.error("Invalid File Type.");
+            }
+          }
+        } else {
+          message.error("Password must be at least 8 characters long and contain symbols.");
         }
       } else {
         message.error("Wrong credentials. Try checking the passwords or the contact number!");
@@ -75,6 +127,7 @@ function Registration() {
       message.error(error.message);
     }
   };
+  
   // File Download
 
   const downloadFile = async () => {
@@ -124,7 +177,7 @@ function Registration() {
           </div>
           <div class="flex flex-col w-full overflow-auto text-sm">
             <Card  style={{ height: '500px' }}>
-            <Form layout="vertical" onFinish={userCreate}>
+            <Form layout="vertical" onFinish={userCreate} enctype="multipart/form-data">
                   <Form.Item label="Fullname" name="fullname" rules={rules}>
                     <Input onChange={(e) => setFullName(e.target.value)}/>
                   </Form.Item>
@@ -146,11 +199,11 @@ function Registration() {
                   </Form.Item>
 
                   <Form.Item label="User-Type" name="usertype" rules={rules}>
-                    <Radio.Group onChange={(e) => setUserType(e.target.value)}>
+                    <Radio.Group defaultValue="Client" onChange={(e) => {setUserType(e.target.value) ; handleFileOpen()}}>
                       <Radio.Button value="Select" disabled>
                         Select:
                       </Radio.Button>
-                      <Radio.Button value="Client">Client</Radio.Button>
+                      <Radio.Button value="Client" defaultChecked>Client</Radio.Button>
                       <Radio.Button value="Employee">Employee</Radio.Button>
                     </Radio.Group>
                   </Form.Item>
@@ -173,7 +226,39 @@ function Registration() {
                     rules={rules}
                   >
                     <Input.Password onChange={(e) => setConfirmPassword(e.target.value)}/>
+                    
                   </Form.Item>
+
+                    <Form.Item label="Upload Citizenship">
+                      <Form.Item label="Front-Side" name="front" rules={rules}>
+
+                      <Input 
+                      type="file"
+                      id="citizenshipFront"
+                      class="text-sm"
+                      onChange={(e) => setCitizenshipFront(e.target.files[0])}
+                      />
+                      </Form.Item>
+                      <Form.Item label="Back-Side" name="back" rules={rules}>
+                      <Input 
+                      type="file"
+                      id="citizenshipBack"
+                      class="text-sm"
+                      onChange={(e) => setCitizenshipBack(e.target.files[0])}
+                      />
+                      </Form.Item>
+                    </Form.Item>
+
+                    {fileOpen &&(
+                    <Form.Item label="Upload Work CV (only pdf accepted)" name="cv">
+                      <Input 
+                      type="file"
+                      id="workcv"
+                      class="text-sm"
+                      onChange={(e) => setWorkCV(e.target.files[0])}
+                      />
+                    </Form.Item>
+                    ) }
 
                   <div class="flex flex-row justify-center w-full space-x-2">
                     <Button htmlType="submit" class="bg-sky-700 text-white p-2 hover:bg-sky-600 rounded w-full " >REGISTER</Button>
