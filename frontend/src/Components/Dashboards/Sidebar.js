@@ -113,10 +113,6 @@ function Sidebar() {
                     <div className="py-1">
                       <Link to="/admin-contractreview">
                         <button className="flex flex-row text-white items-center block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                          {/* <img
-                            class="w-5 h-5 mr-3"
-                            src={require(`../../images/userrequest.png`)}
-                          ></img> */}
                           Member Requests
                         </button>
                       </Link>
@@ -145,7 +141,7 @@ function Sidebar() {
                   </div>
                 )}
               </div>
-              
+
               <div className="relative inline-block text-left">
                 <button
                   type="button"

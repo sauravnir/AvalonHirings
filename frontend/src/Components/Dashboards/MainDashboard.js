@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { Pie } from 'react-chartjs-2';
 
 import { Link, useNavigate } from "react-router-dom";
 import DashboardFooter from "./DashboardFooter";
 import { Card, Space, Button, Divider, Statistic, Table, message } from "antd";
-import { Pie , Line } from "@ant-design/charts";
 import { DollarOutlined, EyeOutlined } from "@ant-design/icons";
 import { FaUsers } from "react-icons/fa6";
 import { SiVirustotal } from "react-icons/si";
@@ -157,56 +157,55 @@ function MainDashboard() {
     },
   ];
 
-  const pieData = [
-    {
-      type: "HouseHold",
-      value: 5,
-    },
-    {
-      type: "Business",
-      value: 2,
-    },
-  
-  ];
+  // Generating Pie Chart 
+  const generateChartData = (data) => {
+    const targets = data.reduce((acc, curr) => {
+      acc[curr.servicetarget] = (acc[curr.servicetarget] || 0) + 1;
+      return acc;
+    }, {});
 
-  const pieConfig = {
-    data: pieData,
-    angleField: "value",
-    colorField: "type",
-    radius: 0.8,
-    label: {
-      content: "{value}",
-      style: {
-        fontSize: 14,
-        textAlign: "center",
-      },
-    },
-    interactions: [{ type: "element-active" }],
+    return {
+      labels: Object.keys(targets),
+      datasets: [
+        {
+          label: 'Service Targets',
+          data: Object.values(targets),
+          backgroundColor: [
+            'rgba(255, 99, 132, 0.6)',
+            'rgba(54, 162, 235, 0.6)',
+            'rgba(255, 206, 86, 0.6)',
+            'rgba(75, 192, 192, 0.6)',
+            'rgba(153, 102, 255, 0.6)',
+            'rgba(255, 159, 64, 0.6)',
+          ],
+        },
+      ],
+    };
   };
 
 
-const lineData = [
-  { year: '2021', value: 100 },
-  { year: '2022', value: 200 },
-  { year: '2023', value: 300 },
-  { year: '2024', value: 400 },
-  { year: '2025', value: 500 },
-]
+// const lineData = [
+//   { year: '2021', value: 100 },
+//   { year: '2022', value: 200 },
+//   { year: '2023', value: 300 },
+//   { year: '2024', value: 400 },
+//   { year: '2025', value: 500 },
+// ]
 
-const lineConfig = {
-  data: lineData,
-  xField: 'year',
-  yField: 'value',
-  point: {
-    size: 5,
-    shape: 'circle',
-  },
-  label: {
-    style: {
-      fill: '#aaa',
-    },
-  },
-};
+// const lineConfig = {
+//   data: lineData,
+//   xField: 'year',
+//   yField: 'value',
+//   point: {
+//     size: 5,
+//     shape: 'circle',
+//   },
+//   label: {
+//     style: {
+//       fill: '#aaa',
+//     },
+//   },
+// };
 
 
 
@@ -326,7 +325,7 @@ const lineConfig = {
 
           <div className="rounded ">
             <div className="p-2 bg-white shadow-xl">
-            <Pie {...pieConfig} height={300} width={300}/>
+            {/* <Pie data={generateChartData(serviceCategory)} /> */}
             </div>
 
             <div className="hover:shadow-lg mt-5">

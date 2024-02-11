@@ -81,7 +81,6 @@ class UserServiceRequestView(APIView):
                  servicelocation = request.data.get('servicelocation'),   
                  status = "Payment Required",
                  startHour = request.data.get('startHour') ,
-                 endHour = request.data.get('endHour')
              )
 
             service_use.save();
@@ -135,7 +134,6 @@ class UpdateServiceRequestView(RetrieveAPIView):
             return Response({'message': 'Status updated!'}, status=status.HTTP_200_OK)
 
         return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 # Getting the requested service for solo client

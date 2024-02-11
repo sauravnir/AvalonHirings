@@ -39,7 +39,7 @@ class ServicePaymentView(APIView):
         if response.status_code == 200 :
             serviceuse = get_object_or_404(ServiceUse , id = service_use_id)
             print(serviceuse);
-            serviceuse.status = "Paid (Waiting For Approval)"
+            serviceuse.status = "Allocating"
             payment = Payment.objects.create(
                 service_use = serviceuse,
                 amount = payment_amount * 100,
@@ -84,7 +84,7 @@ class CashPaymentView(APIView):
         
         serviceuse = get_object_or_404(ServiceUse , id = service_use_id)
         if serviceuse is not None:
-           serviceuse.status = "Paid (Waiting For Approval)";
+           serviceuse.status = "Allocating";
            transaction_digits = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
            ref = ""
            for i in range(22):

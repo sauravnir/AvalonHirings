@@ -2,14 +2,14 @@ import React, { useEffect, useState } from "react";
 
 import {
   Tabs,
+  Tag,
   Modal,
   Table,
   Space,
   Button,
   Card,
   Descriptions,
-  Badge,
-  Breadcrumb
+   Breadcrumb
 } from "antd";
 import { EyeOutlined, HomeOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
@@ -21,7 +21,6 @@ import Spinner from "../../Pages/ProfileSettings/Spinner";
 
 function WorkSchedules() {
   const [modalOpen, setModalOpen] = useState(false);
-  const { TabPane } = Tabs;
   const [loading , setLoading] = useState(false);
   const [activeService, setActiveService] = useState({
     id: "",
@@ -36,7 +35,7 @@ function WorkSchedules() {
     workstatus: "",
     approved_date: "",
     startHour : "",
-    endHour : "",
+    workstatus : "",
   });
 
   const data = localStorage.getItem("userData");
@@ -52,7 +51,7 @@ function WorkSchedules() {
         );
         const data = await response.json();
 
-        const { service_request, assigned_service_details, client_details } =
+        const {work_status ,service_request, assigned_service_details, client_details } =
           data;
         const viewActiveService = {
           id: data.id,
@@ -67,9 +66,9 @@ function WorkSchedules() {
           workstatus: data.work_status,
           approved_date: assigned_service_details?.approved_date || "",
           startHour : service_request?.startHour || "",
-          endHour : service_request?.endHour || "",
         };
 
+        console.log(viewActiveService);
         setActiveService(viewActiveService);
         
       } catch (error) {
@@ -100,6 +99,29 @@ function WorkSchedules() {
       key: "clent_name",
     },
     {
+      title:"Status",
+      dataIndex:"work_status",
+      key:"work_status",
+      render: (_,{work_status}) => (
+        <>
+        {work_status &&
+        work_status.map((tag)=>{
+          let color;
+          if (tag === "Active") {
+            color = "green";
+          } else if (tag === "Completed"){
+            color = "yellow";
+          }
+          return (
+            <Tag color = {color} key = {tag}>
+              {tag}
+            </Tag>
+          )
+        })}
+        </>
+      )
+    },
+    {
       title: "Actions",
       dataIndex: "action",
       key: "action",
@@ -120,7 +142,7 @@ function WorkSchedules() {
           >
             <div class="flex flex-col p-4 items-center">
               <div class="bordered space-y-2">
-                <Descriptions layout="horizontal" size="middle" bordered>
+                <Descriptions layout="vertical" size="middle" bordered>
                   <Descriptions.Items label="Client Profile">
                     <div class="flex flex-row items-center justify-center">
                       <a href={activeService.profilepicture}>
@@ -159,12 +181,9 @@ function WorkSchedules() {
                   <Descriptions.Items label="Till">
                     {new Date(activeService.expiry_date).toLocaleDateString()}
                   </Descriptions.Items>
-                  <Descriptions.Items label="Working Hours" >
-                    {(activeService.startHour).split(':')[0]} to {(activeService.endHour).split(':')[0]}
+                  <Descriptions.Items label="Starting Hour:" >
+                  {parseInt(activeService.startHour.split(":")[0], 10) <= 12 ? activeService.startHour + ' AM' : (parseInt(activeService.startHour.split(":")[0], 10) - 12) + ':' + activeService.startHour.split(":")[1] + ' PM'}
                     </Descriptions.Items>
-                  <Descriptions.Items label="Status">
-                    <Badge status="processing" text="Active" />
-                  </Descriptions.Items>
                 </Descriptions>
               </div>
             </div>
@@ -181,39 +200,7 @@ function WorkSchedules() {
       key: activeService?.id || null,
       service_name: activeService?.servicename || null,
       client_name: activeService?.fullname || null,
-    },
-  ];
-
-  // const workTableData = activeService? activeService.map((index,info)=>({
-  //   sn:index+1,
-  //   key:info.id,
-  //   service_name:info.servicename,
-  //   client_name:info.client_name, 
-  // })) : [];
-
-
-  const TabList = [
-    {
-      key: "1",
-      label: "Active Work",
-      children: (
-        <TabPane tab="Active Work" key="1">
-          <Table columns={workTable} dataSource={workTableData} bordered />
-        </TabPane>
-      ),
-    },
-    {
-      key: "2",
-      label: "Work History",
-      children: (
-        <TabPane tab="Work History" key="2">
-          <Table
-            columns={workTable}
-            // dataSource={workTableData}
-            bordered
-          />
-        </TabPane>
-      ),
+      work_status:[activeService?.workstatus === "Occupied" ? "Active" : "Completed"]  ,
     },
   ];
   return (
@@ -236,7 +223,10 @@ function WorkSchedules() {
         <ToastContainer position="bottom-center" autoClose={6000} />
         <div class="p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
           <Card>
-            <Tabs>{TabList.map((tab) => tab.children)}</Tabs>
+          <Table columns={workTable} dataSource={workTableData} pagination={{
+            pageSize: 10,
+            showTotal: (total) => `Total ${total} items`,
+          }} bordered />
           </Card>
         </div>
       </div>

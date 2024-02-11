@@ -48,8 +48,9 @@ class Salary(models.Model):
 class Refund(models.Model):
     user = models.ForeignKey(Users , on_delete = models.CASCADE)
     amount = models.DecimalField(max_digits = 10 , decimal_places = 3)
-    payment_date = models.DateField(default = datetime.date.today)
+    payment_date = models.DateField(default = None)
     description = models.TextField(blank = True)
-
+    service_name = models.CharField(max_length = 255 , default = None)
+    refund_status = models.CharField(max_length=255 , default = "Pending");
     def __str__(self):
         return f"{self.user.username} - {self.amount} - {self.payment_date}"

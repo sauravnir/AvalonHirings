@@ -12,6 +12,7 @@ import {
   InputNumber,
   TimePicker,
   message,
+  Space
 } from "antd";
 import { ToastContainer, toast } from "react-toastify";
 import { PlusOutlined, HomeOutlined } from "@ant-design/icons";
@@ -42,7 +43,7 @@ function ServiceRequestClient() {
   const [pickValue, setPickValue] = useState("");
   const [finalPrice, setFinalPrice] = useState("");
   const [startHour, setStartHour] = useState("");
-  const [endHour, setEndHour] = useState("");
+  // const [endHour, setEndHour] = useState("");
   const [loading, setLoading] = useState("");
   const userdata = localStorage.getItem("userData");
   const username = JSON.parse(userdata);
@@ -55,7 +56,6 @@ function ServiceRequestClient() {
     serviceid: selectedItems.id,
     servicelocation: location,
     startHour: startHour,
-    endHour: endHour,
   };
 
   const navigate = useNavigate();
@@ -422,6 +422,7 @@ function ServiceRequestClient() {
 
                           <div className="flex flex-row space-x-2">
                             <h1>Set Time Frame:</h1>
+                              <Space/>
                             <Form.Item label="From" name="from" rules={rules}>
                               <TimePicker
                                 use12Hours
@@ -435,7 +436,7 @@ function ServiceRequestClient() {
                                 }}
                               />
                             </Form.Item>
-                            <Form.Item label="To:" name="to" rules={rules}>
+                            {/* <Form.Item label="To:" name="to" rules={rules}>
                               <TimePicker
                                 use12Hours
                                 disabledHours={disabledHours}
@@ -447,7 +448,7 @@ function ServiceRequestClient() {
                                   setEndHour(formattedTime);
                                 }}
                               />
-                            </Form.Item>
+                            </Form.Item> */}
                           </div>
 
                           <Form.Item label="Service will expire on:">
@@ -469,7 +470,7 @@ function ServiceRequestClient() {
                               className="text-white bg-sky-900 hover:bg-sky-700 rounded"
                               htmlType="submit"
                             >
-                              {" "}
+                             
                               Submit Details
                             </Button>
                             <Button

@@ -90,20 +90,20 @@ function EmployeeDashboardObject() {
       }
     };
 
-    const fetchReportDetails = async () => {
-      try {
-        setLoading(true);
-        const response = await fetch(
-          `http://127.0.0.1:8000/getclientreport/${userID.user_id}`
-        );
-        const data = await response.json();
-        setTotalReports(data.length);
-      } catch (error) {
-        console.error("Error fetching report details:", error);
-      }
-    };
+    // const fetchReportDetails = async () => {
+    //   try {
+    //     setLoading(true);
+    //     const response = await fetch(
+    //       `http://127.0.0.1:8000/getclientreport/${userID.user_id}`
+    //     );
+    //     const data = await response.json();
+    //     setTotalReports(data.length);
+    //   } catch (error) {
+    //     console.error("Error fetching report details:", error);
+    //   }
+    // };
 
-    fetchReportDetails();
+    // fetchReportDetails();
     viewAssignedService();
     totalValue();
     announcement();
@@ -207,7 +207,7 @@ function EmployeeDashboardObject() {
         <div className="rounded p-4">
           <div className="grid grid-cols-2">
             <div class="p-2 space-y-3">
-              <div class="flex flex-row space-x-3 justify-start">
+              {/* <div class="flex flex-row space-x-3 justify-start">
                 <Link to="/employee-work-schedule">
                   <div className="hover:shadow-lg">
                     <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50">
@@ -233,7 +233,7 @@ function EmployeeDashboardObject() {
                     </Card>
                   </div>
                 </Link>
-              </div>
+              </div> */}
 
               <div className="hover:shadow-lg">
                 <Link to="/employee-transaction">
@@ -416,9 +416,6 @@ function EmployeeDashboardObject() {
                     </Button>
                   </div>
                 </Card>
-                <div className="p-2 mt-2 bg-white rounded shadow d-flex justify-content-center align-items-center">
-                  <Pie {...config} height={300} width={300} />
-                </div>
               </div>
             </div>
           </div>

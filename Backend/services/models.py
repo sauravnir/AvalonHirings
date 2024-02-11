@@ -26,7 +26,7 @@ class ServiceUse(models.Model):
     totalprice = models.IntegerField(default=None)
     servicelocation = models.CharField(max_length=255, default=None)
     startHour = models.TimeField(default = None);
-    endHour = models.TimeField(default = None)
+    
 
     def __str__(self):
        return f"{self.user.username} - {self.services.servicename}"

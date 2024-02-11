@@ -14,7 +14,7 @@ class ServiceCreateSerializer(serializers.ModelSerializer):
 class UserServiceRequestSerializer(serializers.ModelSerializer):
     class Meta : 
         model = ServiceUse 
-        fields = ["expiry_date" , "servicevalue" , "totalprice" , "servicelocation" , "startHour", "endHour"]
+        fields = ["expiry_date" , "servicevalue" , "totalprice" , "servicelocation" , "startHour"]
 
 # Viewing all the services 
 class ViewUserSerializer(serializers.ModelSerializer):

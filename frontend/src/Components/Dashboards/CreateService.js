@@ -17,10 +17,10 @@ import {
   message,
   Breadcrumb,
   Tooltip,
-  Select
+  Select,
 } from "antd";
 
-import { EyeOutlined, HomeOutlined , SearchOutlined } from "@ant-design/icons";
+import { EyeOutlined, HomeOutlined, SearchOutlined } from "@ant-design/icons";
 import { ToastContainer, toast } from "react-toastify";
 import moment from "moment";
 import "react-toastify/dist/ReactToastify.css";
@@ -222,7 +222,6 @@ function CreateService() {
         servicevalue,
         payments,
         startHour,
-        endHour,
         status,
       } = data;
 
@@ -239,7 +238,6 @@ function CreateService() {
         payment_method: payments[0]?.payment_method || "",
         payment_approval: payments[0]?.payment_approval || "",
         startHour: startHour.split(":")[0] || "",
-        endHour: endHour.split(":")[0] || "",
         status: status || "",
         required_caliber: services?.required_caliber || "",
       };
@@ -283,7 +281,7 @@ function CreateService() {
         toast.error("Failed to update status.");
       }
     } catch (error) {
-      message.error("Failed To Assign Maid!")
+      message.error("Failed To Assign Maid!");
     } finally {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setLoading(false);
@@ -331,7 +329,6 @@ function CreateService() {
       title: "Status",
       dataIndex: "status",
       key: "status",
-     
     },
     {
       title: "Actions",
@@ -442,7 +439,6 @@ function CreateService() {
           </Modal>
         </Space>
       ),
-
     },
   ];
 
@@ -461,14 +457,24 @@ function CreateService() {
         return (
           <div className="flex flex-col">
             {record.client_name.subscribed !== "N/A" ? (
-              <Tooltip title="Premium Client"><img className="w-4 h-4" src={require(`../../images/crown.png`)} alt="subscribe-icon"/></Tooltip>
+              <Tooltip title="Premium Client">
+                <img
+                  className="w-4 h-4"
+                  src={require(`../../images/crown.png`)}
+                  alt="subscribe-icon"
+                />
+              </Tooltip>
             ) : null}
             <h1>{record.client_name.fullname}</h1>
           </div>
         );
       },
-      sorter:(a,b) => {
-        return a.client_name.subscribed != "N/A" ? -1 : b.client_name.subscribed !== "N/A" ? 1 : 0;
+      sorter: (a, b) => {
+        return a.client_name.subscribed != "N/A"
+          ? -1
+          : b.client_name.subscribed !== "N/A"
+          ? 1
+          : 0;
       },
     },
 
@@ -481,7 +487,7 @@ function CreateService() {
       title: "Service Caliber",
       dataIndex: "service_caliber",
       key: "service_caliber",
-      filterMultiple : false , 
+      filterMultiple: false,
       render: (record) => {
         return (
           <div>
@@ -516,7 +522,6 @@ function CreateService() {
           </div>
         );
       },
-      
     },
     {
       title: "Requested Date",
@@ -530,8 +535,8 @@ function CreateService() {
       filters: [
         { text: "Payment Required", value: "Payment Required" },
         {
-          text: "Paid (Waiting For Approval)",
-          value: "Paid (Waiting For Approval)",
+          text: "Allocating",
+          value: "Allocating",
         },
         { text: "On-Going", value: "On-Going" },
         { text: "Completed", value: "Completed" },
@@ -540,7 +545,7 @@ function CreateService() {
         let color = requestStatus.length > 5 ? "geekblue" : "green";
         if (requestStatus === "On-Going") {
           color = "green";
-        } else if (requestStatus === "Paid (Waiting For Approval)") {
+        } else if (requestStatus === "Allocating") {
           color = "yellow";
         } else if (requestStatus === "Completed") {
           color = "gray";
@@ -553,7 +558,7 @@ function CreateService() {
           </Tag>
         );
       },
-      filterDropdown : ({setSelectedKeys , selectedKeys , confirm }) => (
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
         <div className="flex flex-col space-y-2" style={{ padding: 8 }}>
           <Select
             mode="multiple"
@@ -564,7 +569,7 @@ function CreateService() {
             value={selectedKeys}
             options={[
               "Payment Required",
-              "Paid (Waiting For Approval)",
+              "Allocating",
               "On-Going",
               "Completed",
             ].map((status) => ({
@@ -583,7 +588,7 @@ function CreateService() {
           </Button>
         </div>
       ),
-      onFilter : (value , record) => record.request_status.includes(value),
+      onFilter: (value, record) => record.request_status.includes(value),
     },
     {
       title: "Actions",
@@ -620,7 +625,10 @@ function CreateService() {
               <Button
                 className="text-white bg-sky-900 hover:bg-sky-700 rounded"
                 onClick={() => updateServiceRequest("On-Going", record.key)}
-                disabled={freeEmployees.length === 0}
+                disabled={
+                  (singleRequestedService.status =
+                    "On-Going" || singleRequestedService.status === "Completed")
+                }
               >
                 {singleRequestedService.status === "On-Going" ||
                 singleRequestedService.status === "Completed"
@@ -693,8 +701,7 @@ function CreateService() {
                 {singleRequestedService.contact}
               </Descriptions.Item>
 
-              {singleRequestedService.status ===
-                "Paid (Waiting For Approval)" ||
+              {singleRequestedService.status === "Allocating" ||
               singleRequestedService.status === "On-Going" ||
               singleRequestedService.status === "Completed" ? (
                 <Descriptions.Item label="Payment Status">
@@ -727,9 +734,23 @@ function CreateService() {
                 </Descriptions.Item>
               )}
 
-              <Descriptions.Item label="Time Frame:">
-                {singleRequestedService.startHour} -{" "}
-                {singleRequestedService.endHour}
+              <Descriptions.Item label="Starting Time:">
+                {/* Checking the condition to put AM or PM  */}
+                {singleRequestedService.startHour
+                  ? parseInt(
+                      singleRequestedService.startHour.split(":")[0],
+                      10
+                    ) <= 12
+                    ? singleRequestedService.startHour + " AM"
+                    : parseInt(
+                        singleRequestedService.startHour.split(":")[0],
+                        10
+                      ) -
+                      12 +
+                      ":" +
+                      singleRequestedService.startHour.split(":")[1] +
+                      " PM"
+                  : "No start hour available"}
               </Descriptions.Item>
               <Descriptions.Item label="Approve Payment" name="Approve">
                 <Radio.Group
@@ -749,44 +770,54 @@ function CreateService() {
             </Descriptions>
             <Divider></Divider>
 
-            <div class="flex flex-col items-center justify-center space-y-2">
-              <h1 class="items-center font-bold">
-                All Available Maids:
-              </h1>
-              <select
-                class="border rounded h-8"
-                onChange={(e) => setAssignedEmployee(e.target.value)}
-                required
-              >
-                <option>Choose from the option below:</option>
-
-                {/* Fetching the employees from the database and then assigning to any of the requested services */}
-                {freeEmployees.length === 0 ? (
-                  <option value="" disabled>
-                    No available employees
-                  </option>
-                ) : (
-                  <>
-                    <option value="" disabled>
-                      Choose from the option below:
-                    </option>
+            <Card>
+              <div class="grid grid-cols-2 items-end justify-center space-y-2">
+                <div className="flex flex-row items-center space-x-2 justify-center">
+                  <h1 class="items-center text-sky-900 text-lg font-bold">
+                    AVAILABLE MAID/S:
+                  </h1>
+                  <select
+                    class="border rounded h-8"
+                    onChange={(e) => setAssignedEmployee(e.target.value)}
+                    required
+                  >
                     {/* Fetching the employees from the database and then assigning to any of the requested services */}
-                    {freeEmployees.map((info) => {
-                        return (
-                          <option
-                            key={info.id}
-                            value={info.assigned_employee.fullname}
-                          >
-                            <div class="flex flex-row items-center">
-                              {info.assigned_employee.fullname}({(info.caliber.caliber_level).toUpperCase()}) 
-                            </div>
-                          </option>
-                        );
-                    })}
-                  </>
-                )}
-              </select>
-            </div>
+                    {freeEmployees.length === 0 ? (
+                      <option value="" disabled>
+                        No available employees
+                      </option>
+                    ) : (
+                      <>
+                        <option value="" disabled>
+                          Choose from the option below:
+                        </option>
+                        {/* Fetching the employees from the database and then assigning to any of the requested services */}
+                        {freeEmployees.map((info) => {
+                          return (
+                            <option
+                              key={info.id}
+                              value={info.assigned_employee.fullname}
+                            >
+                              <div class="flex flex-row items-center">
+                                {info.assigned_employee.fullname}(
+                                {info.caliber.caliber_level.toUpperCase()})
+                              </div>
+                            </option>
+                          );
+                        })}
+                      </>
+                    )}
+                  </select>
+                </div>
+
+                <div className="flex flex-row items-center space-x-2 justify-center">
+                  <h1 className="text-lg text-sky-900 font-bold">
+                    ASSIGNED MAID:
+                  </h1>
+                  <space>No Maid Assigned Yet:</space>
+                </div>
+              </div>
+            </Card>
           </Modal>
         </Space>
       ),
@@ -802,16 +833,15 @@ function CreateService() {
     service_price: info.serviceprice,
     status: info.status,
   }));
-  
 
   // Data Source For Requested Services
   const allRequestedService = viewRequestedServices.map((info, index) => ({
     sn: index + 1,
     key: info.id,
     client_name: {
-      fullname : info.user.fullname,
-      subscribed: info.subscription ? info.subscription : 'N/A' ,
-    } ,
+      fullname: info.user.fullname,
+      subscribed: info.subscription ? info.subscription : "N/A",
+    },
     service_name: info.services.servicename,
     service_caliber: info.services.required_caliber,
     requested_date: moment(info.approved_date).format("YYYY-MM-DD"),
@@ -819,8 +849,12 @@ function CreateService() {
   }));
 
   // Filtering the table data based on subscription
-  const subscribedClients = allRequestedService.filter((client) => client.client_name.subscribed !== "N/A");
-  const otherClients = allRequestedService.filter((client) => client.client_name.subscribed === "N/A");
+  const subscribedClients = allRequestedService.filter(
+    (client) => client.client_name.subscribed !== "N/A"
+  );
+  const otherClients = allRequestedService.filter(
+    (client) => client.client_name.subscribed === "N/A"
+  );
 
   const sortedData = [...subscribedClients, ...otherClients];
   //   Setting Tabs list
@@ -954,7 +988,7 @@ function CreateService() {
       key: "3",
       label: "Service Requests",
       children: (
-        <TabPane tab="Service Requests" key="3">
+        <TabPane tab="Service Status" key="3">
           <Table
             columns={serviceRequestTable}
             dataSource={sortedData}

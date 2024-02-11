@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, Form, Input, Row, Col, Select , Button, InputNumber , message , Breadcrumb } from "antd";
+import { Card, Form, Input, Row, Col, Select , Button, InputNumber , message , Breadcrumb , Tabs} from "antd";
 import {  
   HomeOutlined,
   PlusOutlined
 } from "@ant-design/icons";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
-
+import DashboardFooter from "./DashboardFooter";
 function CreateTransaction() {
   const rules = [
     {
@@ -19,9 +19,8 @@ const [transaction , setTransaction] = useState([]);
 const [paymentType, setPaymentType] = useState(null);
 const [selectedEmployee, setSelectedEmployee] = useState(null);
 const navigate = useNavigate()
-// Creating transaction 
-
-
+const { TabPane } = Tabs;
+// Creating Salary transaction 
 const[salaryAmount , setSalaryAmount] = useState('')
 const[salaryDescription , setSalaryDescription] = useState('')
 const [caliberId , setCaliberId] = useState()
@@ -88,29 +87,18 @@ const createTransaction = async () => {
 }
 
 
-  return (
-    <div className="w-screen mt-8 ">
-      {loading && <Spinner />}
-      <div className="flex flex-col mt-2 py-3 px-4 ">
-        <div className="flex flex-row w-full items-center mt-3 justify-between p-3">
-          <h1 className="text-xl font-bold">Add Transaction</h1>
-          <Breadcrumb items={[
-              {
-                href:"/admin-dashboard",
-                title:<HomeOutlined />
-              },
-              {
-                title:"Transactions"
-              },
-              {
-                href:"/create-transaction",
-                title:"Add Transaction"
-              }
-              ]}/>
-        </div>
-        <div className="p-3 mt-1 bg-white rounded shadow-xl shadow-gray-350">
-          <div class="flex justify-center items-center p-3"></div>
-          <Card title="Create New Transaction">
+const TabList = [
+  {
+    key:'1',
+    label:"Salary Payment",
+    children:(
+      <TabPane tab="Salary Payment" key="1">
+        <div className="p-3 bg-white rounded ">
+          <div className="flex flex-row justify-end items-center">
+            <Button type="default" className="text-white bg-green-900 hover:bg-sky-700 rounded" icon={<PlusOutlined />}>
+              Make Payment
+            </Button>
+          </div>
             <div class="p-5">
             <Form layout="vertical" onFinish={createTransaction}>
               <Row gutter={16}>
@@ -150,7 +138,7 @@ const createTransaction = async () => {
                 </Form.Item>
                 </Col>
                 <Col span={12}>
-                <Form.Item label="Total Amount:" name="salaryAmount" // Add a unique name for the field
+                <Form.Item label="Total Amount:" name="salaryAmount" 
                   rules={rules} >
                   
                     <InputNumber  
@@ -169,7 +157,7 @@ const createTransaction = async () => {
               </Form.Item>
               <div class="flex flex-row justify-end space-x-3">
               <Button htmlType="submit" className = "text-white bg-sky-900 hover:bg-sky-700 rounded">
-                Create
+                Book Payment
               </Button>
               <Button className = "text-white bg-red-900 hover:bg-red-700 rounded" onClick={handleDiscard}>
                 Discard
@@ -177,10 +165,48 @@ const createTransaction = async () => {
             </div>
             </Form>
             </div>
-            
-          </Card>
+        </div>
+      </TabPane>
+    )
+  },
+  {
+    key:"2",
+    label:"Refund Payment",
+    children:(
+      <TabPane tab="Refund Payment" key="2">
+
+      </TabPane>
+    )
+  }
+]
+
+
+
+  return (
+    <div className="w-screen mt-8 ">
+      {loading && <Spinner />}
+      <div className="flex flex-col mt-2 py-3 px-4 ">
+        <div className="flex flex-row w-full items-center mt-3 justify-between p-3">
+          <h1 className="text-xl font-bold">Add Transaction</h1>
+          <Breadcrumb items={[
+              {
+                href:"/admin-dashboard",
+                title:<HomeOutlined />
+              },
+              {
+                title:"Transactions"
+              },
+              {
+                href:"/create-transaction",
+                title:"Add Transaction"
+              }
+              ]}/>
+        </div>
+        <div className="bg-white p-2 rounded shadow-xl">
+        <Tabs>{TabList.map((tab)=>tab.children)}</Tabs>
         </div>
       </div>
+      <DashboardFooter />
     </div>
   );
 }

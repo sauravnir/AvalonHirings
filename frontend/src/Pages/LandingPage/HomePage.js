@@ -22,8 +22,8 @@ const HomePage = () => {
         <HeadinInfo headingText="Contact us" 
         bodyPara="Need assistance or have any questions? Our dedicated team is here to help! Reach out to us via our contact page, and we'll get back to you promptly. Your satisfaction is our priority."/>
         <Contact />
-        <HeadinInfo headingText="Reviews and Ratings" 
-        bodyPara="Look , what our clients say about us!"/>
+        {/* <HeadinInfo headingText="Reviews and Ratings" 
+        bodyPara="Look , what our clients say about us!"/> */}
         {/* <Reviews /> */}
         <Footer />
     </div>
