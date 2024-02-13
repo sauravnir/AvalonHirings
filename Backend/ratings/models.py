@@ -13,3 +13,8 @@ class Rating(models.Model):
     created_date = models.DateTimeField(auto_now_add = True) 
 
 
+class Notification(models.Model):
+    from_user = models.ForeignKey(Users , on_delete = models.CASCADE , related_name = "from_user_notification")
+    to_user = models.ForeignKey(Users , on_delete = models.CASCADE , related_name = "to_user_notification");
+    timestamp = models.DateTimeField(auto_now_add = True);
+    message = models.CharField(max_length=255)

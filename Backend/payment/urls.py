@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import ServicePaymentView , SubscriptionView , SubscriptionDetailsView , CashPaymentView , CombinedPaymentView , EmployeeSalaryView , CreateEmployeeSalaryView , ClientTransactionView , EmployeeDashboardSalaryView
+from .views import ServicePaymentView , SubscriptionView , SubscriptionDetailsView , CashPaymentView , CombinedPaymentView , EmployeeSalaryView , CreateEmployeeSalaryView , ClientTransactionView , EmployeeDashboardSalaryView , FetchSalaryAmountView
 
 
 urlpatterns = [
@@ -9,6 +9,7 @@ urlpatterns = [
     path("cashpayment/" , CashPaymentView.as_view(), name="Cash Payment"),
     path("alltransactions/" , CombinedPaymentView.as_view(), name="Combined Payment"),
     path('salaryfield/' , EmployeeSalaryView.as_view() , name="Salary Field"),
+    path('fetchamount/<int:caliber_id>' , FetchSalaryAmountView.as_view() , name="Fetch Salary Amount"),
     path('givesalary/', CreateEmployeeSalaryView.as_view() , name="Give Salary"),
     path('clienttransaction/<int:user_id>', ClientTransactionView.as_view() , name="Client Transaction"),
     path('employeesalary/<int:user_id>' , EmployeeDashboardSalaryView.as_view() , name="Employee Salary")

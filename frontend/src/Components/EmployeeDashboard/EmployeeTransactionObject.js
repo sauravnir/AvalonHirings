@@ -1,5 +1,5 @@
 import React, { useState, useEffect} from "react";
-import { Table, Button, message , Breadcrumb } from "antd";
+import { Table, Button, message , Breadcrumb , Input , Form } from "antd";
 import { HomeOutlined} from "@ant-design/icons";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 import DashboardFooter from "../Dashboards/DashboardFooter";
@@ -8,6 +8,9 @@ function EmployeeTransactionObject() {
   const [data, setData] = useState([]);
   const localdata = localStorage.getItem("userData");
   const userType = JSON.parse(localdata);
+
+  const [amount , setAmount] = useState(); 
+
   useEffect(() => {
     const tableValue = async () => {
       try {
@@ -17,6 +20,16 @@ function EmployeeTransactionObject() {
         );
         const data = await response.json();
         setData(data);
+
+        const totalAmount = data.reduce((acc, item) => {
+          const amount = parseFloat(item.amount);
+      if (!isNaN(amount)) {
+        return acc + amount;
+      }
+      return acc;
+        }, 0);
+
+        setAmount(totalAmount);
         setLoading(false);
       } catch (error) {
         message.error("Failed to fetch data.");
@@ -33,12 +46,12 @@ function EmployeeTransactionObject() {
       key: "sn",
     },
     {
-      title: "User Name",
-      dataIndex: "user_name",
-      key: "user_name",
+      title: "Booked Payment",
+      dataIndex: "booked_amount",
+      key: "booked_amount",
     },
     {
-      title: "Value",
+      title: "Paid Amount",
       dataIndex: "payment_amount",
       key: "payment_amount",
     },
@@ -47,14 +60,20 @@ function EmployeeTransactionObject() {
       dataIndex: "payment_date",
       key: "payment_date",
     },
+    {
+      title:"Description",
+      dataIndex: "description",
+      key:"description",
+    }
   ];
 
   const tableData = data.map((info, index) => ({
     sn: index + 1,
     key: info.id,
-    user_name: info.caliber?.employee?.username,
-    payment_amount: info.amount,
-    payment_date: info.payment_date,
+    booked_amount : `Rs. ${info.salary_book !== null ? info.salary_book : "0"}`, 
+    payment_amount: `Rs. ${info.amount !== null ? info.amount : "0"}`,
+    payment_date: info.action_date,
+    description : info.description,
   }));
 
   return (
@@ -83,10 +102,14 @@ function EmployeeTransactionObject() {
                 pageSize: 10,
                 showTotal: (total) => `Total ${total} items`,
               }}
-            ></Table>
+              
+            >
+            </Table>
+            <div className="flex flex-row items-center justify-center space-x-3  ">
+              <h1 className="font-bold">Total Received: <span className="text-sky-600"> Rs.{amount}</span></h1>
+            </div>
           </div>
         </div>
-
         <DashboardFooter />
       </div>
     </div>

@@ -90,19 +90,24 @@ function ServiceStatus() {
       productUrl: "http://localhost:3000/",
       eventHandler: {
         onSuccess: async (payload) => {
-          setLoading(true);
-          await sendPaymentToken(
-            payload.token,
-            payload.amount,
-            payload.product_identity
-          );
-          setLoading(false);
+          try {
+            await sendPaymentToken(
+              payload.token,
+              payload.amount,
+              payload.product_identity
+            );
+            setLoading(false);
+          } catch (error) {
+            setLoading(false);
+            message.error("Failed to process payment.");
+          }
         },
-
         onError: (error) => {
+          setLoading(false);
           message.error(error.message);
         },
         onClose: () => {
+          setLoading(false);
           navigate("/client-view-service");
         },
       },
@@ -112,10 +117,11 @@ function ServiceStatus() {
       const checkout = new KhaltiCheckout(config);
       checkout.show({ amount: Math.floor(totalPrice / 100) });
     } catch (error) {
+      setLoading(false);
       console.log(error);
     }
-    setLoading(false);
   };
+  
 
   const sendPaymentToken = async (paymentToken, amount, serviceuseid) => {
     try {
@@ -131,7 +137,7 @@ function ServiceStatus() {
           serviceuseid: serviceuseid,
         }),
       });
-      setLoading(false);
+      
       if (res.ok) {
         const data = await res.json();
         message.success(data.message);
@@ -140,6 +146,7 @@ function ServiceStatus() {
     } catch (error) {
       message.error("Failed To Make Payment");
     }
+    setLoading(false);
   };
 
   // Handling Cash Payment
@@ -472,6 +479,7 @@ function ServiceStatus() {
           >
             <Descriptions bordered layout="vertical">
               <Descriptions.Item label="Service Name:">
+                {console.log(record.key)};
                 <a>{record.service_name}</a>
               </Descriptions.Item>
               <Descriptions.Item label="Service Duration:">

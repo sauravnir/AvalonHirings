@@ -1,7 +1,8 @@
 from django.shortcuts import get_object_or_404
 from .serializers import SubscriptionSerializer , CombinedPaymentSerializer , CaliberSerializer , ClientTransactionDetailsSerializer , EmployeeSalarySerializer
 from rest_framework.views import APIView
-from rest_framework.response import Response
+from rest_framework.response import Response 
+from django.http import HttpResponse
 from rest_framework import status
 from app.models import Users , CustomToken
 from django.conf import settings
@@ -16,6 +17,11 @@ from django.core.mail import EmailMessage
 import math , random
 from django.template.loader import render_to_string
 from django.utils import timezone
+from decimal import Decimal
+from django.db import transaction
+from ratings.models import Notification
+from rest_framework.exceptions import ValidationError
+
 
 class ServicePaymentView(APIView):
     def post(self , request ):
@@ -38,7 +44,7 @@ class ServicePaymentView(APIView):
 
         if response.status_code == 200 :
             serviceuse = get_object_or_404(ServiceUse , id = service_use_id)
-            print(serviceuse);
+           
             serviceuse.status = "Allocating"
             payment = Payment.objects.create(
                 service_use = serviceuse,
@@ -58,6 +64,20 @@ class ServicePaymentView(APIView):
                 'amount' : payment_amount * 100,
                 'mode' : 'Online Payment (Khalti)'
             }    
+
+
+            # Implementing Notfication 
+            try:
+                admin_user = Users.objects.get(is_superuser = True);
+            except Users.DoesNotExist:
+                    return HttpResponse({'error': 'Admin User Not Found'}, status=500)
+            with transaction.atomic():
+                Notification.objects.create(
+                    from_user = userdata , 
+                    to_user = admin_user, 
+                    message = f"Online Payment Received from {userdata.username}"
+                )
+        
 
             email_body = render_to_string('servicepayment.html' , email_data);
             email = EmailMessage(
@@ -185,29 +205,88 @@ class EmployeeSalaryView(ListAPIView):
     serializer_class =  CaliberSerializer
 
 
-# Class Fetch the employee details for updating the caliber table for employee salary     
+# Salary payment/booking view for the employee
+
+
 class CreateEmployeeSalaryView(APIView):
-   def post (self , request):
+       def post (self , request):
             amount = request.data.get('amount')
             description =  request.data.get('description')
             caliber =  request.data.get('caliber')
+            payment_type = request.data.get("payment_type");
             caliber_object = Caliber.objects.get(id = caliber)
-            if caliber is not None : 
-                if description is not None :
-                    salary_object = Salary.objects.create(
-                        amount = amount , 
-                        payment_date = datetime.now(),
-                        description = description ,
-                        caliber_id = caliber_object.id  
-                        
+            if caliber is not None and payment_type == "Salary Booking": 
+                salary_object = Salary.objects.create(
+                    salary_book=amount , 
+                    action_date = datetime.now(),
+                    description = description,
+                    caliber_id = caliber_object.id  
+                )
+                # Implementing Notification 
+                try:
+                    admin_user = Users.objects.get(is_superuser=True)
+                except Users.DoesNotExist:
+                    return HttpResponse({'error': 'Admin User Not Found'}, status=500)
 
-                    )
-                    salary_object.save()
+                with transaction.atomic():
+                    notification = Notification.objects.create(
+                        from_user = admin_user , 
+                        to_user = caliber_object.employee,
+                        message = f"{payment_type} made for {caliber_object.employee.username}.", 
+                    );
+
+                salary_object.save()
+                return Response({'message' : "Salary Booked Successfully"} , status = status.HTTP_201_CREATED)
+            elif caliber is not None and payment_type == "Salary Payment":
+                salary_object = Salary.objects.create(
+                    amount = amount , 
+                    action_date = datetime.now(),
+                    description = description,
+                    caliber_id = caliber_object.id
+                )
+
+                try:
+                    admin_user = Users.objects.get(is_superuser=True)
+                except Users.DoesNotExist:
+                    return HttpResponse({'error': 'Admin User Not Found'}, status=500)
+
+                with transaction.atomic():
+                    notification = Notification.objects.create(
+                        from_user = admin_user , 
+                        to_user = caliber_object.employee,
+                        message = f"{payment_type} made for {caliber_object.employee.username}.", 
+                    );
+
+                salary_object.save();
+                return Response({'message' : "Salary Paid Successfully"} , status= status.HTTP_201_CREATED)
+
             
-                    return Response({'message' : "Transaction Created Successfully"} , status = status.HTTP_200_OK)
-            else:
-                return Response({'error' : "Transaction Failed"} , status= status.HTTP_400_BAD_REQUEST)
             
+# Fetching the salary_book-amount value for the specified employee
+class FetchSalaryAmountView(APIView):
+    def get(self , request , caliber_id):
+        # Query Salary objects for the given caliber_id
+        salary_table = Salary.objects.filter(caliber_id=caliber_id) 
+
+        # Calculating the total sum of the salary_book amount 
+        total_salary_book = sum(salary.salary_book for salary in salary_table if salary.salary_book is not None)
+        print(total_salary_book)
+        # Latest transacted amount
+        if salary_table.exists():
+            latest_salary = salary_table.last()
+            latest_amount = latest_salary.amount if latest_salary.amount is not None else Decimal(0)
+        else:
+            latest_amount = Decimal(0)
+        
+        print(latest_amount);
+        # Total payable amount 
+        total_payable = total_salary_book - latest_amount
+        print(total_payable);
+
+        return Response({
+            'total_payable' : total_payable,
+        } , status = status.HTTP_200_OK )
+
 
 # Single Client Payment View 
 class ClientTransactionView(APIView):
@@ -223,6 +302,7 @@ class ClientTransactionView(APIView):
                 return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
 
+# Displaying the payment details in the employee dashboard 
 class EmployeeDashboardSalaryView(APIView):
     def get(self , request , user_id):
         try :

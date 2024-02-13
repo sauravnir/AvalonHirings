@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Pie } from 'react-chartjs-2';
+
 
 import { Link, useNavigate } from "react-router-dom";
 import DashboardFooter from "./DashboardFooter";
@@ -90,7 +90,7 @@ function MainDashboard() {
         setLoading(true);
         const response = await fetch("http://127.0.0.1:8000/allratings/");
         const data = await response.json();
-        setTotalRatings(data.ratings.length);
+        setTotalRatings(data.ratings);
       } catch (error) {
         console.log(error);
       }
@@ -119,11 +119,16 @@ function MainDashboard() {
 
   const salaryPaid = () => {
     let total = 0;
-    paymentDetails?.salary_details?.data?.forEach((item) => {
-      total += parseFloat(item.amount);
-    });
+    const data = paymentDetails?.salary_details?.data;
+    if (data) {
+        data.forEach((item) => {
+            if (item && item.amount !== null) {
+                total += parseFloat(item.amount);
+            }
+        });
+    }
     return total;
-  };
+};
 
   const profit = totalReceived() - salaryPaid();
 
@@ -157,58 +162,7 @@ function MainDashboard() {
     },
   ];
 
-  // Generating Pie Chart 
-  const generateChartData = (data) => {
-    const targets = data.reduce((acc, curr) => {
-      acc[curr.servicetarget] = (acc[curr.servicetarget] || 0) + 1;
-      return acc;
-    }, {});
-
-    return {
-      labels: Object.keys(targets),
-      datasets: [
-        {
-          label: 'Service Targets',
-          data: Object.values(targets),
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.6)',
-            'rgba(54, 162, 235, 0.6)',
-            'rgba(255, 206, 86, 0.6)',
-            'rgba(75, 192, 192, 0.6)',
-            'rgba(153, 102, 255, 0.6)',
-            'rgba(255, 159, 64, 0.6)',
-          ],
-        },
-      ],
-    };
-  };
-
-
-// const lineData = [
-//   { year: '2021', value: 100 },
-//   { year: '2022', value: 200 },
-//   { year: '2023', value: 300 },
-//   { year: '2024', value: 400 },
-//   { year: '2025', value: 500 },
-// ]
-
-// const lineConfig = {
-//   data: lineData,
-//   xField: 'year',
-//   yField: 'value',
-//   point: {
-//     size: 5,
-//     shape: 'circle',
-//   },
-//   label: {
-//     style: {
-//       fill: '#aaa',
-//     },
-//   },
-// };
-
-
-
+  
   return (
     <div className="w-screen mt-8">
       {loading && <Spinner />}

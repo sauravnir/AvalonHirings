@@ -196,7 +196,7 @@ function CreateService() {
         const data = await res.json();
         setViewRequestedServices(data);
       } catch (error) {
-        toast.error("Failed to fetch services!");
+        message.error("Failed To Fetch Data"); 
       } finally {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         setLoading(false);

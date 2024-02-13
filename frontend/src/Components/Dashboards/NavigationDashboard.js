@@ -1,7 +1,18 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 
-import { Avatar, Dropdown, Space, Divider, theme, Modal, Tooltip , Badge , message  } from "antd";
+import {
+  Avatar,
+  Dropdown,
+  Space,
+  Divider,
+  theme,
+  Modal,
+  Tooltip,
+  Badge,
+  message,
+  Menu , 
+} from "antd";
 import { BellOutlined } from "@ant-design/icons";
 import Logo from "../../images/A.png";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
@@ -14,9 +25,13 @@ const { useToken } = theme;
 function NavigationDashboard() {
   const [getProfile, setGetProfile] = useState([]);
   const [getEmployeeCaliber, setEmployeeCaliber] = useState(null);
-  const [loading , setLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [subscriptionDetails, setSubscriptionDetails] = useState([]);
   const [showSubscription, setShowSubscription] = useState(false);
+
+  const [openModal, setOpenModal] = useState(false);
+  const [notify, setNotify] = useState("");
+
   const listItem = [
     "Prioritize Service Requests",
     "Premium Service Plans",
@@ -58,8 +73,7 @@ function NavigationDashboard() {
   // Getting the user profile
   useEffect(() => {
     const viewprofile = async () => {
-      try{
-
+      try {
         const respone = await fetch(
           `http://127.0.0.1:8000/app/viewprofile/${userType.user_id}`
         );
@@ -67,28 +81,21 @@ function NavigationDashboard() {
         setGetProfile(data);
         console.log(data);
         const employee_caliber = data.employee_caliber?.caliber_level;
-        if (
-          employee_caliber &&
-          employee_caliber !== null
-        ) {
+        if (employee_caliber && employee_caliber !== null) {
           setEmployeeCaliber(employee_caliber);
         } else {
           setEmployeeCaliber(null);
         }
-      }finally{
+      } finally {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         setLoading(false);
       }
     };
 
-    viewprofile();
-  }, []);
-
-  // Getting the subscription details
-  useEffect(() => {
+    // Getting the subscription details
     const fetchSubscriptionDetails = async () => {
       try {
-        if (userType.user_type === "Client"){
+        if (userType.user_type === "Client") {
           const response = await fetch(
             `http://127.0.0.1:8000/subscriptiondetails/${userType.user_id}`
           );
@@ -97,13 +104,42 @@ function NavigationDashboard() {
         }
       } catch (error) {
         message.error(error.messsage);
-      }finally{
+      } finally {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         setLoading(false);
       }
     };
+
+    // Viewing Notifications
+
+    const notification = async () => {
+      try {
+        const response = await fetch(
+          `http://127.0.0.1:8000/notification/${userType.user_id}`
+        );
+        const data = await response.json();
+        setNotify(data);
+      } catch (error) {
+        message.error("Failed to load notifications");
+      }
+    };
+
+    viewprofile();
     fetchSubscriptionDetails();
+    notification();
   }, []);
+
+
+  // Rendering the notification items
+  const renderNotificationMenuItem = (notification) => (
+    <Menu.Item style={{ fontSize: "12px" }} key={notification.id}>{new Date(notification.timestamp).toLocaleDateString()}: {notification.message}</Menu.Item>
+  );
+
+  const renderNotificationDropdown = () => (
+    <Menu style={{maxHeight:150, overflowY:"auto"}}>
+      {notify.slice(0,5).map((notification) => renderNotificationMenuItem(notification))}
+    </Menu>
+  );
 
   return (
     <nav class="z-50">
@@ -117,12 +153,11 @@ function NavigationDashboard() {
             </h4>
 
             <div class="justify-self ">
-                <Link to="/">
-                  <h1 class="h-full py-1 text-gray-500 text-xs ml-5  ">
-                    VIEW WEBSITE
-                  </h1>
-                </Link>
-            
+              <Link to="/">
+                <h1 class="h-full py-1 text-gray-500 text-xs ml-5  ">
+                  VIEW WEBSITE
+                </h1>
+              </Link>
             </div>
             <div class="justify-self">
               {userType.user_type === "Client" ? (
@@ -133,7 +168,7 @@ function NavigationDashboard() {
                 </Link>
               ) : null}
             </div>
-            
+
             <div class="justify-self">
               {userType.user_type === "Admin" ? (
                 <Link to="/create-service">
@@ -157,9 +192,18 @@ function NavigationDashboard() {
 
           <ToastContainer />
 
-          <div class="flex space-x-4 items-center">
-              
+          <div class="flex space-x-6 items-center">
+            {/* Notification Badge  */}
+            <Dropdown overlay={renderNotificationDropdown} trigger={["click"]}>
+              <Badge count={notify.length} >
+                <Avatar shape="circle" size="small" icon={<BellOutlined />} />
+              </Badge>
+            </Dropdown>
+
+            {/* Displaying User Name */}
             <h1 class="text-sm text-gray-500">{userType.username}</h1>
+
+            {/* User Profile DropDown */}
             <Dropdown
               menu={{
                 items,
@@ -194,58 +238,59 @@ function NavigationDashboard() {
                 </Space>
               </button>
             </Dropdown>
-            
+
+            {/* Employee Caliber badge */}
             {getEmployeeCaliber !== null && (
               <>
-              <Link to="/employee-review-ratings">
-             
-                {getEmployeeCaliber === "bronze" ? (
-                  <div className="flex flex-row items-center rounded">
-                    <Tooltip
-                      title="Basic Level (Bronze)"
-                      placement="leftBottom"
-                    >
-                      <button>
-                        <img
-                          className="w-7 h-7"
-                          src={require(`../../images/bronze.png`)}
-                          alt="Bronze"
-                        />
-                      </button>
-                    </Tooltip>
-                  </div>
-                ) : getEmployeeCaliber === "silver" ? (
-                  <div className="flex flex-row items-center rounded">
-                    <Tooltip
-                      title="Intermediate Level (Silver)"
-                      placement="leftBottom"
-                    >
-                      <button>
-                        <img
-                          className="w-7 h-7"
-                          src={require(`../../images/silver.png`)}
-                          alt="Silver"
-                        />
-                      </button>
-                    </Tooltip>
-                  </div>
-                ) : getEmployeeCaliber === "gold" ? (
-                  <div className="flex flex-row items-center rounded">
-                    <Tooltip title="Top Level (Gold)" placement="leftBottom">
-                      <button>
-                        <img
-                          className="w-7 h-7"
-                          src={require(`../../images/gold.png`)}
-                          alt="Gold"
-                        />
-                      </button>
-                    </Tooltip>
-                  </div>
-                ) : null}
-                 </Link>
+                <Link to="/employee-review-ratings">
+                  {getEmployeeCaliber === "bronze" ? (
+                    <div className="flex flex-row items-center rounded">
+                      <Tooltip
+                        title="Basic Level (Bronze)"
+                        placement="leftBottom"
+                      >
+                        <button>
+                          <img
+                            className="w-7 h-7"
+                            src={require(`../../images/bronze.png`)}
+                            alt="Bronze"
+                          />
+                        </button>
+                      </Tooltip>
+                    </div>
+                  ) : getEmployeeCaliber === "silver" ? (
+                    <div className="flex flex-row items-center rounded">
+                      <Tooltip
+                        title="Intermediate Level (Silver)"
+                        placement="leftBottom"
+                      >
+                        <button>
+                          <img
+                            className="w-7 h-7"
+                            src={require(`../../images/silver.png`)}
+                            alt="Silver"
+                          />
+                        </button>
+                      </Tooltip>
+                    </div>
+                  ) : getEmployeeCaliber === "gold" ? (
+                    <div className="flex flex-row items-center rounded">
+                      <Tooltip title="Top Level (Gold)" placement="leftBottom">
+                        <button>
+                          <img
+                            className="w-7 h-7"
+                            src={require(`../../images/gold.png`)}
+                            alt="Gold"
+                          />
+                        </button>
+                      </Tooltip>
+                    </div>
+                  ) : null}
+                </Link>
               </>
             )}
-              
+
+            {/* Client Subscription Badge */}
             {subscriptionDetails.is_subscribed === true ? (
               <div class="flex flex-row justify-end">
                 <div class="flex flex-row items-center rounded w-fit p-2 justify-end">

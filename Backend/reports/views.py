@@ -12,8 +12,9 @@ from django.conf import settings
 from app.models import Users
 from django.utils import timezone
 from django.template.loader import render_to_string
-
-
+from ratings.models import Notification
+from django.db import transaction
+# Users report creation view
 class UserReportSubmitView(APIView):
     def post(self, request):
         user_name = request.data.get('username')
@@ -33,6 +34,23 @@ class UserReportSubmitView(APIView):
             save_report = Reports(user=user_details,title=title, description=desc)
 
             save_report.save();
+
+            #Storing the data for notification 
+
+            try:
+                admin_user = Users.objects.get(is_superuser = True)
+            except Users.DoesNotExist:
+                return HttpResponse({'error' :'Admin User Not Found'} , status =500) 
+
+
+            with transaction.atomic():
+                notification = Notification.objects.create(
+                    from_user = user_details , 
+                    to_user = admin_user , 
+                    message = f"Report Submitted by {user_details.username} : {title}",
+                )
+
+            # Sending Emails 
             email_data = {
                 "name" : user_details.fullname,
                 "title" : title , 
@@ -50,7 +68,6 @@ class UserReportSubmitView(APIView):
 
             email.content_subtype = "html"
             email.send(fail_silently=False)
-               
 
             return Response({'message': 'Report created successfully'}, status=status.HTTP_201_CREATED)
 
@@ -82,38 +99,62 @@ class ApprovedReportView(APIView):
         report = get_object_or_404(Reports, id=id)
         serializer = ReportUpdateSerializer(data=request.data)
         if serializer.is_valid():
-            report_action = serializer.validated_data.get('action');
-            fullname = report.user.fullname;
+            report_action = serializer.validated_data.get('action')
+            fullname = report.user.fullname
             useremail = report.user.email
             print(useremail)
             if report_action == 'Approved':
                 report.report_action = 'Approved'
                 report.save()
 
-                email_data={
-                    "name" :fullname,
-                    "title": "Successful Review On Your Report",
-                }   
 
-                email_body= render_to_string('adminreportemail.html',email_data)
-                email = EmailMessage(
-                    'Report Registration',
-                    email_body,
-                    settings.EMAIL_HOST_USER,
-                    [useremail], 
-                )
+# Implementing Notification 
+                try:
+                    admin_user = Users.objects.get(is_superuser=True)
+                except Users.DoesNotExist:
+                    return HttpResponse({'error': 'Admin User Not Found'}, status=500)
 
-                email.content_subtype = "html"
-                email.send(fail_silently=False)
-                
-                return Response({'message': 'Report updated successfully'}, status=status.HTTP_200_OK)
+                with transaction.atomic():
+                    notification = Notification.objects.create(
+                        from_user=admin_user,
+                        to_user=report.user,
+                        message=f"Report Approved: {report.title}",
+                    )
+
+                    email_data = {
+                        "name": fullname,
+                        "title": "Successful Review On Your Report",
+                    }
+
+                    email_body = render_to_string('adminreportemail.html', email_data)
+                    email = EmailMessage(
+                        'Report Approval Notification',
+                        email_body,
+                        settings.EMAIL_HOST_USER,
+                        [useremail],
+                    )
+
+                    email.content_subtype = "html"
+                    email.send(fail_silently=False)
+
+                    return Response({'message': 'Report updated successfully'}, status=status.HTTP_200_OK)
             elif report_action == 'Denied':
                 report.report_action = 'Denied'
                 report.save()
+# Implementing Notification 
+                try:
+                    admin_user = Users.objects.get(is_superuser=True)
+                except Users.DoesNotExist:
+                    return HttpResponse({'error': 'Admin User Not Found'}, status=500)
 
+                with transaction.atomic():
+                    notification = Notification.objects.create(
+                        from_user=admin_user,
+                        to_user=report.user,
+                        message=f"Report Not Approved: {report.title}",
+                    )
                 return Response({'message': 'Report updated successfully'}, status=status.HTTP_200_OK)
 
-           
-
         return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+
 

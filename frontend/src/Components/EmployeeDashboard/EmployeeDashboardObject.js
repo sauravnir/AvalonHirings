@@ -112,8 +112,10 @@ function EmployeeDashboardObject() {
 
   const totalAmount = () => {
     let total = 0;
-    transaction?.map((item) => {
-      total += parseFloat(item.amount);
+    transaction?.forEach((item) => {
+      if (item.amount !== null) {
+        total += parseFloat(item.amount);
+      }
     });
     return total;
   };

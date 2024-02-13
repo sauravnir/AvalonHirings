@@ -70,13 +70,6 @@ class CombinedPaymentSerializer(serializers.Serializer):
             'description' : 'Salary Payment',
             'data':EmployeeSalarySerializer(salary, many=True).data
     }
-
-
-# class ClientRefundSerializer(serializers.Serializer):
-#     user = UserSerializer()
-#     class Meta:
-#         model = Refund 
-#         fields = "__all__"
     
 class ClientTransactionDetailsSerializer(serializers.ModelSerializer):
     service_use = CashPaymentSerializer()

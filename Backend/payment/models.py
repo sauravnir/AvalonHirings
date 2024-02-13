@@ -37,14 +37,13 @@ class Caliber(models.Model):
 
 class Salary(models.Model):
     caliber = models.ForeignKey(Caliber , on_delete = models.CASCADE)
-    amount = models.DecimalField(max_digits = 10 , decimal_places = 2)
-    payment_date = models.DateField(default = datetime.date.today)
+    amount = models.DecimalField(max_digits = 10 , decimal_places = 2  , null = True )
+    action_date= models.DateField(default = datetime.date.today)
     description = models.TextField(blank = True)
-
+    salary_book = models.DecimalField(max_digits = 10 , decimal_places = 2 , null = True)
     def __str__(self):
-        return f"{self.caliber.employee.username} - {self.amount} - {self.payment_date}"
+        return f"{self.caliber.employee.username} - {self.amount} - {self.payment_date} - {self.salary_book}"
     
-
 class Refund(models.Model):
     user = models.ForeignKey(Users , on_delete = models.CASCADE)
     amount = models.DecimalField(max_digits = 10 , decimal_places = 3)

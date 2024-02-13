@@ -57,10 +57,11 @@ function PaymentDashboard() {
       render: (text) => <a>{text}</a>,
     },
     {
-      title: "Value",
+      title: "Amount",
       dataIndex: "payment_amount",
       key: "payment_amount",
     },
+    
     {
       title:"Payment Method",
       dataIndex: "payment_method",
@@ -86,7 +87,7 @@ function PaymentDashboard() {
     user_type: info?.service_use?.user?.user_type,
     user_name: info?.service_use?.user?.fullname,
     payment_amount: `Rs ${info?.amount}`,
-    payment_method : info?.payment_method,
+    payment_method : info?.payment_method === "Khalti Payment" ? "Online Transaction" : "Cash Transaction",
     date: info?.payment_date,
     description: info?.service_use?.services?.servicename,
   })) || [];
@@ -100,10 +101,10 @@ const salaryPayments = paymentDetails?.salary_details?.data?.map((info , index) 
   user_type:info?.caliber?.employee?.user_type ,
   user_name : info?.caliber?.employee?.fullname , 
   payment_amount : `Rs ${info?.amount}` ,
-  date:info?.payment_date , 
-  description:"Salary Payment"
+  date:info?.action_date , 
+  description:info?.description , 
 }))
-
+// Premium Plans Description 
 
 const premiumPayments = paymentDetails?.subscription_details?.data?.map((info , index)=>({
   sn:index + 1,
@@ -122,9 +123,7 @@ const premiumPayments = paymentDetails?.subscription_details?.data?.map((info , 
       label:'Service Payments',
       children :(
         <TabPane tab="Service Payments" key="1">
-          <div class="w-60 p-2">
-          <Input prefix={<SearchOutlined />} placeholder="Search Item"/>
-          </div>
+         
           <Table
           columns = {paymentColumn}
           dataSource={servicePayments}
@@ -143,11 +142,9 @@ const premiumPayments = paymentDetails?.subscription_details?.data?.map((info , 
       label:'Salary Payments',
       children :(
         <TabPane tab="Salary Payments" key="2">
-          <div class="w-60 p-2">
-          <Input prefix={<SearchOutlined />} placeholder="Search Item"/>
-          </div>
+          
           <Table
-          columns = {paymentColumn}
+          columns = {paymentColumn.filter(column => column.key !== "payment_method")}
           bordered
           dataSource={salaryPayments}
           pagination={{
@@ -163,11 +160,9 @@ const premiumPayments = paymentDetails?.subscription_details?.data?.map((info , 
       label:'Premium Membership',
       children :(
         <TabPane tab="Premium Membership" key="3">
-          <div class="w-60 p-2">
-          <Input prefix={<SearchOutlined />} placeholder="Search Item"/>
-          </div>
+         
           <Table
-          columns = {paymentColumn}
+          columns = {paymentColumn.filter(column =>column.key!=="payment_method")}
           bordered
           dataSource={premiumPayments}
           pagination={{

@@ -10,12 +10,35 @@ from .models import ServiceList , ServiceUse , AssignedEmployees
 from app.models import Users 
 from payment.models import Payment
 from datetime import datetime
+from django.db import transaction
+from ratings.models import Notification
+from django.db import transaction
 # Creating Service By The Admin
 class CreateServiceView(APIView):
     def post (self, request):
         serializer = ServiceCreateSerializer(data = request.data) 
         if serializer.is_valid():
             serializer.save()
+
+            # Fetching all the client_ids 
+            client_users = Users.objects.filter(user_type = "client")
+
+            # Implementing Notification for the Client Users 
+            try: 
+                admin_user = Users.objects.get(is_superuser=True)
+                with transaction.atomic():
+                    for client_user in client_users:
+                        Notification.objects.create(
+                            from_user = admin_user ,
+                            to_user = client_user , 
+                            message = f"New Service Added!"
+                        )
+            except Users.DoesNotExist:
+                return Response({'error': 'Admin User Not Found'}, status=500)
+            except Exception as e:
+                return Response({'error': str(e)}, status=500) 
+
+
             return Response({"message" : "Service Created Successfully"} , status=status.HTTP_201_CREATED)
         return Response(serializer.errors , status = status.HTTP_200_OK)
        
@@ -73,21 +96,33 @@ class UserServiceRequestView(APIView):
             service_id = request.data.get('serviceid')
             
             service_use = ServiceUse.objects.create(
-                 user_id = user_id , 
-                 services_id =service_id , 
-                 expiry_date = request.data.get('expiry_date'),
-                 servicevalue = request.data.get('servicevalue'),
-                 totalprice = request.data.get('totalprice'),
-                 servicelocation = request.data.get('servicelocation'),   
-                 status = "Payment Required",
-                 startHour = request.data.get('startHour') ,
+                user_id = user_id , 
+                services_id =service_id , 
+                expiry_date = request.data.get('expiry_date'),
+                servicevalue = request.data.get('servicevalue'),
+                totalprice = request.data.get('totalprice'),
+                servicelocation = request.data.get('servicelocation'),   
+                status = "Payment Required",
+                startHour = request.data.get('startHour') ,
              )
 
+            # Implementing Notification 
+            try:
+                admin_user = Users.objects.get(is_superuser = True)
+                with transaction.atomic():
+                    Notification.objects.create(
+                        from_user = userdata, 
+                        to_user = admin_user ,
+                        message = f"{username} requested for a service."
+                    )
+            except Users.DoesNotExist:
+                return Response({"error":"Admin User Not Found"} , status = 500)
+            
             service_use.save();
           
             return Response({"message": "Service request created successfully"}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"error" :'Error Performing Request'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"error" :'Err.. Cannot Perform Double Entry Requests'}, status=status.HTTP_400_BAD_REQUEST)
 
 # Viewing ALl Requested Services from the Client
 class ViewServiceRequestView(APIView):
@@ -101,7 +136,7 @@ class SingleRequestedServiceView(RetrieveAPIView):
      queryset = ServiceUse.objects.prefetch_related('payments').all()
      serializer_class = ViewServiceRequestedSerializer 
 
-# Updating the requested service 
+# Approving  the requested service made by the client  
 class UpdateServiceRequestView(RetrieveAPIView):
     def post(self, request, id):
         service_use = get_object_or_404(ServiceUse, id=id)
@@ -114,7 +149,7 @@ class UpdateServiceRequestView(RetrieveAPIView):
             
             assigned_employee_data = Users.objects.get(fullname=assigned_employee_fullname)
             assigned_employee_id = assigned_employee_data.id
-            payment_object = get_object_or_404(Payment , service_use_id = service_use.id)
+            payment_object = get_object_or_404(Payment, service_use_id=service_use.id)
             if serviceuse_status == "On-Going":
                 if assigned_employee_id:
                     assigned_employee_table = AssignedEmployees.objects.filter(assigned_employee=assigned_employee_id).first()
@@ -122,6 +157,21 @@ class UpdateServiceRequestView(RetrieveAPIView):
                         assigned_employee_table.service_request = service_use
                         assigned_employee_table.work_status = "Occupied"
                         assigned_employee_table.save()
+
+                        # Implementing Notification for the assigned employee
+                        try:
+                            admin_user = Users.objects.get(is_superuser=True)
+                            with transaction.atomic():
+                                Notification.objects.create(
+                                    from_user=admin_user,
+                                    to_user=assigned_employee_data,
+                                    message=f"You have been assigned to a new service: {service_use.name}."
+                                )
+                        except Users.DoesNotExist:
+                            return Response({'error': 'Admin User Not Found'}, status=500)
+                        except Exception as e:
+                            return Response({'error': str(e)}, status=500)
+                        
                 if payment_approval == "Payment Received":
                     payment_object.payment_approval = True
                 else:

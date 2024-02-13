@@ -43,7 +43,7 @@ function ServiceRequestClient() {
   const [pickValue, setPickValue] = useState("");
   const [finalPrice, setFinalPrice] = useState("");
   const [startHour, setStartHour] = useState("");
-  // const [endHour, setEndHour] = useState("");
+  
   const [loading, setLoading] = useState("");
   const userdata = localStorage.getItem("userData");
   const username = JSON.parse(userdata);
@@ -131,15 +131,21 @@ function ServiceRequestClient() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(requestData),
       });
+      const data = await res.json();
       if (res.ok) {
-        const data = await res.json();
         message.success(data.message);
         navigate("../client-view-service");
+      } 
+      else 
+      {
+        message.error(data.error);
+        console.log(data.error);
       }
-      setLoading(false);
+      
     } catch (error) {
-      message.error("Error In Requesting Service");
+      message.error("Cannot Perform Duplicate Requests");
     }
+    setLoading(false);
   };
 
   const handleFilterChange = (value) => {

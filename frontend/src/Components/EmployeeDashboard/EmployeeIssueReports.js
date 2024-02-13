@@ -7,8 +7,7 @@ import {
   HomeOutlined,
   MoneyCollectOutlined
 } from "@ant-design/icons";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 import DashboardFooter from "../Dashboards/DashboardFooter.js";
 import Spinner from "../../Pages/ProfileSettings/Spinner.js";
 
@@ -27,8 +26,6 @@ function EmployeeIssueReports() {
   const get_userdata = localStorage.getItem("userData");
   const parsedata = JSON.parse(get_userdata);
   const get_username = parsedata.username;
-
-  console.log(reportTitle , reportDesc , get_username);
 
   // const handleSubmit = async (e) => {
   //   e.preventDefault();
@@ -65,6 +62,7 @@ function EmployeeIssueReports() {
     e.preventDefault();
   
     try {
+      setLoading(true);
       const formData = new FormData();
       formData.append("title", reportTitle);
       formData.append("description", reportDesc);
@@ -74,7 +72,7 @@ function EmployeeIssueReports() {
         method: "POST",
         body: formData,
       });
-  
+      setLoading(false);
       if (response.ok) {
         const user_type = reportDetails[0].user.user_type
         const data = await response.json();
@@ -90,6 +88,7 @@ function EmployeeIssueReports() {
     } catch (error) {
       console.error("Error submitting report:", error);
       message.error("Failed to submit report. Please try again later.");
+      window.location.reload();
     }
   };
   
@@ -274,11 +273,9 @@ const data = reportDetails.map((info , index)=>({
               
             </Card>
           
-          <div>
-            {/* <Tabs>{TabList.map((tab) => tab.children)}</Tabs> */}
-          </div>
+          
 
-          <ToastContainer position="top-center" autoClose={4000} />
+          
 
           
         </div>

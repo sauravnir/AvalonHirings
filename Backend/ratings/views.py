@@ -8,8 +8,8 @@ from rest_framework import status
 from app.models import Users
 from payment.models import Caliber
 from rest_framework.generics import ListAPIView , RetrieveAPIView
-from .serializers import RatingSerializer
-# Create your views here.
+from .serializers import RatingSerializer , NotificationSerializer
+from .models import Notification
 
 # Client rating the employee
 class EmployeeRating(APIView):
@@ -69,3 +69,11 @@ class SingleRatingView(RetrieveAPIView):
     queryset = Rating.objects.all()
     serializer_class = RatingSerializer
     lookup_field = 'pk'
+
+# Sending Notification 
+class NotificationView(APIView):
+    def get(self,request,user_id):
+        user = get_object_or_404(Users , id = user_id);
+        notifications = Notification.objects.filter(to_user = user)
+        serializer = NotificationSerializer(notifications , many = True);
+        return Response(serializer.data);

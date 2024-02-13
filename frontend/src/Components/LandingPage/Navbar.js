@@ -1,30 +1,105 @@
-import React from "react";
+import React, { useState } from "react";
 import TitleLogo from "../../images/A.png";
 import { Link } from "react-router-dom";
 import { HashLink as Hlink } from "react-router-hash-link";
 
 export default function Navbar() {
+  const [showMenu, setShowMenu] = useState(false);
+  const toggleMenu = () => {
+    setShowMenu(!showMenu);
+  };
   return (
-    <div class="flex justify-between bg-white items-center  sticky block top-0 h-16 z-50 px-20 ">
-      <div class="flex items-center text-lg">
-        <img class="w-10 " src={TitleLogo}></img>
-        <h1 class="">Avalon Hirings</h1>
+    <div className="bg-white sticky top-0 z-50">
+      <div className="flex justify-between items-center px-4 md:px-20 h-16">
+        <div className="flex items-center text-lg">
+          <img className="w-10" src={TitleLogo} alt="Logo"></img>
+          <h1 className="ml-2">Avalon Hirings</h1>
+        </div>
+        <div className="hidden md:flex items-center space-x-3">
+          <Hlink to="#hero" className="hover:text-sky-700">
+            Home
+          </Hlink>
+          <Hlink to="#about" className="hover:text-sky-700">
+            About
+          </Hlink>
+          <Hlink to="#contact" className="hover:text-sky-700">
+            Contact
+          </Hlink>
+          {/* <Hlink to="#reviews" className="hover:text-sky-700">
+            Reviews
+          </Hlink> */}
+          <button className="bg-green-600 text-white py-2 px-4 hover:bg-green-900">
+            <Link to="/login">LOGIN</Link>
+          </button>
+          <button className="bg-sky-600 text-white py-2 px-4 hover:bg-sky-900">
+            <Link to="/register">JOIN US</Link>
+          </button>
+        </div>
+        <div className="md:hidden">
+          <button
+            id="menu-toggle"
+            onClick={toggleMenu}
+            className="focus:outline-none"
+          >
+            <svg
+              className="w-6 h-6"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth="2"
+                d="M4 6h16M4 12h16M4 18h16"
+              ></path>
+            </svg>
+          </button>
+        </div>
       </div>
-      <div class="space-x-3 items-center ">
-        <Hlink to="#hero" class='hover:text-sky-700'>Home</Hlink>
-        <Hlink to="#about" class='hover:text-sky-700'>About</Hlink>
-        <Hlink to="#contact" class='hover:text-sky-700'>Contact</Hlink>
-        <Hlink to="#reviews" class='hover:text-sky-700'>Reviews</Hlink>
-       </div>
-       <div class="space-x-3 "> 
-        <button class="bg-green-600 w-20 h-10 shadow-lg rounded-sm border border-lg text-white hover:bg-green-900">
-          <Link  to="/login" ><h1>LOGIN</h1></Link>
-        </button>
-        
-        <button class="bg-sky-900 w-fit h-10 p-2 shadow-lg rounded-sm border border-lg text-white hover:bg-sky-900">
-          <Link  to="/register" ><h1>Interested? JOIN US</h1></Link>
-        </button>
-      </div>
+      {showMenu && (
+        <div className="md:hidden bg-white border rounded-lg shadow-lg">
+          <ul className="divide-y divide-gray-200">
+            <li>
+              <Hlink to="#hero" className="block py-2 px-4 hover:text-sky-700">
+                Home
+              </Hlink>
+            </li>
+            <li>
+              <Hlink to="#about" className="block py-2 px-4 hover:text-sky-700">
+                About
+              </Hlink>
+            </li>
+            <li>
+              <Hlink
+                to="#contact"
+                className="block py-2 px-4 hover:text-sky-700"
+              >
+                Contact
+              </Hlink>
+            </li>
+            {/* <li>
+              <Hlink
+                to="#reviews"
+                className="block py-2 px-4 hover:text-sky-700"
+              >
+                Reviews
+              </Hlink>
+            </li> */}
+            <li>
+              <button className="block w-full bg-green-600 text-white py-2 px-4 hover:bg-green-900">
+                <Link to="/login">LOGIN</Link>
+              </button>
+            </li>
+            <li>
+              <button className="block w-full bg-sky-900 text-white py-2 px-4 hover:bg-sky-900">
+                <Link to="/register">JOIN US</Link>
+              </button>
+            </li>
+          </ul>
+        </div>
+      )}
     </div>
   );
 }

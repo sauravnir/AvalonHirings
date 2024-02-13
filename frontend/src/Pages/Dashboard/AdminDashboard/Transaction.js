@@ -4,7 +4,7 @@ import Sidebar from '../../../Components/Dashboards/Sidebar'
 import CreateTransaction from '../../../Components/Dashboards/CreateTransaction'
 function Transaction() {
   return (
-    <div class="bg-zinc-200 flex">
+    <div class="bg-zinc-100 flex">
         <NavigationDashboard />
         <Sidebar />
         <CreateTransaction />

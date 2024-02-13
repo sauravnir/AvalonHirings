@@ -19,7 +19,8 @@ import uuid
 from rest_framework.parsers import MultiPartParser , FormParser
 from app.models import Users , CustomToken , Announcements
 from reports.models import Reports
-
+from ratings.models import Notification
+from django.db import transaction
 class UserLoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
@@ -208,7 +209,7 @@ class UpdateProfilePictureView(APIView):
             return Response({"message" : "Profile Picture Updated" }, status = status.HTTP_200_OK)
         return Response({"message": "Error in Updating the profile"}, status=status.HTTP_400_BAD_REQUEST)
     
-
+# CRUD Announcements
 class PostAnnouncementView(APIView):
     def post(self , request):
         serializers = PostAnnouncementSerializer(data = request.data)
@@ -223,6 +224,27 @@ class PostAnnouncementView(APIView):
                     description = description,
                     created_date = timezone.now()
                 )
+
+
+                # Filtering all the users except admin 
+
+                all_users = Users.objects.filter(is_superuser=False)
+
+                try:
+                    admin_user = Users.objects.get(is_superuser=True)
+
+                    with transaction.atomic():
+                        for user in all_users:
+                            Notification.objects.create(
+                                from_user=admin_user,
+                                to_user=user,
+                                message="New Announcement By The Admin"
+                            )
+
+                    
+                except Users.DoesNotExist:
+                    return Response({"error":"Admin User Not Found"} , status = 501)
+
 
                 announcement.save()
             return Response({'message' : 'Announcement Created Successfully'}, status=status.HTTP_200_OK)

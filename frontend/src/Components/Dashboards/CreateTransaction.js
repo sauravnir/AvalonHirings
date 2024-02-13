@@ -1,10 +1,20 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Card, Form, Input, Row, Col, Select , Button, InputNumber , message , Breadcrumb , Tabs} from "antd";
-import {  
-  HomeOutlined,
-  PlusOutlined
-} from "@ant-design/icons";
+import {
+  Card,
+  Form,
+  Input,
+  Row,
+  Col,
+  Select,
+  Button,
+  InputNumber,
+  message,
+  Breadcrumb,
+  Tooltip,
+  Modal
+} from "antd";
+import { HomeOutlined , QuestionOutlined} from "@ant-design/icons";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 import DashboardFooter from "./DashboardFooter";
 function CreateTransaction() {
@@ -13,173 +23,96 @@ function CreateTransaction() {
       required: true,
       message: "required",
     },
-  ];  
-const [loading ,setLoading] = useState(false);  
-const [transaction , setTransaction] = useState([]);
-const [paymentType, setPaymentType] = useState(null);
-const [selectedEmployee, setSelectedEmployee] = useState(null);
-const navigate = useNavigate()
-const { TabPane } = Tabs;
-// Creating Salary transaction 
-const[salaryAmount , setSalaryAmount] = useState('')
-const[salaryDescription , setSalaryDescription] = useState('')
-const [caliberId , setCaliberId] = useState()
-
-useEffect(()=>{
+  ];
+  const [loading, setLoading] = useState(false);
+  const [transaction, setTransaction] = useState([]);
+  const [paymentType, setPaymentType] = useState(null);
+  const navigate = useNavigate();
+  const [openModal , setOpenModal] = useState(false);
+  // Creating Salary transaction
+  const [salaryAmount, setSalaryAmount] = useState("");
+  const [salaryDescription, setSalaryDescription] = useState("");
+  const [caliberId, setCaliberId] = useState();
+  const [payableAmount , setPayableAmount] = useState(0);
+  const [employeeName, setEmployeeName] = useState("");
+  useEffect(() => {
     const getPaymentData = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://127.0.0.1:8000/salaryfield/")
+        const response = await fetch("http://127.0.0.1:8000/salaryfield/");
         const data = await response.json();
-        setTransaction(data)
-        console.log(data);
-        setLoading(false); 
-      
-      }catch(error){
-        console.log(error);
+        setTransaction(data);
+        setLoading(false);
+      } catch (error) {
+        message.error(error); 
       }
     };
     getPaymentData();
-  },[])
+  }, []);
 
-const handlePaymentTypeChange = (value) =>{
-  setPaymentType(value);
-  setSelectedEmployee(null);
-}
+  const handlePaymentTypeChange = (value) => {
+    setPaymentType(value);
+   
+  };
 
-
-const handleEmployeeChange = (value) => {
-  setSelectedEmployee(value);
-
-  // Extracting the caliber_id 
-  const selectedEmployeeData =transaction.find((e) => e.id === value);
-  const caliber = selectedEmployeeData ? selectedEmployeeData.id : null;
-
-  setCaliberId(caliber);
-  console.log(caliber)
-}
-
-const handleDiscard = () => {
-  setLoading(true);
-  navigate('/admin-dashboard')
-  setLoading(false);
-}
-
-
-// Creating salary 
-const createTransaction = async () => {
-  try {
-    setLoading(true);
-    const response = await fetch("http://127.0.0.1:8000/givesalary/",{
-      method: "POST",
-      headers:{'Content-Type' : 'application/json'},
-      body: JSON.stringify({amount : salaryAmount , description : salaryDescription , caliber : caliberId}),
-    })
-    setLoading(false)
-    const data = await response.json()
-    if(response.ok){
-      message.success(data.message);
-      navigate('/admin-dashboard')
+  const handleEmployeeChange = async (value , option) => {
+    setEmployeeName(option.label);
+    const selectedEmployeeData = transaction.find((e) => e.id === value);
+    const caliber = selectedEmployeeData ? selectedEmployeeData.id : null;
+    setCaliberId(caliber);
+    try { 
+      const response = await fetch(`http://127.0.0.1:8000/fetchamount/${caliber}`);
+      if (!response.ok) {
+        throw new Error('Failed to fetch data');
+      }
+      const data = await response.json();
+      setPayableAmount(data.total_payable); 
+    } catch(e){
+      message.error("Failed To Fetch Amount");
     }
-  }catch(error){
-    message.error("Transaction Failed!");
-  }
-}
+  };
+  
 
 
-const TabList = [
-  {
-    key:'1',
-    label:"Salary Payment",
-    children:(
-      <TabPane tab="Salary Payment" key="1">
-        <div className="p-3 bg-white rounded ">
-          <div className="flex flex-row justify-end items-center">
-            <Button type="default" className="text-white bg-green-900 hover:bg-sky-700 rounded" icon={<PlusOutlined />}>
-              Make Payment
-            </Button>
-          </div>
-            <div class="p-5">
-            <Form layout="vertical" onFinish={createTransaction}>
-              <Row gutter={16}>
-                <Col span={12}>
-                  <Form.Item label="Payment Type:" rules={rules} name="Type">
-                    <Select
-                    onChange={handlePaymentTypeChange}
-                    options={[
-                        "Salary Payment",
-                       
-                      ].map((status) => ({
-                        value: status,
-                        label: status,
-                      }))}
-                    />
-                  </Form.Item>
-                </Col>
-                <Col span={12}>
-                  <Form.Item label="Beneficiary:" name="Name" rules={rules}>
-                    <Select
-                    disabled ={!paymentType || paymentType != "Salary Payment"}
-                    onChange ={handleEmployeeChange} 
-                    options={
-                        transaction.map((info)=>({
-                          value: info.id , 
-                          label : info.employee.fullname
-                        }))
-                     }
-                    />
-                  </Form.Item>
-                </Col>
-              </Row>
-              <Row gutter={16}>
-                <Col span={12}>
-                <Form.Item label="Caliber">
-                    <Input value={selectedEmployee ? transaction.find((e) => e.id === selectedEmployee)?.caliber_level.toUpperCase():""} disabled/>
-                </Form.Item>
-                </Col>
-                <Col span={12}>
-                <Form.Item label="Total Amount:" name="salaryAmount" 
-                  rules={rules} >
-                  
-                    <InputNumber  
-                    addonBefore="Rs"
-                    onChange={(value)=>setSalaryAmount(value)}
-                    />
-                  </Form.Item>
-                </Col>
-                <Row gutter={16}>
-                </Row>
-              </Row>
-                <Form.Item label="Description:" >
-                <Input.TextArea 
-                onChange={(e) => setSalaryDescription(e.target.value)}
-                />
-              </Form.Item>
-              <div class="flex flex-row justify-end space-x-3">
-              <Button htmlType="submit" className = "text-white bg-sky-900 hover:bg-sky-700 rounded">
-                Book Payment
-              </Button>
-              <Button className = "text-white bg-red-900 hover:bg-red-700 rounded" onClick={handleDiscard}>
-                Discard
-              </Button>
-            </div>
-            </Form>
-            </div>
-        </div>
-      </TabPane>
-    )
-  },
-  {
-    key:"2",
-    label:"Refund Payment",
-    children:(
-      <TabPane tab="Refund Payment" key="2">
+// Handling discard
+  const handleDiscard = () => {
+    setLoading(true);
+    navigate("/admin-dashboard");
+    setLoading(false);
+  };
 
-      </TabPane>
-    )
-  }
-]
 
+
+  // Overall Transaction the booked salary
+  const createTransaction = async () => {
+    try {
+      setLoading(true); 
+      if(salaryAmount !== "" && salaryDescription !== "" && caliberId !== null && paymentType !== null ) {
+        const response = await fetch("http://127.0.0.1:8000/givesalary/", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: salaryAmount,
+          description: salaryDescription,
+          caliber: caliberId,
+          payment_type : paymentType,
+        }),
+      });
+      
+      const data = await response.json();
+      if (response.ok) {
+        
+        message.success(data.message);
+        navigate('/admin-dashboard');
+      }
+    }else {
+      message.error("Transaction Failed! Try again.")
+      }
+      setLoading(false);
+    } catch (error) {
+      message.error("Transaction Failed!");
+    }
+  };
 
 
   return (
@@ -188,25 +121,131 @@ const TabList = [
       <div className="flex flex-col mt-2 py-3 px-4 ">
         <div className="flex flex-row w-full items-center mt-3 justify-between p-3">
           <h1 className="text-xl font-bold">Add Transaction</h1>
-          <Breadcrumb items={[
+          <Breadcrumb
+            items={[
               {
-                href:"/admin-dashboard",
-                title:<HomeOutlined />
+                href: "/admin-dashboard",
+                title: <HomeOutlined />,
               },
               {
-                title:"Transactions"
+                title: "Transactions",
               },
               {
-                href:"/create-transaction",
-                title:"Add Transaction"
-              }
-              ]}/>
+                href: "/create-transaction",
+                title: "Add Transaction",
+              },
+            ]}
+          />
         </div>
         <div className="bg-white p-2 rounded shadow-xl">
-        <Tabs>{TabList.map((tab)=>tab.children)}</Tabs>
+          <div className="p-3 bg-white rounded ">
+            <div class="p-5">
+              <Form layout="vertical" onFinish={createTransaction}>
+                <Row gutter={16}>
+                  <Col span={12}>
+                    <Form.Item label="Payment Type:" rules={rules} name="Type">
+                      <Select
+                        onChange={handlePaymentTypeChange}
+                        options={["Salary Booking", "Salary Payment"].map(
+                          (status) => ({
+                            value: status,
+                            label: status,
+                          })
+                        )}
+              
+                      />
+                    </Form.Item>
+                  </Col>
+                  <Col span={12}>
+                    <Form.Item label="Beneficiary:" name="Name" rules={rules}>
+                      <Select
+                        disabled={
+                          !paymentType
+                        }
+                        onChange={handleEmployeeChange}
+                        options={transaction.map((info) => ({
+                          value: info.id,
+                          label: info.employee.fullname,
+                        }))}
+                      />
+                    </Form.Item>
+                  </Col>
+                </Row>
+                <Row gutter={16}>
+                  <Col span={12}>
+                     <div className="p-2">
+                      
+                      {paymentType === "Salary Payment" ?
+                        <h1>Total Payable Amount: <Tooltip title="Amount Booked - Amount Paid" ><Button className="rounded-full" size="small" icon={<QuestionOutlined />}></Button></Tooltip>{payableAmount < 0 ? <h1 className="text-red-500">Rs {payableAmount}</h1> : <h1 className="text-green-500">Rs.{payableAmount}</h1>}</h1>
+                        : null 
+                      } 
+                      </div>
+                    <Form.Item
+                      label="Total Amount:"
+                      name="salaryAmount"
+                      rules={rules}
+                    >
+                      <InputNumber
+                        className="w-full"
+                        addonBefore="Rs."
+                        onChange={(value) => setSalaryAmount(value)}
+                        disabled={!paymentType}  
+                      />
+                      
+                    </Form.Item>
+                  </Col>
+                  <Row gutter={16}></Row>
+                </Row>
+                <Form.Item label="Description:" name="description" rules={rules}>
+                  <Input.TextArea
+                    onChange={(e) => setSalaryDescription(e.target.value)}
+                    disabled={!paymentType}
+                  />
+                </Form.Item>
+                <div class="flex flex-row justify-end space-x-3">
+                 
+                  <Button   
+                    className="text-white bg-sky-900 hover:bg-sky-700 rounded"
+                    onClick={()=>setOpenModal(true)}
+                  >
+                    {paymentType === "Salary Payment" ? "Make Payment" : "Make Booking"}
+                  </Button>
+
+                  <Modal
+                  title="Are you sure?"
+                  centered 
+                  open={openModal}
+                  okText=  {paymentType === "Salary Payment" ? "Make Payment" : "Make Booking"}
+                  onOk={createTransaction}
+                  onCancel={()=>setOpenModal(false)}
+                  okType="default"
+                  footer={<div className="flex flex-row justify-center space-x-2"><Button onClick={createTransaction} className="text-white bg-sky-900 hover:bg-sky-700 rounded">Submit</Button>
+                  <Button className="text-white bg-red-900 hover:bg-red-700 rounded" onClick={() => setOpenModal(false)}>Discard</Button>
+                  </div>}
+                  width={400}
+                  >
+                    <Card>
+                      <div>
+                        <h1>Beneficiary Name: <span className="font-bold">{employeeName}</span></h1>
+                        <h1>Amount: <span className="font-bold">Rs.{salaryAmount}</span></h1>
+                        <h1>Action: <span className="font-bold">{paymentType}</span></h1>
+                      </div>
+                    </Card>
+                  </Modal>
+
+                  <Button
+                    className="text-white bg-red-900 hover:bg-red-700 rounded"
+                    onClick={handleDiscard}
+                  >
+                    Discard
+                  </Button>
+                </div>
+              </Form>
+            </div>
+          </div>
         </div>
       </div>
-      <DashboardFooter />
+      {/* <DashboardFooter /> */}
     </div>
   );
 }
