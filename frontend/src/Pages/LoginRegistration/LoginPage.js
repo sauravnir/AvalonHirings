@@ -42,12 +42,12 @@ function LoginPage() {
       if (response.ok) {
         const data = await response.json();
         setTokenAndUserData(data);
-  
+        
         if (data.is_auth) {
           if (data.user_type === "Admin") {
             navigate("/admin-dashboard");
           } else {
-            if (data.otp) {
+            if (data.is_otp == false) {
               navigate("/otp");
             } else {
               navigate(data.user_type === "Client" ? "/client-dashboard" : "/employee-dashboard");

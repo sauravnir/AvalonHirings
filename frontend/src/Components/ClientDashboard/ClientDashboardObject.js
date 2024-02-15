@@ -2,12 +2,10 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
 import {
-  Descriptions,
   Progress,
   Card,
   Modal,
   Button,
-  Divider,
   Statistic,
   Table,
   message,
@@ -22,6 +20,9 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { Pie } from "@ant-design/charts";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
+
+import "chart.js/auto";
+import { Chart } from "react-chartjs-2";
 
 function ClientDashboard() {
   const [getServiceItems, setGetServiceItems] = useState([]);
@@ -45,6 +46,7 @@ function ClientDashboard() {
   const [totalServices, setTotalServices] = useState(0);
   const [activeService, setActiveSetvice] = useState(0);
   const [totalReports, setTotalReports] = useState(0);
+  const [requestedServices , setRequestedServices] = useState([]);
   // Displaying the work details
   useEffect(() => {
     const handleWork = async () => {
@@ -170,9 +172,10 @@ function ClientDashboard() {
     }
   };
 
-  // Fetching the subscription Details
+  // Displaying dashboard Details
 
   useEffect(() => {
+    // Fetching the subscription details
     const fetchSubscriptionDetails = async () => {
       try {
         const response = await fetch(
@@ -184,12 +187,8 @@ function ClientDashboard() {
         toast.error("Unable To Fetch The Details");
       }
     };
-    fetchSubscriptionDetails();
-  }, [user_id]);
 
-  // Displaying dashboard Details
 
-  useEffect(() => {
     const announcement = async () => {
       try {
         setLoading(true);
@@ -241,7 +240,7 @@ function ClientDashboard() {
         const data = await res.json();
         const finalData = data.filter((data) => data.status === "On-Going");
         setActiveSetvice(finalData.length);
-        console.log(data);
+        setRequestedServices(data);
       } catch (error) {
         toast.error(error);
       }
@@ -260,12 +259,14 @@ function ClientDashboard() {
       }
     };
 
+
+    fetchSubscriptionDetails();
     fetchReportDetails();
     singleClientService();
     fetchServiceData();
     getClientData();
     announcement();
-  }, []);
+  }, [user_id]);
 
   // total Payment
   const totalPayment = () => {
@@ -333,32 +334,8 @@ function ClientDashboard() {
 
   // Pie Chart
 
-  const data = [
-    {
-      type: "A",
-      value: 100,
-    },
-    {
-      type: "B",
-      value: 200,
-    },
-  ];
-
-  const config = {
-    data: data,
-    angleField: "value",
-    colorField: "type",
-    radius: 0.8,
-    label: {
-      content: "{value}",
-      style: {
-        fontSize: 14,
-        textAlign: "center",
-      },
-    },
-    interactions: [{ type: "element-active" }],
-  };
-
+  
+  
 
   return (
     <div className="w-screen mt-8">
@@ -601,7 +578,10 @@ function ClientDashboard() {
           </div>
             <div className="space-y-5">
             <div className="p-2 mt-2 bg-white rounded shadow-xl  justify-content-center align-items-center">
-                  <Pie {...config} height={300} width={300} />
+              {/* Displaying Pie Chart */}
+              <Card >
+                  {/* <Chart type="pie"/> */}
+              </Card>
                 </div>
               <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50"
                title={

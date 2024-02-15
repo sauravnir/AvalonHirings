@@ -74,6 +74,14 @@ class SingleRatingView(RetrieveAPIView):
 class NotificationView(APIView):
     def get(self,request,user_id):
         user = get_object_or_404(Users , id = user_id);
-        notifications = Notification.objects.filter(to_user = user)
+        notifications = Notification.objects.filter(to_user = user , is_read = False);
         serializer = NotificationSerializer(notifications , many = True);
         return Response(serializer.data);
+
+class NotificationCountView(APIView):
+    def post(self ,request, user_id):
+        user = get_object_or_404(Users, id = user_id)
+        # Marking the notificaiton 
+        notificationRead = Notification.objects.filter(to_user = user , is_read = False);
+        notificationRead.update(is_read = True);
+        return Response({"success":"Notification Updated"} , status = 200)

@@ -33,7 +33,7 @@ class Users(AbstractBaseUser , PermissionsMixin):
     citizenship_front = models.ImageField(upload_to ="" , default = None, blank = True)
     citizenship_back = models.ImageField(upload_to ="", default = None, blank = True)
     work_cv = models.FileField(upload_to ="", default = None, blank = True)
-    
+    is_otp = models.BooleanField(default = False); 
     USERNAME_FIELD = 'email'
     objects = CustomUserManager()
 

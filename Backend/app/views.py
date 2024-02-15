@@ -21,6 +21,8 @@ from app.models import Users , CustomToken , Announcements
 from reports.models import Reports
 from ratings.models import Notification
 from django.db import transaction
+
+# Login The User 
 class UserLoginView(APIView):
     def post(self, request):
         serializer = UserLoginSerializer(data=request.data)
@@ -29,7 +31,7 @@ class UserLoginView(APIView):
             password = serializer.validated_data['password']
             user = authenticate(request, email=email, password=password)
 
-            if user.is_auth is True :
+            if user.is_auth is True:
                 if user:
                     login(request, user)
                     user_type = user.user_type
@@ -40,12 +42,10 @@ class UserLoginView(APIView):
                     token.created = timezone.now(); 
                     expiration_time = timezone.now() + timedelta(seconds=10);
                     token.expiration = expiration_time 
-
-                    
                     token.save();
                     is_auth =  user.is_auth;
                     user_id = user.id;
-                   
+                    is_otp = user.is_otp; 
                 
                     if (user_type == "Admin"):
                         return Response({
@@ -54,6 +54,7 @@ class UserLoginView(APIView):
                         'username': user_name, 
                         'otp': user.otp,
                         'user_id': user_id,
+                        'is_otp' : is_otp,
                         'is_auth':is_auth,
                         'message' : 'Login Successful'} , status = status.HTTP_200_OK)
                     else:
@@ -62,6 +63,7 @@ class UserLoginView(APIView):
                             'user_type' : user_type,
                             'username': user_name, 
                             'otp': user.otp,
+                            'is_otp' : is_otp,
                             'user_id': user_id,
                             'is_auth':is_auth,
                             'message' : 'Login Successful'} , status = status.HTTP_200_OK)
@@ -96,9 +98,7 @@ class UserForgotPasswordView(APIView):
             new_password = serializer.validated_data['password']
             try:
                 user = get_object_or_404(Users, email=email)
-                print(user)
                 checking_password = check_password(new_password, user.password)
-                print(checking_password)
                 if checking_password == True:
                     return Response({"detail": "Password is the same as the current one"}, status=400)
 
@@ -117,11 +117,14 @@ class OTPTransactionView(APIView):
         serializer = OTPTransactionSerializer(data = request.data)
         if serializer.is_valid():
             otp_pin = serializer.validated_data['otp_pin']
-            user = get_object_or_404(Users , otp = otp_pin)
-            if user.otp == otp_pin:
+            user = Users.objects.filter(otp=otp_pin).first()
+            if user:
+                user.is_otp = True
+                user.save();
+                print("opt bool" , user.is_otp);
                 return Response({'message' :'OTP Verification Successful',} , status=status.HTTP_200_OK)
             else:
-                    return Response({'error':'Invalid OTP'}, status=status.HTTP_401_UNAUTHORIZED)
+                return Response({'error':'Invalid OTP'}, status=status.HTTP_401_UNAUTHORIZED)
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -131,7 +134,6 @@ class OTPTransactionView(APIView):
 class UserDownloadFileView(APIView):
     def get(self, request, *args, **kwargs):
         file_path = "../WebsiteFiles/TermsAndConditions/TermsAndConditions.txt"
-
         return FileResponse(open(file_path , 'rb'))
     
 

@@ -18,3 +18,4 @@ class Notification(models.Model):
     to_user = models.ForeignKey(Users , on_delete = models.CASCADE , related_name = "to_user_notification");
     timestamp = models.DateTimeField(auto_now_add = True);
     message = models.CharField(max_length=255)
+    is_read = models.BooleanField(default=False)

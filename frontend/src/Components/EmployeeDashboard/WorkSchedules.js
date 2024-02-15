@@ -12,9 +12,6 @@ import {
    Breadcrumb
 } from "antd";
 import { EyeOutlined, HomeOutlined } from "@ant-design/icons";
-import { ToastContainer, toast } from "react-toastify";
-
-import "react-toastify/dist/ReactToastify.css";
 import DashboardFooter from "../Dashboards/DashboardFooter";
 
 import Spinner from "../../Pages/ProfileSettings/Spinner";
@@ -35,7 +32,6 @@ function WorkSchedules() {
     workstatus: "",
     approved_date: "",
     startHour : "",
-    workstatus : "",
   });
 
   const data = localStorage.getItem("userData");
@@ -50,8 +46,8 @@ function WorkSchedules() {
           `http://127.0.0.1:8000/assignedservices/${userType.user_id}`
         );
         const data = await response.json();
-
-        const {work_status ,service_request, assigned_service_details, client_details } =
+          console.log(data);
+        const {service_request, assigned_service_details, client_details } =
           data;
         const viewActiveService = {
           id: data.id,
@@ -220,7 +216,7 @@ function WorkSchedules() {
               }
               ]}/>
         </div>
-        <ToastContainer position="bottom-center" autoClose={6000} />
+        
         <div class="p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
           <Card>
           <Table columns={workTable} dataSource={workTableData} pagination={{

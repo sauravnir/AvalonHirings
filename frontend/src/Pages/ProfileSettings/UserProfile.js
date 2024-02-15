@@ -3,11 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { Form, Input, Button, Tabs, Card, message } from "antd";
 import Sidebar from "../../Components/Dashboards/Sidebar";
 import NavigationDashboard from "../../Components/Dashboards/NavigationDashboard";
-
-import { ToastContainer, toast } from "react-toastify";
-
-import "react-toastify/dist/ReactToastify.css";
-
 function UserProfile() {
   const rules = [
     {
@@ -34,34 +29,44 @@ function UserProfile() {
   };
 
   // Handle Password Update
-  const handleProfileUpdate = async (e) => {
-    e.preventDefault();
+  const handleProfileUpdate = async () => {
     try {
+      const symbolRegex = /[-!$%^&*()_+|~=`{}\[\]:";'<>?,.\/]/;
       if (newPass === newConfirmPass) {
-        const res = await fetch("http://127.0.0.1:8000/app/updateprofile/", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(updatePassword),
-        });
-
-        if (res.ok) {
-          if (userType.user_type == "Employee") {
-            navigate("/employee-dashboard");
-          } else if (userType.user_type == "Client") {
-            navigate("/client-dashboard");
+        if (newPass.length >= 8) {
+          if (symbolRegex.test(newPass)) {
+            const res = await fetch("http://127.0.0.1:8000/app/updateprofile/", {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(updatePassword),
+            });
+  
+            if (res.ok) {
+              message.success("Password Changed Successfully!");
+              if (userType.user_type === "Employee") {
+                navigate("/employee-dashboard");
+              } else if (userType.user_type === "Client") {
+                navigate("/client-dashboard");
+              } else {
+                navigate("/admin-dashboard");
+              }
+            }
           } else {
-            navigate("/admin-dashboard");
+            message.error("The Passwords Should Contain Special Characters!");
           }
         } else {
-          toast.error("Enter Valid Credentials!");
+          message.error("Password should be greater than 8 characters!");
         }
+      } else {
+        message.error("The Passwords Should Match!");
       }
     } catch (error) {
-      console.log(error);
+      message.error("An error occurred while updating the password!");
     }
   };
+  
 
   // Load User Profile
   useEffect(() => {
@@ -97,6 +102,7 @@ function UserProfile() {
         }
       );
       if (response.ok) {
+        message.success("Profile Picture Updated Successfully");
         if (userType.user_type == "Employee") {
           navigate("/employee-dashboard");
         } else if (userType.user_type == "Client") {
@@ -166,8 +172,7 @@ function UserProfile() {
       children: (
         <TabPane tab="Change Password" key="2">
           <div class="p-5 items-center">
-            <Form layout="vertical">
-              <form onSubmit={handleProfileUpdate}>
+            <Form layout="vertical" onFinish={handleProfileUpdate}>
                 <Form.Item label="New Password">
                   <Input.Password
                     onChange={(e) => setNewPass(e.target.value)}
@@ -186,7 +191,6 @@ function UserProfile() {
                     Change Password
                   </Button>
                 </div>
-              </form>
             </Form>
           </div>
         </TabPane>
@@ -194,8 +198,7 @@ function UserProfile() {
     },
   ];
 
-  // Handle Suubscription Details
-
+  // Handle Subscription Details
   useEffect(() => {
     const fetchSubscriptionDetails = async () => {
       try {
@@ -206,7 +209,7 @@ function UserProfile() {
         setSubscriptionDetails(data);
         console.log(subscriptionDetails);
       } catch (error) {
-        toast.error("Unable To Fetch The Details");
+        message.error("Unable To Fetch Details")
       }
     };
     fetchSubscriptionDetails();
@@ -216,7 +219,6 @@ function UserProfile() {
     <div class="bg-zinc-100 flex">
       <NavigationDashboard />
       <Sidebar />
-      <ToastContainer position="top-center" />
       <div class="flex flex-row justify-center py-5 w-screen mt-20">
         <div class="shadow border w-1/2 rounded bg-white">
           <div class="border">

@@ -12,14 +12,14 @@ from rest_framework.generics import RetrieveAPIView
 from services.models import AssignedEmployees
 from payment.models import Caliber
 
-
+# 
 class ContractList(APIView):
     def get(self , request ):
         contracts = Contract.objects.all()
         serializer =UserContractSerializer(contracts , many = True)
         return Response(serializer.data , status = status.HTTP_200_OK)
 
-
+# Viewing all the contracts 
 class ContractObjectView(RetrieveAPIView):
     queryset = Contract.objects.all()
     serializer_class = UserContractSerializer
@@ -33,6 +33,7 @@ class UpdatedContractView(APIView):
             contract_status = serializer.validated_data.get('action');
             if contract_status == "Approved":
                 contract.contract_status = "Approved"
+
                 # Populating the AssignedEmployee model 
 
                 if (user_data.user_type == "Employee"):
@@ -50,7 +51,6 @@ class UpdatedContractView(APIView):
                 
 
                 user_data.is_auth = True 
-                print(user_data.is_auth)
                 otp_digits = "123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
                 OTP = ""
                 for i in range(4):
@@ -69,22 +69,19 @@ class UpdatedContractView(APIView):
             elif contract_status == "Terminated":
                 contract.contract_status = "Terminated"
                 user_data.is_auth = False;
+                user_data.is_otp = False; 
+                user_data.otp = "";
+                user_data.save()
 
-                if(user_data.otp):
-                    user_data.otp = "";
-                if(user_data.is_auth == True):
-                    user_data.is_auth = False;
-                
                 AssignedEmployees.objects.filter(assigned_employee = user_data).delete()
                 Caliber.objects.filter(employee = user_data).delete();
-                user_data.save()
                 contract.save()
                 return Response({'message': 'Report updated successfully'}, status=status.HTTP_200_OK)
                 
         return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
+# Updating the caliber by the admin 
 class AdminUpdateCaliberView(APIView):
     def post(self , request , pk):
         contract = get_object_or_404(Contract , id = pk )

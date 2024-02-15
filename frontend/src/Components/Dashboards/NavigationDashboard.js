@@ -11,13 +11,13 @@ import {
   Tooltip,
   Badge,
   message,
-  Menu , 
+  Menu,
+  Button,
 } from "antd";
-import { BellOutlined } from "@ant-design/icons";
+import { BellOutlined , ExclamationOutlined } from "@ant-design/icons";
 import Logo from "../../images/A.png";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
+
 // Dropdown for Profile Items
 const { useToken } = theme;
 
@@ -29,9 +29,8 @@ function NavigationDashboard() {
   const [subscriptionDetails, setSubscriptionDetails] = useState([]);
   const [showSubscription, setShowSubscription] = useState(false);
 
-  const [openModal, setOpenModal] = useState(false);
   const [notify, setNotify] = useState("");
-
+  const [notificationCount, setNotificationCount] = useState("");
   const listItem = [
     "Prioritize Service Requests",
     "Premium Service Plans",
@@ -112,32 +111,58 @@ function NavigationDashboard() {
 
     // Viewing Notifications
 
-    const notification = async () => {
-      try {
-        const response = await fetch(
-          `http://127.0.0.1:8000/notification/${userType.user_id}`
-        );
-        const data = await response.json();
-        setNotify(data);
-      } catch (error) {
-        message.error("Failed to load notifications");
-      }
-    };
+    // Update Notification
 
     viewprofile();
     fetchSubscriptionDetails();
     notification();
-  }, []);
+  }, [userType.user_id]);
 
+  const notification = async () => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/notification/${userType.user_id}`
+      );
+      const data = await response.json();
+      setNotify(data);
+      setNotificationCount(data.length);
+    } catch (error) {
+      message.error("Failed to load notifications");
+    }
+  };
+  // Changing the notification count
+  const updateNotification = async () => {
+    try {
+      const response = await fetch(
+        `http://127.0.0.1:8000/updatenotification/${userType.user_id}`,
+        {
+          method: "POST",
+          header: { "Content-Type": "application/json" },
+          body: JSON.stringify({}),
+        }
+      );
+      await notification();
+    } catch (error) {
+      message.error("Failed To Update");
+    }
+  };
 
   // Rendering the notification items
   const renderNotificationMenuItem = (notification) => (
-    <Menu.Item style={{ fontSize: "12px" }} key={notification.id}>{new Date(notification.timestamp).toLocaleDateString()}: {notification.message}</Menu.Item>
+    <Menu.Item key={notification.id}>
+      <div>
+         
+        <span className="text-xs">
+        Date:{new Date(notification.timestamp).toLocaleDateString()}
+        </span>
+        : <span>{notification.message}</span>
+      </div>
+    </Menu.Item>
   );
 
   const renderNotificationDropdown = () => (
-    <Menu style={{maxHeight:150, overflowY:"auto"}}>
-      {notify.slice(0,5).map((notification) => renderNotificationMenuItem(notification))}
+    <Menu style={{ maxHeight: 150, overflowY: "auto" }}>
+      {notify.length===0  ? (<div className="flex items-center justify-center h-20 w-60">No New Notifications</div>) : (notify.map((notification) => renderNotificationMenuItem(notification)))}
     </Menu>
   );
 
@@ -190,26 +215,34 @@ function NavigationDashboard() {
             </div>
           </div>
 
-          <ToastContainer />
-
           <div class="flex space-x-6 items-center">
-            {/* Notification Badge  */}
-            <Dropdown overlay={renderNotificationDropdown} trigger={["click"]}>
-              <Badge count={notify.length} >
-                <Avatar shape="circle" size="small" icon={<BellOutlined />} />
+            {/* Notification */}
+            <Dropdown
+              overlay={renderNotificationDropdown}
+              trigger={["click"]}
+              // Preventing the dropdown from closing when clicking on the badge
+              onClick={(e) => e.stopPropagation()}
+              onVisibleChange={(visible) => {
+                if (!visible) {
+                  updateNotification();
+                }
+              }}
+            >
+              <Badge count={notificationCount} >
+                <BellOutlined style={{ fontSize: "18px" }} />
               </Badge>
             </Dropdown>
 
             {/* Displaying User Name */}
-            <h1 class="text-sm text-gray-500">{userType.username}</h1>
+            <h1 class="text-sm text-gray-900 font-bold">{userType.username}</h1>
 
             {/* User Profile DropDown */}
             <Dropdown
               menu={{
                 items,
               }}
-              trigger={["click"]}
-              size={["large"]}
+              trigger={["hover"]}
+              size={["small"]}
               dropdownRender={(menu) => (
                 <div style={contentStyle}>
                   {React.cloneElement(menu, {

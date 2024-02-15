@@ -683,7 +683,7 @@ function ServiceStatus() {
                   </Button>
                 </Link>
 
-                <Button
+                {/* <Button
                   className="bg-red-900 hover:bg-red-700 text-white rounded"
                   icon={<RiRefund2Line />}
                   onClick={() => setOpenModal3(true)}
@@ -706,19 +706,7 @@ function ServiceStatus() {
                   centered
                 >
                   <div className="flex flex-col p-2 ">
-                    {/* <div className="flex flex-row ">
-                      <Descriptions layout="vertical">
-                        <Descriptions.Item label="Service Name">
-                          {record.service_name}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Activation Date">
-                          {record.service_from}
-                        </Descriptions.Item>
-                        <Descriptions.Item label="Refund Amount">
-                          Rs.{Math.round(record.total_price * 0.9)}
-                        </Descriptions.Item>
-                      </Descriptions>
-                    </div> */}
+                   
                    
                     <div className="flex flex-col">
                       <Form layout="vertical">
@@ -809,7 +797,7 @@ function ServiceStatus() {
                       ) : null}
                     </div>
                   </div>
-                </Modal>
+                </Modal> */}
               </div>
             </div>
             <Table

@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import Logo from "../../images/Abnw.png";
 import { Link, useNavigate } from "react-router-dom";
-import { ToastContainer, toast } from "react-toastify";
-import "react-toastify/dist/ReactToastify.css";
 import Spinner from "../ProfileSettings/Spinner";
+import {message} from 'antd';
 
 function OtpCode() {
   const [otp, setotp] = useState("");
   const navigate = useNavigate();
   const [loading , setLoading] = useState(false);
 
+
+  // Handling OPT Login 
   const handleOTPLogin = async (e) => {
     e.preventDefault();
     try {
@@ -25,19 +26,21 @@ function OtpCode() {
         const data = JSON.parse(userData)
         
         if (data.user_type === "Client") {
+          message.success("Login Successful");
           navigate("/client-dashboard");
         } else {
+          message.success("Login Successful");
           navigate("/employee-dashboard");
         }
       } else {
-        toast.error("Wrong OTP Code");
+        message.error("Wrong OTP Code");
       }
     }catch (error) {
-      
-      toast.error("Unknown Error!");
-      console.error(error);
+      message.error("Failed In Logging In");
     }
   };
+
+
   return (
     <div>
        {loading && <Spinner />}
@@ -112,7 +115,7 @@ function OtpCode() {
             </a>
           </div>
         </div>
-        <ToastContainer position="top-center" autoClose={3000} />
+      
       </div>
     </div>
   );

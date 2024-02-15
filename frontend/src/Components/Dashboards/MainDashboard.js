@@ -1,16 +1,18 @@
 import React, { useState, useEffect } from "react";
 
-
 import { Link, useNavigate } from "react-router-dom";
 import DashboardFooter from "./DashboardFooter";
-import { Card, Space, Button, Divider, Statistic, Table, message } from "antd";
-import { DollarOutlined, EyeOutlined } from "@ant-design/icons";
+import { Card, Button, Statistic, Table, message } from "antd";
+import { EyeOutlined } from "@ant-design/icons";
 import { FaUsers } from "react-icons/fa6";
 import { SiVirustotal } from "react-icons/si";
 import { BiSolidReport } from "react-icons/bi";
-import { FaRegStar } from "react-icons/fa6";
+
+import "chart.js/auto";
+import { Chart } from "react-chartjs-2";
 
 import Spinner from "../../Pages/ProfileSettings/Spinner";
+
 function MainDashboard() {
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
@@ -19,9 +21,11 @@ function MainDashboard() {
   const [totalUsers, setTotalUsers] = useState(0);
   const [totalReports, setTotalReports] = useState(0);
   const [totalServices, setTotalServices] = useState(0);
-  const [totalRatings, setTotalRatings] = useState(0);
   const [serviceCategory, setServiceCategory] = useState([]);
+  const [viewRequestedServices, setViewRequestedServices] = useState([]);
+
   useEffect(() => {
+    // Displaying the announcements
     const announcement = async () => {
       try {
         setLoading(true);
@@ -36,6 +40,7 @@ function MainDashboard() {
       }
     };
 
+    // Displaying the payment data
     const getPaymentData = async () => {
       try {
         setLoading(true);
@@ -50,6 +55,7 @@ function MainDashboard() {
       }
     };
 
+    // Displaying all the user
     const displayUsers = async () => {
       try {
         setLoading(true);
@@ -62,6 +68,7 @@ function MainDashboard() {
       }
     };
 
+    // Fetching the Report
     const fetchReportDetails = async () => {
       try {
         setLoading(true);
@@ -73,6 +80,7 @@ function MainDashboard() {
       }
     };
 
+    // Fetching All the Service Created by the admin
     const fetchServiceData = async () => {
       try {
         setLoading(true);
@@ -85,18 +93,23 @@ function MainDashboard() {
       }
     };
 
-    const allRatings = async () => {
+    // Getting all the requested services
+    const serviceRequest = async () => {
       try {
         setLoading(true);
-        const response = await fetch("http://127.0.0.1:8000/allratings/");
-        const data = await response.json();
-        setTotalRatings(data.ratings);
+        const res = await fetch("http://127.0.0.1:8000/getrequestedservice/");
+        const data = await res.json();
+        setViewRequestedServices(data);
       } catch (error) {
-        console.log(error);
+        message.error("Failed To Fetch Data");
+      } finally {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
       }
     };
 
-    allRatings();
+    serviceRequest();
+
     fetchServiceData();
     fetchReportDetails();
     displayUsers();
@@ -116,22 +129,23 @@ function MainDashboard() {
 
     return total;
   };
-
+  // Total Salary Paid
   const salaryPaid = () => {
     let total = 0;
     const data = paymentDetails?.salary_details?.data;
     if (data) {
-        data.forEach((item) => {
-            if (item && item.amount !== null) {
-                total += parseFloat(item.amount);
-            }
-        });
+      data.forEach((item) => {
+        if (item && item.amount !== null) {
+          total += parseFloat(item.amount);
+        }
+      });
     }
     return total;
-};
-
+  };
+  // Calculating Profit
   const profit = totalReceived() - salaryPaid();
 
+  // Fetching The Table Data
   const tableData = getAnnouncement.map((info, index) => ({
     sn: index + 1,
     key: info.id,
@@ -141,6 +155,7 @@ function MainDashboard() {
     },
   }));
 
+  // Setting The Table Contents
   const tableContents = [
     {
       title: "S.N",
@@ -162,7 +177,111 @@ function MainDashboard() {
     },
   ];
 
-  
+  // Displaying the Pie chart
+  const displayPie = () => {
+    let householdCount = 0;
+    let businessCount = 0;
+
+    serviceCategory.forEach((service) => {
+      if (service.servicetarget === "Household") {
+        householdCount++;
+      } else if (service.servicetarget === "Business") {
+        businessCount++;
+      }
+    });
+    return {
+      labels: ["Household", "Business"],
+      datasets: [
+        {
+          data: [householdCount, businessCount],
+          backgroundColor: [
+            "rgba(255, 165, 0, 0.6)",
+            "rgba(70, 130, 180, 0.6)",
+          ],
+          hoverBackgroundColor: [
+            "rgba(255, 165, 0, 0.8)",
+            "rgba(70, 130, 180, 0.8)",
+          ],
+        },
+      ],
+    };
+  };
+
+  // Displaying the Bar Graph
+  const prepareChartData = (data) => {
+    // Initialize an empty object to store the counts for each date
+    const dateCounts = {};
+
+    // Iterate over each object in the data array
+    data.forEach((item) => {
+      // Check if the object has the necessary properties
+      if (item.services && item.services.servicename && item.approved_date) {
+        // Extract the service name and approved date
+        const serviceName = item.services.servicename;
+        const approvedDate = new Date(item.approved_date).toLocaleDateString(); // Convert to localized date string
+
+        // Increment the count for the approved date and service name combination
+        const key = `${serviceName}-${approvedDate}`;
+        dateCounts[key] = (dateCounts[key] || 0) + 1;
+      }
+    });
+
+    // Prepare the data in the format required by Chart.js
+    const labels = [];
+    const counts = [];
+
+    // Iterate over the dateCounts object to extract labels and counts
+    for (const key in dateCounts) {
+      if (dateCounts.hasOwnProperty(key)) {
+        const [serviceName, date] = key.split("-");
+        labels.push(`${serviceName}`);
+        counts.push(dateCounts[key]);
+      }
+    }
+
+  //  Preparing the data format 
+    const chartData = {
+      labels: labels,
+      datasets: [
+        {
+          label: "Service Requests",
+          data: counts,
+          backgroundColor: "rgba(255, 0, 0, 0.6)",
+          borderColor: "rgba(255, 0, 0, 1)",
+          borderWidth: 0.5,
+        },
+      ],
+    };
+
+    return chartData;
+  };
+
+  // Setting the options for the bar graph
+  const options = {
+    scales: {
+      y: {
+        beginAtZero: false,
+        min: 0,
+        max: 10,
+        ticks: {
+          stepSize: 1,
+          precision: 0,
+        },
+        title: {
+          display: true,
+          text: "Number of Service Requests",
+          color: "grey",
+          font: {
+            size: 14,
+          },
+        },
+      },
+      x: {
+        display: false,
+      },
+    },
+  };
+
   return (
     <div className="w-screen mt-8">
       {loading && <Spinner />}
@@ -210,17 +329,6 @@ function MainDashboard() {
                   </Card>
                 </div>
               </Link>
-              <Link to="/ratings">
-                <div className="hover:shadow">
-                  <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50">
-                    <Statistic
-                      title="Total Ratings"
-                      value={totalRatings}
-                      prefix={<FaRegStar className="mr-4 text-yellow-500" />}
-                    />
-                  </Card>
-                </div>
-              </Link>
             </div>
 
             <div className="hover:shadow">
@@ -263,23 +371,75 @@ function MainDashboard() {
                     <div class="flex flex-col ">
                       <h1 className="text-sky-700">Rs.{totalReceived()}</h1>
                       <h1 className="text-red-700">Rs.{salaryPaid()}</h1>
-                      
-                        <h1 className={profit < 0 ? "text-red-700" : "text-green-700"}>Rs.{profit}</h1>
 
+                      <h1
+                        className={
+                          profit < 0 ? "text-red-700" : "text-green-700"
+                        }
+                      >
+                        Rs.{profit}
+                      </h1>
                     </div>
                   </div>
                 </Card>
               </Link>
             </div>
 
-            {/* <div className="p-2 bg-white shadow-xl rounded">
-          </div> */}
-             {/* <Line {...lineConfig} height={500} width={500}/> */}
+            <div className="p-2 bg-white shadow-xl rounded">
+              <div className="h-full">
+                <Card
+                  title={
+                    <div className="flex flex-row justify-between">
+                      <h1 className="text-sky-800">Total Service Usage</h1>
+                    </div>
+                  }
+                >
+                  <Chart
+                    type="bar"
+                    data={prepareChartData(viewRequestedServices)}
+                    options={options}
+                  />
+                </Card>
+              </div>
+            </div>
           </div>
 
           <div className="rounded ">
             <div className="p-2 bg-white shadow-xl">
-            {/* <Pie data={generateChartData(serviceCategory)} /> */}
+              <Card
+                title={
+                  <div className="flex flex-row justify-between">
+                    <h1 className="text-sky-800">Service Categories</h1>
+                    <svg
+                      class="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M6.4443 3.6853C6.97115 3.33327 7.52766 3.03383 8.10577 2.7894C9.50868 2.19627 10.2101 1.8997 11.1051 2.49296C12 3.08623 12 4.05748 12 6V8C12 9.88561 12 10.8284 12.5858 11.4142C13.1716 12 14.1144 12 16 12H18C19.9425 12 20.9138 12 21.507 12.8949C22.1003 13.7899 21.8037 14.4913 21.2106 15.8942C20.9662 16.4723 20.6667 17.0288 20.3147 17.5557C19.2159 19.2002 17.6541 20.4819 15.8268 21.2388C13.9996 21.9957 11.9889 22.1937 10.0491 21.8078C8.10929 21.422 6.32746 20.4696 4.92894 19.0711C3.53041 17.6725 2.578 15.8907 2.19215 13.9509C1.8063 12.0111 2.00433 10.0004 2.76121 8.17316C3.51809 6.3459 4.79981 4.78412 6.4443 3.6853Z"
+                        stroke="#075985"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                      <path
+                        fill-rule="evenodd"
+                        clip-rule="evenodd"
+                        d="M13.7739 2.12812C13.8771 1.72698 14.286 1.48549 14.6871 1.58873C18.4658 2.56129 21.4389 5.53443 22.4115 9.31307C22.5147 9.71421 22.2732 10.1231 21.8721 10.2263C21.4709 10.3296 21.0621 10.0881 20.9588 9.68696C20.1225 6.43757 17.5626 3.87772 14.3132 3.04139C13.9121 2.93814 13.6706 2.52926 13.7739 2.12812Z"
+                        stroke="#075985"
+                        stroke-width="1"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
+                  </div>
+                }
+              >
+                <div className="w-60 h-60">
+                  <Chart type="pie" data={displayPie()} />
+                </div>
+              </Card>
             </div>
 
             <div className="hover:shadow-lg mt-5">
@@ -331,10 +491,7 @@ function MainDashboard() {
         </div>
 
         <div className="mt-5 grid grid-cols-2 p-2 ">
-          
-          <div className="flex flex-col p-2 justify-end">
-            
-          </div>
+          <div className="flex flex-col p-2 justify-end"></div>
         </div>
         <DashboardFooter />
       </div>
