@@ -21,8 +21,6 @@ function UserProfile() {
 
   const userType = JSON.parse(data);
 
-  const [getEmployeeCaliber, setEmployeeCaliber] = useState("");
-
   const updatePassword = {
     password: newPass,
     username: userType.username,
@@ -44,7 +42,7 @@ function UserProfile() {
             });
   
             if (res.ok) {
-              message.success("Password Changed Successfully!");
+              message.sucess("Password Changed Successfully!");
               if (userType.user_type === "Employee") {
                 navigate("/employee-dashboard");
               } else if (userType.user_type === "Client") {
@@ -76,12 +74,6 @@ function UserProfile() {
       );
       const data = await respone.json();
       setGetProfile(data);
-      const employee_caliber = data.employee_caliber?.caliber_level;
-      if (employee_caliber && employee_caliber !== null) {
-        setEmployeeCaliber(employee_caliber);
-      } else {
-        setEmployeeCaliber(null);
-      }
     };
 
     viewprofile();
@@ -173,12 +165,12 @@ function UserProfile() {
         <TabPane tab="Change Password" key="2">
           <div class="p-5 items-center">
             <Form layout="vertical" onFinish={handleProfileUpdate}>
-                <Form.Item label="New Password">
+                <Form.Item label="New Password" name="newpass" rules={rules}>
                   <Input.Password
                     onChange={(e) => setNewPass(e.target.value)}
                   />
                 </Form.Item>
-                <Form.Item label="Confirm Password">
+                <Form.Item label="Confirm Password" name="confpass" rules={rules}>
                   <Input.Password
                     onChange={(e) => setNewConfirmPass(e.target.value)}
                   />

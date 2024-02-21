@@ -13,7 +13,7 @@ const onSearchChange = useRef([])
 
 const [data , setData ] = useState([])
 
-
+const [amount , setAmount] = useState();
 // handling search query 
 
 const handleSearchQuery = (e) => {
@@ -54,7 +54,16 @@ useEffect(()=>{
             const response = await fetch(`http://127.0.0.1:8000/clienttransaction/${userType.user_id}`)
             const data = await response.json();
             setData(data);
-            onSearchChange.current = data ;
+            onSearchChange.current = data;
+
+            const totalAmount= data.reduce((acc , item) => {
+              const amount = parseFloat(item.amount);
+              if(!isNaN(amount)){
+                return acc + amount;
+              }
+              return acc; 
+            }, 0);
+            setAmount(totalAmount);
             setLoading(false);
         }catch (error){
             message.error(error.message);
@@ -80,7 +89,7 @@ const clientContents = [
        key:"service_name"
      },
       {
-        title: "Value",
+        title: "Amount",
         dataIndex: "payment_amount",
         key: "payment_amount",
       },
@@ -137,11 +146,13 @@ const tableData = data.map((info, index) =>({
                 pageSize:10,
                 showTotal:(total) => `Total ${total} items`
             }}></Table>
+
+            <div className="flex flex-row justify-center">
+              <h1 className="font-bold text-gray-700 text-sm">Total Paid:<span className="text-green-700">Rs.{amount}</span></h1>
+            </div>
             </Card>
           
         </div>
-
-
             <DashboardFooter />
         </div>
     </div>

@@ -133,7 +133,7 @@ class OTPTransactionView(APIView):
 # Download File
 class UserDownloadFileView(APIView):
     def get(self, request, *args, **kwargs):
-        file_path = "../WebsiteFiles/TermsAndConditions/TermsAndConditions.txt"
+        file_path = "../WebsiteFiles/TermsAndConditions/TermsAndConditions.pdf"
         return FileResponse(open(file_path , 'rb'))
     
 

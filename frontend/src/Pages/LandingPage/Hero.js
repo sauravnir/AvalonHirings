@@ -16,8 +16,7 @@ function Hero() {
             FIND YOUR PERFECT HOUSE MAID
           </h1>
           <p className="text-lg mt-4 max-w-xl font-medium">
-            Lorem ipsum dolor sit amet consectetur, adipisicing elit. Nesciunt
-            illo tenetur fuga ducimus numquam ea!
+          Discover Reliable and Experienced Housemaids Tailored to Your Needs
           </p>
           <div className="mt-8">
             <Link to="/login">

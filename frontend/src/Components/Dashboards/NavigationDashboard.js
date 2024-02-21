@@ -151,11 +151,10 @@ function NavigationDashboard() {
   const renderNotificationMenuItem = (notification) => (
     <Menu.Item key={notification.id}>
       <div>
-         
-        <span className="text-xs">
-        Date:{new Date(notification.timestamp).toLocaleDateString()}
+        <span >
+        {notification.message}
         </span>
-        : <span>{notification.message}</span>
+        : <span className="text-sm" >({new Date(notification.timestamp).toLocaleDateString()})</span>
       </div>
     </Menu.Item>
   );

@@ -6,13 +6,14 @@ import {
   Table,
   Space,
   Rate,
+  Select,
   Input,
   Breadcrumb
 } from "antd";
-import { EyeOutlined , HomeOutlined } from "@ant-design/icons";
+import { SearchOutlined , EyeOutlined , HomeOutlined } from "@ant-design/icons";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 
-const RatingText = ({ rating }) => {
+const RatingText = ({ rating  }) => {
   const getRatingText = (input) => {
     const ratingValue = parseFloat(input);
 
@@ -116,11 +117,10 @@ function ViewRatings() {
       dataIndex: "employee_name",
       key: "employee_name",
     },
-    
     {
       title: "Rating",
-      dataIndex: "rating",
-      key: "rating",
+      dataIndex: "emp_rating",
+      key: "emp_rating",
     },
     {
       title: "Action",
@@ -168,7 +168,7 @@ function ViewRatings() {
     key:info.id,
     client_name: info.client.fullname, 
     employee_name : info.employee.fullname , 
-    rating : <RatingText rating={info.ratings} />,
+    emp_rating : <RatingText rating={info.ratings} />,
   }))
   return (
     <div className="w-screen mt-8">
@@ -195,7 +195,9 @@ function ViewRatings() {
             <Table columns={tableColumns} dataSource={tableData} pagination={{
                   pageSize: 15,
                   showTotal: (total) => `Total ${total} items`,
-                }}></Table>
+                }}>
+
+                </Table>
           </Card>
         </div>
       </div>

@@ -33,10 +33,10 @@ function ForgotPassword() {
         });
 
         if (response.ok) {
-          message.success('Password reset successful. Please log in with your new password.');
+          message.success('Password reset successful.');
           navigate('/login');
         } else {
-          message.error('Failed to reset password. Please try again later.');
+          message.error('Failed to reset password. Please try again!');
         }
       } catch (error) {
         message.error('Error: Failed to reset password. ' + error.message);
@@ -56,24 +56,20 @@ function ForgotPassword() {
             </span>
 
             <span className="text-sm mt-2 dark:text-dark-900">
-              <span className='text-red-500'>
-                Your new password must be different than you previously registered with.<br></br>
-              </span>
-              Wanna return back?
               <Link to="/login" class="font-medium text-blue-500 hover:text-blue-800 hover:underline">
-               
-                Go to login page
+                Login Here!
               </Link>
             </span>
           </div>
-          <div className="grid grid-rows-2 grid-flow-row gap-4 max-w-xl">
-            <Form className="md:flex flex-col space-y-4 p-8  justify-center" onFinish={handleForgotPassword}>
+          <div className="flex flex-col max-w-xl">
+            <Form className="md:flex flex-col p-8 justify-center" onFinish={handleForgotPassword} layout='vertical'>
               <Form.Item
+              label="Email"
                 name="email"
                 rules={[
                   {
                     required: true,
-                    message: 'Please input your email!',
+                    message: 'required!',
                     type: 'email'
                   }
                 ]}
@@ -81,23 +77,25 @@ function ForgotPassword() {
                 <Input placeholder="example@gmail.com" />
               </Form.Item>
               <Form.Item
+              label="New Password"
                 name="password"
                 rules={[
                   {
                     required: true,
-                    message: 'Please input your password!'
+                    message: 'required!'
                   }
                 ]}
               >
                 <Input.Password placeholder="***********" />
               </Form.Item>
               <Form.Item
+              label="Confirm Password"
                 name="confirmPassword"
                 dependencies={['password']}
                 rules={[
                   {
                     required: true,
-                    message: 'Please confirm your password!'
+                    message: 'required!'
                   },
                   ({ getFieldValue }) => ({
                     validator(_, value) {
@@ -112,7 +110,7 @@ function ForgotPassword() {
                 <Input.Password placeholder="***********" />
               </Form.Item>
               <Form.Item>
-                <Button type="primary" htmlType="submit" className="flex flex-col bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium  px-40 rounded-lg focus:outline-none focus:shadow-outline">
+                <Button type="primary" htmlType="submit" className="flex flex-row items-center justify-center bg-blue-500 hover:bg-blue-700 text-white text-lg font-medium rounded-lg w-full">
                   Reset Password
                 </Button>
                 

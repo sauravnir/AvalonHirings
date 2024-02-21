@@ -310,22 +310,21 @@ useEffect(() => {
               okText="Approve"
               cancelText="Decline"
               footer={[
-                <Button key="back" size="small" onClick={modalCancelClient}>
+                <Button key="back" onClick={modalCancelClient}>
                   Back
                 </Button>,
                 modalDetails.report_action === "Pending" && (
                   <>
                     <Button
-                      style={{ backgroundColor: "green", color: "white" }}
-                      size="small"
                       onClick={onApproval}
-                    >
+                      className="bg-sky-900 hover:bg-sky-700 rounded text-white"
+                    > 
                       Approve
                     </Button>
                     <Button
-                      style={{ backgroundColor: "red", color: "white" }}
-                      size="small"
+                      // style={{ backgroundColor: "red", color: "white" }}
                       onClick={onDenial}
+                      className="bg-red-900 hover:bg-red-700 rounded text-white"
                     >
                       Decline
                     </Button>

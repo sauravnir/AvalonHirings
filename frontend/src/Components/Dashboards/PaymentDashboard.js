@@ -100,7 +100,7 @@ const salaryPayments = paymentDetails?.salary_details?.data?.map((info , index) 
   key:info?.id , 
   user_type:info?.caliber?.employee?.user_type ,
   user_name : info?.caliber?.employee?.fullname , 
-  payment_amount : `Rs ${info?.amount}` ,
+  payment_amount : `Rs ${info?.amount !== null ? info?.amount : "0"}` ,
   date:info?.action_date , 
   description:info?.description , 
 }))

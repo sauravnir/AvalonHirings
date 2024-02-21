@@ -12,7 +12,8 @@ import {
   InputNumber,
   TimePicker,
   message,
-  Space
+  Space,
+  Divider
 } from "antd";
 import { ToastContainer, toast } from "react-toastify";
 import { PlusOutlined, HomeOutlined } from "@ant-design/icons";
@@ -136,18 +137,20 @@ function ServiceRequestClient() {
         message.success(data.message);
         navigate("../client-view-service");
       } 
-      else 
+      else if (res.status===500 && data.includes('Duplicate Entry')) 
       {
-        message.error(data.error);
-        console.log(data.error);
+        message.error("Cannot Perform Duplicate Requests");
+      }else{
+        message.error("Error Occured!")
       }
-      
+
     } catch (error) {
-      message.error("Cannot Perform Duplicate Requests");
+      message.error("Duplicate Entry!");
     }
     setLoading(false);
   };
 
+  // Search Filtering
   const handleFilterChange = (value) => {
     setFilterQuery(value);
     setHandleUserInput(true);
@@ -158,6 +161,7 @@ function ServiceRequestClient() {
     setHandleUserInput(true);
   };
 
+  // Applying filtering
   useEffect(() => {
     const applySearchAndFilter = async () => {
       try {
@@ -229,8 +233,9 @@ function ServiceRequestClient() {
               Total Services: {Object.keys(getServiceItems).length}
             </h1>
             <div class="flex flex-row items-center space-x-2">
+              <h1>Filter:</h1>
               <select
-                class=" shadow-lg p-2 text-sm"
+                class=" shadow-lg p-2 text-sm rounded border"
                 value={filterQuery}
                 onChange={(e) => handleFilterChange(e.target.value)}
               >
@@ -240,7 +245,7 @@ function ServiceRequestClient() {
                 <option>Business</option>
               </select>
               <select
-                class=" shadow-lg p-2 text-sm"
+                class=" shadow-lg p-2 text-sm rounded border"
                 value={filterAvailability}
                 onChange={(e) => handleFilterAvailability(e.target.value)}
               >
@@ -251,7 +256,8 @@ function ServiceRequestClient() {
               </select>
             </div>
           </div>
-          <div class="grid grid-cols-4 space-x-4 flex-wrap">
+          <Divider/>
+          <div class="grid grid-cols-3 space-x-4 flex-wrap">
             {getServiceItems.map((info) => (
               <div
                 key={info.id}
@@ -264,7 +270,6 @@ function ServiceRequestClient() {
                     <Badge status="warning" text="Unavailable" />
                   )}
                   <h1 className="mt-2 font-bold text-xl">{info.servicename}</h1>
-                  {/* <p className="mt-4 text-sm font-normal">{info.servicedesc}</p> */}
                   <h1 className="mt-3 text-sm">
                     Service For:{" "}
                     {info.servicetarget === "Business" ? (
@@ -442,19 +447,6 @@ function ServiceRequestClient() {
                                 }}
                               />
                             </Form.Item>
-                            {/* <Form.Item label="To:" name="to" rules={rules}>
-                              <TimePicker
-                                use12Hours
-                                disabledHours={disabledHours}
-                                placeholder="To"
-                                format="HH"
-                                onChange={(time, timeString) => {
-                                  const formattedTime =
-                                    timeString.concat(":00.000000");
-                                  setEndHour(formattedTime);
-                                }}
-                              />
-                            </Form.Item> */}
                           </div>
 
                           <Form.Item label="Service will expire on:">

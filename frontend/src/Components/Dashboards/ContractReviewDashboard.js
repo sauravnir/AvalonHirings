@@ -85,17 +85,15 @@ function ContractReviewDashboard() {
       );
 
       if (response.ok) {
-        // Handle success
-        // window.location.reload();
         const data = await response.json();
         message.success(data.message);
         navigate("/admin-dashboard");
       } else {
         // Handle error
-        toast.error(`Failed to ${actionType} request`);
+        message.error(`Failed to ${actionType} request`);
       }
     } catch (error) {
-      toast.error("Error Occured!");
+      message.error("Error Occured!");
     } finally {
       await new Promise((resolve) => setTimeout(resolve, 2000));
       setLoading(false);
@@ -392,7 +390,7 @@ function ContractReviewDashboard() {
   ];
 
   const data = contractDetails.map((info, index) => ({
-    sn: index + 1,
+    sn: contractDetails.length -index,
     key: info.id,
     contract_id: info.contract_id,
     user_name: info.user.fullname,
@@ -400,7 +398,7 @@ function ContractReviewDashboard() {
     created_date: info.created_date,
     caliber_level : (info.caliber? info.caliber.caliber_level : "N/A" ), 
     contract_status: [info.contract_status],
-  }));
+  })).reverse();
   
   return (
     <div class="w-screen mt-8">

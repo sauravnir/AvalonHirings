@@ -20,10 +20,14 @@ import {
   Select,
 } from "antd";
 
-import { EyeOutlined, HomeOutlined, SearchOutlined } from "@ant-design/icons";
-import { ToastContainer, toast } from "react-toastify";
+import {
+  EyeOutlined,
+  HomeOutlined,
+  SearchOutlined,
+  EditOutlined,
+} from "@ant-design/icons";
+
 import moment from "moment";
-import "react-toastify/dist/ReactToastify.css";
 import DashboardFooter from "./DashboardFooter";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 
@@ -47,8 +51,10 @@ function CreateService() {
   const { TabPane } = Tabs;
   const [loading, setLoading] = useState(false);
   const [viewServicesModal, setViewServicesModal] = useState(false);
+  const [viewServicesModal1, setViewServicesModal1] = useState(false);
   const [viewRequestedServices, setViewRequestedServices] = useState([]);
   const [singleRequestedService, setSingleRequestedService] = useState({
+    id: "",
     fullname: "",
     servicename: "",
     requested_date: "",
@@ -71,9 +77,16 @@ function CreateService() {
   const [freeEmployees, setFreeEmployees] = useState([]);
   const [assignedEmployees, setAssignedEmployee] = useState("");
   const [paymentApproval, setPaymentApproval] = useState("");
+  const [singleServiceKey, setSingleServiceKey] = useState();
+
+  const handleEmployeeAssign = (value) => {
+    setAssignedEmployee(value);
+    console.log("Selected employee:", value);
+  };
 
   const handleInfoClick = (id) => {
     fetchRequestedService(id);
+    setSingleServiceKey(id);
     setOpenModal(true);
   };
 
@@ -81,7 +94,6 @@ function CreateService() {
 
   const [singleCreatedService, setSingleCreatedService] = useState([]);
   // Store the fetched data for later use
-  console.log(singleCreatedService.id);
 
   const [createdService, setCreatedService] = useState([]);
 
@@ -129,8 +141,9 @@ function CreateService() {
         const res = await fetch("http://127.0.0.1:8000/getservices/");
         const data = await res.json();
         setCreatedService(data);
+        console.log(data);
       } catch (error) {
-        toast.error(error);
+        message.error("Error Occured!");
       } finally {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         setLoading(false);
@@ -196,7 +209,7 @@ function CreateService() {
         const data = await res.json();
         setViewRequestedServices(data);
       } catch (error) {
-        message.error("Failed To Fetch Data"); 
+        message.error("Failed To Fetch Data");
       } finally {
         await new Promise((resolve) => setTimeout(resolve, 2000));
         setLoading(false);
@@ -225,7 +238,10 @@ function CreateService() {
         status,
       } = data;
 
+      const serviceId = data.id;
+
       const updateSingleRequestedService = {
+        id: serviceId,
         fullname: user?.fullname || "",
         servicename: services?.servicename || "",
         requested_date: approved_date || "",
@@ -244,52 +260,50 @@ function CreateService() {
 
       setSingleRequestedService(updateSingleRequestedService);
     } catch (error) {
-      toast.error(error);
+      message.error("Error Occurred!");
     }
   };
 
   // Update Service Request / Status
-
   const updateServiceRequest = async (approvalType, serviceID) => {
     try {
-      setLoading(true);
-      const url = `http://127.0.0.1:8000/updateservicerequest/${serviceID}`;
+        setLoading(true);
+        const url = `http://127.0.0.1:8000/updateservicerequest/${serviceID}`;
 
-      const requestOptions = {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-      };
+        const requestOptions = {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+        };
 
-      // Include assigned employee details only when approvalType is "Payment Required"
-      if (approvalType === "On-Going") {
-        requestOptions.body = JSON.stringify({
-          action: approvalType,
-          assignedEmployee: assignedEmployees,
-          paymentApproval: paymentApproval,
-        });
-      } else {
-        requestOptions.body = JSON.stringify({ action: approvalType });
-      }
+        if (approvalType === "On-Going" && assignedEmployees) {
+            requestOptions.body = JSON.stringify({
+                action: approvalType,
+                assignedEmployee: assignedEmployees,
+                paymentApproval: paymentApproval,
+            });
+        }else {
+          requestOptions.body = JSON.stringify({action:approvalType});
+        }   
 
-      const response = await fetch(url, requestOptions);
+        const response = await fetch(url, requestOptions);
 
-      if (response.ok) {
-        const data = await response.json();
-        message.success(data.message);
-        navigate("/admin-dashboard");
-      } else {
-        toast.error("Failed to update status.");
-      }
+        if (response.ok) {
+            const data = await response.json();
+            message.success(data.message);
+            navigate("/admin-dashboard");
+        } else {
+            message.error("Failed to update status.");
+        }
     } catch (error) {
-      message.error("Failed To Assign Maid!");
+        message.error("Failed To Assign Maid!");
     } finally {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      setLoading(false);
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+        setLoading(false);
     }
-  };
+};
+
 
   // Loading the free-employees from AssignedEmployees model
-
   useEffect(() => {
     setLoading(true);
     const getAssignedEmployees = async () => {
@@ -303,7 +317,6 @@ function CreateService() {
   }, []);
 
   //View Services
-
   const serviceTableContents = [
     {
       title: "S.N",
@@ -327,8 +340,23 @@ function CreateService() {
     },
     {
       title: "Status",
-      dataIndex: "status",
-      key: "status",
+      dataIndex: "service_status",
+      key: "service_status",
+      filterMultiple: false,
+
+      render: (service_status) => {
+        let color = service_status.length > 5 ? "geekblue" : "green";
+        if (service_status === "Available") {
+          color = "green";
+        } else if (service_status === "Not Available") {
+          color = "red";
+        }
+        return (
+          <Tag color={color} key={service_status}>
+            {service_status}
+          </Tag>
+        );
+      },
     },
     {
       title: "Actions",
@@ -336,22 +364,82 @@ function CreateService() {
       key: "action",
       render: (_, record) => (
         <Space size="medium">
+          {/* View Service */}
           <Button
             size="small"
             icon={<EyeOutlined style={{ fontSize: "13px" }} />}
+            onClick={() => {
+              setViewServicesModal1(true);
+              fetchSingleServiceData(record.key);
+              setSelectedRecordKey(record.key);
+            }}
+          ></Button>
+
+          <Modal
+            title="Service Details"
+            open={viewServicesModal1}
+            onCancel={() => setViewServicesModal1(false)}
+            width={400}
+            footer={
+              <Button
+                type="default"
+                onClick={() => {
+                  setViewServicesModal1(false);
+                }}
+              >
+                Close
+              </Button>
+            }
+            centered
+          >
+            <div className="flex flex-cols items-center justify-center">
+              <Descriptions layout="horizontal" column={1}>
+                <Descriptions.Items label="Service Name">
+                  {singleCreatedService.servicename}
+                </Descriptions.Items>
+
+                <Descriptions.Items label="Service Description">
+                  {singleCreatedService.servicedesc}
+                </Descriptions.Items>
+
+                <Descriptions.Items label="Service For">
+                  {singleCreatedService.servicetarget}
+                </Descriptions.Items>
+
+                <Descriptions.Items label="Service Duration">
+                  {singleCreatedService.serviceavailable}
+                </Descriptions.Items>
+
+                <Descriptions.Items label="Availability:">
+                  {singleCreatedService.status}
+                </Descriptions.Items>
+
+                <Descriptions.Items label="Base Pricing">
+                  <span className="text-green-700">
+                    Rs.{singleCreatedService.serviceprice}
+                  </span>
+                </Descriptions.Items>
+              </Descriptions>
+            </div>
+          </Modal>
+
+          {/* Update Service */}
+          <Button
+            size="small"
+            icon={<EditOutlined style={{ fontSize: "13px" }} />}
             onClick={() => {
               setViewServicesModal(true);
               fetchSingleServiceData(record.key);
               setSelectedRecordKey(record.key);
             }}
+            className="ml-2"
           ></Button>
           <Modal
-            title="Service Details"
+            title="Update Service"
             open={viewServicesModal}
             onCancel={() => setViewServicesModal(false)}
             width={400}
             footer={null}
-            // onOk={() =>updateSingleServiceData(record.key)}
             centered
           >
             <Form
@@ -388,7 +476,7 @@ function CreateService() {
                 </Radio.Group>
               </Form.Item>
               <Form.Item
-                label="Select Service Available Days"
+                label="Select Service Duration "
                 name="Available"
                 rules={rules}
               >
@@ -397,7 +485,6 @@ function CreateService() {
                   onChange={(e) => setUpdatedServiceAvailable(e.target.value)}
                 >
                   <option>Select From Below</option>
-                  <option disabled>Hours (currently disabled)</option>
                   <option>Months</option>
                   <option>Weeks</option>
                 </select>
@@ -429,9 +516,17 @@ function CreateService() {
                   </Radio.Button>
                 </Radio.Group>
               </Form.Item>
-              <div class="space-x-2">
-                <Button htmlType="submit">Update</Button>
-                <Button onClick={() => setViewServicesModal(false)}>
+              <div class="flex flex-row justify-center space-x-2">
+                <Button
+                  htmlType="submit"
+                  className="bg-sky-900 hover:bg-sky-700 text-white"
+                >
+                  Update
+                </Button>
+                <Button
+                  className="bg-red-900 hover:bg-red-700 text-white"
+                  onClick={() => setViewServicesModal(false)}
+                >
                   Discard
                 </Button>
               </div>
@@ -444,11 +539,6 @@ function CreateService() {
 
   // View Requested Services by the client
   const serviceRequestTable = [
-    {
-      title: "S.N",
-      dataIndex: "sn",
-      key: "sn",
-    },
     {
       title: "Client Name",
       dataIndex: "client_name",
@@ -529,7 +619,7 @@ function CreateService() {
       key: "requested_date",
     },
     {
-      title: "Request Status",
+      title: "Service Status",
       dataIndex: "request_status",
       key: "request_status",
       filters: [
@@ -611,7 +701,7 @@ function CreateService() {
               disabled: true,
             }}
             onOk={() => setOpenModal(false)}
-            width={1500}
+            width={1000}
             centered
             footer={[
               <Button
@@ -624,10 +714,13 @@ function CreateService() {
               // Conditionally rendering the buttons
               <Button
                 className="text-white bg-sky-900 hover:bg-sky-700 rounded"
-                onClick={() => updateServiceRequest("On-Going", record.key)}
+                onClick={() =>
+                  updateServiceRequest("On-Going", singleRequestedService.id)
+                }
                 disabled={
-                  (singleRequestedService.status =
-                    "On-Going" || singleRequestedService.status === "Completed")
+                  singleRequestedService.status === "On-Going" ||
+                  singleRequestedService.status === "Completed" ||
+                  singleRequestedService.status === "Payment Required"
                 }
               >
                 {singleRequestedService.status === "On-Going" ||
@@ -637,7 +730,7 @@ function CreateService() {
               </Button>,
             ]}
           >
-            <Descriptions bordered layout="vertical">
+            <Descriptions layout="vertical" column={4}>
               <Descriptions.Item label="Client Name">
                 {singleRequestedService.fullname}
               </Descriptions.Item>
@@ -734,27 +827,33 @@ function CreateService() {
                 </Descriptions.Item>
               )}
 
-              <Descriptions.Item label="Starting Time:">
+              <Descriptions.Item label="Work Time:">
                 {/* Checking the condition to put AM or PM  */}
                 {singleRequestedService.startHour
-                  ? parseInt(
-                      singleRequestedService.startHour.split(":")[0],
-                      10
-                    ) <= 12
-                    ? singleRequestedService.startHour + " AM"
-                    : parseInt(
-                        singleRequestedService.startHour.split(":")[0],
-                        10
-                      ) -
-                      12 +
-                      ":" +
-                      singleRequestedService.startHour.split(":")[1] +
-                      " PM"
+                  ? (() => {
+                      const parts = singleRequestedService.startHour.split(":");
+                      const hours = parseInt(parts[0], 10);
+                      let period = "AM";
+
+                      if (hours >= 12) {
+                        period = "PM";
+                      }
+
+                      const twelveHourFormat = hours > 12 ? hours - 12 : hours;
+                      const formattedTime = `${twelveHourFormat} ${period}`;
+
+                      return formattedTime;
+                    })()
                   : "No start hour available"}
               </Descriptions.Item>
-              <Descriptions.Item label="Approve Payment" name="Approve">
+              <Descriptions.Item
+                label="Approve Payment"
+                name="Approve"
+                rules={rules}
+              >
                 <Radio.Group
                   onChange={(e) => setPaymentApproval(e.target.value)}
+              
                 >
                   <Radio.Button value="Select" disabled>
                     Select
@@ -768,54 +867,41 @@ function CreateService() {
                 </Radio.Group>
               </Descriptions.Item>
             </Descriptions>
-            <Divider></Divider>
 
+            {/* Rendering the Free Employees */}
             <Card>
-              <div class="grid grid-cols-2 items-end justify-center space-y-2">
+              <div className="grid grid-cols-2 items-end justify-center space-y-2">
                 <div className="flex flex-row items-center space-x-2 justify-center">
-                  <h1 class="items-center text-sky-900 text-lg font-bold">
+                  <h1 className="items-center text-sky-900 text-lg font-bold">
                     AVAILABLE MAID/S:
                   </h1>
-                  <select
-                    class="border rounded h-8"
-                    onChange={(e) => setAssignedEmployee(e.target.value)}
+                  <Select
+                    className="border rounded h-8"
+                    onChange={handleEmployeeAssign}
+                    value={assignedEmployees}
                     required
                   >
-                    {/* Fetching the employees from the database and then assigning to any of the requested services */}
-                    {freeEmployees.length === 0 ? (
-                      <option value="" disabled>
-                        No available employees
-                      </option>
-                    ) : (
-                      <>
-                        <option value="" disabled>
-                          Choose from the option below:
-                        </option>
-                        {/* Fetching the employees from the database and then assigning to any of the requested services */}
-                        {freeEmployees.map((info) => {
-                          return (
-                            <option
-                              key={info.id}
-                              value={info.assigned_employee.fullname}
-                            >
-                              <div class="flex flex-row items-center">
-                                {info.assigned_employee.fullname}(
-                                {info.caliber.caliber_level.toUpperCase()})
-                              </div>
-                            </option>
-                          );
-                        })}
-                      </>
-                    )}
-                  </select>
+                    <Select.Option value="" disabled>
+                      Choose from the options below:
+                    </Select.Option>
+                    {freeEmployees.map((info) => (
+                      <Select.Option
+                        key={info.id}
+                        value={info.assigned_employee.fullname}
+                      >
+                        {info.assigned_employee.fullname} (
+                        {info.caliber.caliber_level.toUpperCase()})
+                      </Select.Option>
+                    ))}
+                  </Select>
                 </div>
 
-                <div className="flex flex-row items-center space-x-2 justify-center">
+                {/* <div className="flex flex-row items-center space-x-2 justify-center">
                   <h1 className="text-lg text-sky-900 font-bold">
                     ASSIGNED MAID:
                   </h1>
-                  <space>No Maid Assigned Yet:</space>
-                </div>
+                  <span>No Maid Assigned Yet</span>
+                </div> */}
               </div>
             </Card>
           </Modal>
@@ -825,30 +911,33 @@ function CreateService() {
   ];
 
   // View All Services
-  const allServicesList = createdService.map((info, index) => ({
-    sn: index + 1,
-    key: info.id,
-    service_name: info.servicename,
-    service_for: info.servicetarget,
-    service_price: info.serviceprice,
-    status: info.status,
-  }));
+  const allServicesList = createdService
+    .map((info, index) => ({
+      sn: createdService.length - index,
+      key: info.id,
+      service_name: info.servicename,
+      service_for: info.servicetarget,
+      service_price: info.serviceprice,
+      service_status: info.status,
+    }))
+    .reverse();
 
   // Data Source For Requested Services
-  const allRequestedService = viewRequestedServices.map((info, index) => ({
-    sn: index + 1,
-    key: info.id,
-    client_name: {
-      fullname: info.user.fullname,
-      subscribed: info.subscription ? info.subscription : "N/A",
-    },
-    service_name: info.services.servicename,
-    service_caliber: info.services.required_caliber,
-    requested_date: moment(info.approved_date).format("YYYY-MM-DD"),
-    request_status: info.status,
-  }));
+  const allRequestedService = viewRequestedServices
+    .map((info) => ({
+     
+      key: info.id,
+      client_name: {
+        fullname: info.user.fullname,
+        subscribed: info.subscription ? info.subscription : "N/A",
+      },
+      service_name: info.services.servicename,
+      service_caliber: info.services.required_caliber,
+      requested_date: moment(info.approved_date).format("YYYY-MM-DD"),
+      request_status: info.status,
+    }))
+    ;
 
-  // Filtering the table data based on subscription
   const subscribedClients = allRequestedService.filter(
     (client) => client.client_name.subscribed !== "N/A"
   );
@@ -1008,7 +1097,7 @@ function CreateService() {
       {loading && <Spinner />}
       <div class="flex flex-col mt-2 p-6">
         <div className="flex flex-row justify-between items-center w-full p-3">
-          <h1 className="text-xl  font-bold">Add - View services</h1>
+          <h1 className="text-xl  font-bold">All Services</h1>
           <Breadcrumb
             items={[
               {
@@ -1025,7 +1114,6 @@ function CreateService() {
             ]}
           />
         </div>
-        <ToastContainer position="top-center" autoClose={5000} />
 
         <div class="p-3 bg-white rounded shadow-xl shadow-gray-350">
           <Card>

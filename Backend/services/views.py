@@ -147,43 +147,46 @@ class UpdateServiceRequestView(RetrieveAPIView):
             assigned_employee_fullname = serializer.validated_data.get('assignedEmployee')
             payment_approval = serializer.validated_data.get('paymentApproval')
             
-            assigned_employee_data = Users.objects.get(fullname=assigned_employee_fullname)
-            assigned_employee_id = assigned_employee_data.id
-            payment_object = get_object_or_404(Payment, service_use_id=service_use.id)
+            try:
+                assigned_employee_data = Users.objects.get(fullname=assigned_employee_fullname)
+                assigned_employee_id = assigned_employee_data.id
+            except Users.DoesNotExist:
+                return Response({'error': 'Assigned employee not found'}, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                payment_object = Payment.objects.get(service_use=service_use)
+            except Payment.DoesNotExist:
+                return Response({'error': 'Payment object not found'}, status=status.HTTP_400_BAD_REQUEST)
+            
             if serviceuse_status == "On-Going":
-                if assigned_employee_id:
-                    assigned_employee_table = AssignedEmployees.objects.filter(assigned_employee=assigned_employee_id).first()
-                    if assigned_employee_table:
-                        assigned_employee_table.service_request = service_use
-                        assigned_employee_table.work_status = "Occupied"
-                        assigned_employee_table.save()
+                try:
+                    assigned_employee_table = AssignedEmployees.objects.get(assigned_employee=assigned_employee_id)
+                    assigned_employee_table.service_request = service_use
+                    assigned_employee_table.work_status = "Occupied"
+                    assigned_employee_table.save()
 
-                        # Implementing Notification for the assigned employee
-                        try:
-                            admin_user = Users.objects.get(is_superuser=True)
-                            with transaction.atomic():
-                                Notification.objects.create(
-                                    from_user=admin_user,
-                                    to_user=assigned_employee_data,
-                                    message=f"You have been assigned to a new service: {service_use.name}."
-                                )
-                        except Users.DoesNotExist:
-                            return Response({'error': 'Admin User Not Found'}, status=500)
-                        except Exception as e:
-                            return Response({'error': str(e)}, status=500)
-                        
-                if payment_approval == "Payment Received":
-                    payment_object.payment_approval = True
-                else:
-                    payment_object.payment_approval = False
-                payment_object.save()
+                    # Implement Notification
+                    admin_user = Users.objects.get(is_superuser=True)
+                    with transaction.atomic():
+                        Notification.objects.create(
+                            from_user=admin_user,
+                            to_user=assigned_employee_data,
+                            message=f"You have been assigned to a new service: {service_use.services.servicename}."
+                        )
+                except Exception as e:
+                    return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+                if payment_approval is not None:
+                    payment_object.payment_approval = payment_approval == "Payment Received"
+                    payment_object.save()
+                
                 service_use.status = serviceuse_status
                 service_use.approved_date = timezone.now()
                 service_use.save()
 
             return Response({'message': 'Status updated!'}, status=status.HTTP_200_OK)
 
-        return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({'error': 'Invalid data'}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # Getting the requested service for solo client
@@ -215,3 +218,6 @@ class EmployeeWorkScheduleView(RetrieveAPIView):
     queryset = AssignedEmployees.objects.all()
     serializer_class = EmployeeAssignedServiceSerializer
     lookup_field = "assigned_employee_id"
+
+
+ 

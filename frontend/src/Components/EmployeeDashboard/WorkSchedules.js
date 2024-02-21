@@ -7,11 +7,12 @@ import {
   Table,
   Space,
   Button,
+  Select, 
   Card,
   Descriptions,
    Breadcrumb
 } from "antd";
-import { EyeOutlined, HomeOutlined } from "@ant-design/icons";
+import { SearchOutlined , EyeOutlined, HomeOutlined } from "@ant-design/icons";
 import DashboardFooter from "../Dashboards/DashboardFooter";
 
 import Spinner from "../../Pages/ProfileSettings/Spinner";
@@ -33,6 +34,9 @@ function WorkSchedules() {
     approved_date: "",
     startHour : "",
   });
+
+  console.log("The id status is ", activeService.id)
+
 
   const data = localStorage.getItem("userData");
 
@@ -63,10 +67,7 @@ function WorkSchedules() {
           approved_date: assigned_service_details?.approved_date || "",
           startHour : service_request?.startHour || "",
         };
-
-        console.log(viewActiveService);
-        setActiveService(viewActiveService);
-        
+        setActiveService(viewActiveService);        
       } catch (error) {
         console.log(error);
       }finally {
@@ -79,11 +80,6 @@ function WorkSchedules() {
   }, []);
 
   const workTable = [
-    {
-      title: "S.N",
-      dataIndex: "sn",
-      key: "sn",
-    },
     {
       title: "Service Name",
       dataIndex: "service_name",
@@ -98,6 +94,11 @@ function WorkSchedules() {
       title:"Status",
       dataIndex:"work_status",
       key:"work_status",
+      filterMultiple:false , 
+      filters:[
+        { text: "Active", value: "Active" },
+        { text: "Completed", value: "Completed" },
+      ],
       render: (_,{work_status}) => (
         <>
         {work_status &&
@@ -115,7 +116,33 @@ function WorkSchedules() {
           )
         })}
         </>
-      )
+      ),
+      filterDropdown: ({ setSelectedKeys, selectedKeys, confirm }) => (
+        <div className="flex flex-col space-y-2" style={{ padding: 8 }}>
+          <Select
+            mode="multiple"
+            style={{ width: 200 }}
+            placeholder="Select Status"
+            onChange={(value) => setSelectedKeys(value || [])}
+            onDeselect={confirm}
+            value={selectedKeys}
+            options={["Active", "Completed"].map((status) => ({
+              value: status,
+              label: status,
+            }))}
+          />
+          <Button
+            type="default"
+            onClick={confirm}
+            icon={<SearchOutlined />}
+            size="small"
+            style={{ width: 90 }}
+          >
+            Search
+          </Button>
+        </div>
+      ),
+      onFilter: (value, record) => record.work_status.includes(value),
     },
     {
       title: "Actions",
@@ -138,7 +165,7 @@ function WorkSchedules() {
           >
             <div class="flex flex-col p-4 items-center">
               <div class="bordered space-y-2">
-                <Descriptions layout="vertical" size="middle" bordered>
+                <Descriptions layout="horizontal" size="middle" row={2}>
                   <Descriptions.Items label="Client Profile">
                     <div class="flex flex-row items-center justify-center">
                       <a href={activeService.profilepicture}>
@@ -190,21 +217,20 @@ function WorkSchedules() {
   ];
 
   
-  const workTableData = [
+  const workTableData = activeService && activeService.id && activeService.servicename && activeService.fullname && activeService.workstatus ? [
     {
-      sn: 1,
-      key: activeService?.id || null,
-      service_name: activeService?.servicename || null,
-      client_name: activeService?.fullname || null,
-      work_status:[activeService?.workstatus === "Occupied" ? "Active" : "Completed"]  ,
+      key: activeService.id,
+      service_name: activeService.servicename,
+      client_name: activeService.fullname,
+      work_status: [activeService.workstatus === "Occupied" ? "Active" : "Completed"],
     },
-  ];
+  ] : [];   
   return (
     <div className="w-screen mt-8">
       {loading && <Spinner />}
       <div className="flex flex-col mt-2 p-6">
         <div className="flex flex-row w-full items-center justify-between p-3">
-          <h1 className="text-xl  font-bold">Work Schedules</h1>
+          <h1 className="text-xl  font-bold">Work Status</h1>
           <Breadcrumb items={[
               {
                 href:"/employee-dashboard",
@@ -212,11 +238,10 @@ function WorkSchedules() {
               },
               {
                 href:"/employee-review-ratings",
-                title:"Work Schedule"
+                title:"Work Status"
               }
               ]}/>
         </div>
-        
         <div class="p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
           <Card>
           <Table columns={workTable} dataSource={workTableData} pagination={{

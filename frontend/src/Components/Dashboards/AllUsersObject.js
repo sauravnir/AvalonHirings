@@ -294,7 +294,7 @@ function AllUsersObject() {
     },
   ];
   const tableData = allUsers.map((info, index) => ({
-    sn: index + 1,
+    sn: allUsers.length - index,
     key: info.id,
     fullname: {
       profilepic: info.profilepic,
@@ -305,7 +305,7 @@ function AllUsersObject() {
     phone: info.contact,
     last_login: info.last_login ? formatDistanceToNow(new Date(info.last_login)) : "N/A",
     addSuffix: true,
-  }));
+  })).reverse();
   return (
     <div class="w-screen mt-8">
       {loading && <Spinner />}

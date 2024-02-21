@@ -76,7 +76,7 @@ class UpdatedContractView(APIView):
                 AssignedEmployees.objects.filter(assigned_employee = user_data).delete()
                 Caliber.objects.filter(employee = user_data).delete();
                 contract.save()
-                return Response({'message': 'Report updated successfully'}, status=status.HTTP_200_OK)
+                return Response({'message': 'Status updated Successfully'}, status=status.HTTP_200_OK)
                 
         return Response({'message': 'error'}, status=status.HTTP_400_BAD_REQUEST)
 

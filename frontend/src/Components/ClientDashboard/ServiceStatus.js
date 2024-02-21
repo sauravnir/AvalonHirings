@@ -17,8 +17,6 @@ import {
   message,
   Tooltip,
   Breadcrumb,
-  Divider,
-  InputNumber,
 } from "antd";
 
 import {
@@ -27,11 +25,9 @@ import {
   QuestionOutlined,
   HomeOutlined,
   PlusOutlined,
-  MoneyCollectOutlined,
 } from "@ant-design/icons";
 
-import { RiRefund2Line } from "react-icons/ri";
-
+import { FaRegMoneyBillAlt } from "react-icons/fa";
 import { useNavigate } from "react-router-dom";
 
 import KhaltiCheckout from "khalti-checkout-web";
@@ -49,7 +45,6 @@ function ServiceStatus() {
   const [openModal, setOpenModal] = useState(false);
   const [openModal1, setOpenModal1] = useState(false);
   const [openModal2, setOpenModal2] = useState(false);
-  const [openModal3, setOpenModal3] = useState(false);
   const [descOpen, setDescOpen] = useState(false);
 
   const handleDescOpen = () => {
@@ -67,7 +62,6 @@ function ServiceStatus() {
   const onFilterChange = useRef([]);
   const [filterQuery, setFilterQuery] = useState("");
   const [userInput, setUserInput] = useState(false);
-  // const [spinning , setSpinning] = useState(false);
   const [ratingValue, setRatingValue] = useState("");
   const [ratingFeedbacks, setRatingFeedBacks] = useState("");
 
@@ -80,9 +74,16 @@ function ServiceStatus() {
     setPaymentMethod(value);
   };
 
+  const [selectedRecord, setSelectedRecord] = useState(null);
+
+  const handleModalOpen = (record) => {
+    setSelectedRecord(record);
+    setOpenModal(true);
+  };
+
   // Handling Khalti Payment
   const khaltiPayment = async (id, serviceName, totalPrice) => {
-    setLoading(true);
+    
     const config = {
       publicKey: "test_public_key_fb53c47dfcf44808988bda227c018702",
       productIdentity: id,
@@ -91,6 +92,7 @@ function ServiceStatus() {
       eventHandler: {
         onSuccess: async (payload) => {
           try {
+            setLoading(true);
             await sendPaymentToken(
               payload.token,
               payload.amount,
@@ -121,7 +123,6 @@ function ServiceStatus() {
       console.log(error);
     }
   };
-  
 
   const sendPaymentToken = async (paymentToken, amount, serviceuseid) => {
     try {
@@ -137,16 +138,17 @@ function ServiceStatus() {
           serviceuseid: serviceuseid,
         }),
       });
-      
+
       if (res.ok) {
         const data = await res.json();
+        setLoading(false);
         message.success(data.message);
         navigate("/client-dashboard");
       }
     } catch (error) {
       message.error("Failed To Make Payment");
     }
-    setLoading(false);
+    
   };
 
   // Handling Cash Payment
@@ -154,6 +156,8 @@ function ServiceStatus() {
   const cashPayment = async (id, totalPrice) => {
     try {
       setLoading(true);
+
+      console.log(id, totalPrice);
       const response = await fetch("http://127.0.0.1:8000/cashpayment/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -179,7 +183,6 @@ function ServiceStatus() {
         );
         const data = await res.json();
         setSingleService(data);
-        console.log(data);
         const { assigned_employee } = data[0];
         const viewAssignedEmployee = {
           id: assigned_employee?.assigned_employee?.id || "",
@@ -187,7 +190,6 @@ function ServiceStatus() {
           contact: assigned_employee?.assigned_employee?.contact || "",
           profilepic: assigned_employee?.assigned_employee?.profilepic || "",
         };
-        console.log(viewAssignedEmployee);
         setSingleEmployee(viewAssignedEmployee);
         onFilterChange.current = data;
       } catch (error) {
@@ -254,6 +256,8 @@ function ServiceStatus() {
         const data = await response.json();
         message.success(data.message);
         navigate("/client-dashboard");
+      } else {
+        message.error("You have already rated this employee!");
       }
     } catch (error) {
       message.error(error.message);
@@ -357,7 +361,7 @@ function ServiceStatus() {
           <div class="flex flex-row items-center">
             <Tooltip
               title="Note: The service will only be available once the payment is
-      done."
+              done."
             >
               <Button
                 size="small"
@@ -441,13 +445,15 @@ function ServiceStatus() {
       render: (_, record) => (
         <Space>
           <Button
+            className="text-white bg-green-800"
             disabled={
               record.service_status.includes("Allocating") ||
               record.service_status.includes("Completed") ||
               record.service_status.includes("On-Going")
             }
-            onClick={() => setOpenModal(true)}
+            onClick={() => handleModalOpen(record)}
             size="small"
+            icon={<FaRegMoneyBillAlt />}
           >
             {record.service_status.includes("Allocating")
               ? "Paid"
@@ -455,7 +461,7 @@ function ServiceStatus() {
               ? "Paid"
               : record.service_status.includes("Completed")
               ? "Paid"
-              : "Make Payment"}
+              : "Pay"}
           </Button>
 
           <Modal
@@ -464,42 +470,46 @@ function ServiceStatus() {
             description
             okType="default"
             onCancel={() => setOpenModal(false)}
-            okText="Make Payment"
+            okText="Pay"
             centered
             onOk={() =>
               paymentMethod === "Khalti"
                 ? khaltiPayment(
-                    record.key,
-                    record.service_name,
-                    record.total_price
+                    selectedRecord?.key,
+                    selectedRecord?.service_name,
+                    selectedRecord?.total_price
                   )
-                : cashPayment(record.key, record.total_price)
+                : cashPayment(selectedRecord?.key, selectedRecord?.total_price)
             }
             width={1100}
           >
-            <Descriptions bordered layout="vertical">
-              <Descriptions.Item label="Service Name:">
-                {console.log(record.key)};
-                <a>{record.service_name}</a>
-              </Descriptions.Item>
-              <Descriptions.Item label="Service Duration:">
-                <a>
-                  {(() => {
-                    const startDate = new Date(record.approved_date);
-                    const endDate = new Date(record.service_till);
-                    const timeDifference = endDate - startDate;
-                    const daysDifference = Math.floor(
-                      timeDifference / (1000 * 3600 * 24)
-                    );
-                    return `${daysDifference} days`;
-                  })()}
-                </a>
-              </Descriptions.Item>
-              <Descriptions.Item label="Total Amount:">
-                <span class="text-green-800"> Rs.{record.total_price}</span>
-              </Descriptions.Item>
-            </Descriptions>
-            <div class="flex flex-row items-center justify-center mt-10 space-x-4 mb-10">
+            {selectedRecord && ( 
+              <Descriptions bordered layout="vertical">
+                <Descriptions.Item label="Service Name:">
+                  <a>{selectedRecord.service_name}</a>
+                </Descriptions.Item>
+                <Descriptions.Item label="Service Duration:">
+                  <a>
+                    {(() => {
+                      const startDate = new Date(selectedRecord.approved_date);
+                      const endDate = new Date(selectedRecord.service_till);
+                      const timeDifference = endDate - startDate;
+                      const daysDifference = Math.floor(
+                        timeDifference / (1000 * 3600 * 24)
+                      );
+                      return `${daysDifference} days`;
+                    })()}
+                  </a>
+                </Descriptions.Item>
+                <Descriptions.Item label="Total Amount:">
+                  <span className="text-green-800">
+                    {" "}
+                    Rs.{selectedRecord.total_price}
+                  </span>
+                </Descriptions.Item>
+              </Descriptions>
+            )}
+            <div className="flex flex-row items-center justify-center mt-10 space-x-4 mb-10">
               <h1>Pay with:</h1>
               <Radio.Group
                 defaultValue="Khalti"
@@ -518,57 +528,64 @@ function ServiceStatus() {
               </Radio.Group>
             </div>
           </Modal>
-
           {record.service_status.includes("On-Going") ? (
             <div class="flex flex-row items-center space-x-2">
-              <Button size="small" onClick={() => setOpenModal1(true)}>
-                Assigned Maid
+              <Button
+                size="small"
+                className="text-white bg-sky-900 hover:bg-sky-700"
+                icon={<EyeOutlined style={{ fontSize: "13px" }} />}
+                onClick={() => setOpenModal1(true)}
+              >
+                View Maid
               </Button>
-
-
               <Modal
                 open={openModal1}
                 onCancel={() => setOpenModal1(false)}
                 footer={null}
-                width={1000}
+                width={400}
                 centered
               >
-                {" "}
-                <div class="text-base font-bold">Employee Details</div>
-                <Descriptions layout="horizontal" size="middle" bordered>
-                  <Descriptions.Items label="Employee's Profile">
-                    <div class="flex flex-row items-center justify-center">
-                      <a href={singleEmployee.profilepic}>
-                        <img
-                          class="w-16 h-16 rounded-full border mb-5 object-cover"
-                          alt="User Picture"
-                          src={singleEmployee.profilepic}
-                        ></img>
-                      </a>
-                    </div>
-                  </Descriptions.Items>
-                  <Descriptions.Items label="Employee's Name">
-                    {singleEmployee.fullname}
-                  </Descriptions.Items>
-                  <Descriptions.Items label="Employee's Contact">
-                    {singleEmployee.contact}
-                  </Descriptions.Items>
-
-                  <Descriptions.Items></Descriptions.Items>
-                </Descriptions>
+                <div className="text-base font-bold">Employee Details</div>
+                <div className="flex flex-col items-center justify-center mt-5">
+                  <Descriptions
+                    className="flex flex-col justify-center items-center mt-5 text-center"
+                    layout="horizontal"
+                    size="middle"
+                    column={1}
+                  >
+                    <Descriptions.Items label="Employee's Profile">
+                      <div class="flex flex-row items-center justify-center">
+                        <a href={singleEmployee.profilepic}>
+                          <img
+                            class="w-16 h-16 rounded-full border mb-5 object-cover"
+                            alt="User Picture"
+                            src={singleEmployee.profilepic}
+                          ></img>
+                        </a>
+                      </div>
+                    </Descriptions.Items>
+                    <Descriptions.Items label="Employee's Name">
+                      {singleEmployee.fullname}
+                    </Descriptions.Items>
+                    <Descriptions.Items label="Employee's Contact">
+                      +977 {singleEmployee.contact}
+                    </Descriptions.Items>
+                  </Descriptions>
+                </div>
                 {/* Employee Rating */}
                 <div class="flex justify-end mt-5">
                   <Button
+                    size="small"
                     className="flex flex-row items-center p-2 border rounded hover:bg-gradient-to-r from-amber-400 to-orange-500 hover:text-white"
                     onClick={() => setOpenModal2(true)}
                     icon={
                       <img
-                        class="w-5 h-5 mr-2"
+                        class="w-5 h-5"
                         src={require(`../../images/rate.png`)}
                       ></img>
                     }
                   >
-                    Rate User
+                    Rate
                   </Button>
                 </div>
                 <Modal
@@ -585,7 +602,11 @@ function ServiceStatus() {
                     <Card>
                       <div class="flex flex-col justify-center ">
                         <Form layout="vertical">
-                          <Form.Item label="Give Ratings">
+                          <Form.Item
+                            label="Give Ratings"
+                            name="rate"
+                            rules={rules}
+                          >
                             <h1>
                               <Space>
                                 <Rate
@@ -601,7 +622,11 @@ function ServiceStatus() {
                               </Space>
                             </h1>
                           </Form.Item>
-                          <Form.Item label="Any Feedbacks?">
+                          <Form.Item
+                            label="Provide Feedbacks"
+                            name="Feedbacks"
+                            rules={rules}
+                          >
                             <Input.TextArea
                               onChange={(e) =>
                                 setRatingFeedBacks(e.target.value)
@@ -623,7 +648,7 @@ function ServiceStatus() {
 
   // Populating the table data
   const tableData = singleService.map((info, index) => ({
-    sn: index + 1,
+    sn: singleService.length - index, 
     key: info.id,
     service_name: info.services.servicename,
     location: info.servicelocation,
@@ -636,8 +661,7 @@ function ServiceStatus() {
     approved_date: info.approved_date,
     service_caliber: info.services.required_caliber,
     service_status: [info.status],
-  }));
-
+  })).reverse();
   return (
     <div className="w-screen mt-8 ">
       {loading && <Spinner />}
@@ -804,12 +828,10 @@ function ServiceStatus() {
               columns={requestContent}
               dataSource={tableData}
               pagination={{
-                pageSize: 5,
+                pageSize: 10,
                 showTotal: (total) => `Total ${total} items`,
               }}
             ></Table>
-
-            
           </Card>
         </div>
       </div>

@@ -33,7 +33,7 @@ function EmployeeDashboardObject() {
         const data = await response.json();
         const { client_details, assigned_service_details, service_request } =
           data;
-
+        
         const setDetails = {
           fullname: client_details?.fullname || "",
           profilepicture: client_details?.profilepic || "",
@@ -90,20 +90,6 @@ function EmployeeDashboardObject() {
       }
     };
 
-    // const fetchReportDetails = async () => {
-    //   try {
-    //     setLoading(true);
-    //     const response = await fetch(
-    //       `http://127.0.0.1:8000/getclientreport/${userID.user_id}`
-    //     );
-    //     const data = await response.json();
-    //     setTotalReports(data.length);
-    //   } catch (error) {
-    //     console.error("Error fetching report details:", error);
-    //   }
-    // };
-
-    // fetchReportDetails();
     viewAssignedService();
     totalValue();
     announcement();
@@ -169,34 +155,6 @@ function EmployeeDashboardObject() {
   const endDate = new Date(workDetails.expiry_date);
   const timeDifference = endDate.getTime() - startDate.getTime();
   const daysDifference = timeDifference / (1000 * 3600 * 24);
-
-  // Pie Chart
-
-  const data = [
-    {
-      type: "A",
-      value: 100,
-    },
-    {
-      type: "B",
-      value: 200,
-    },
-  ];
-
-  const config = {
-    data: data,
-    angleField: "value",
-    colorField: "type",
-    radius: 0.8,
-    label: {
-      content: "{value}",
-      style: {
-        fontSize: 14,
-        textAlign: "center",
-      },
-    },
-    interactions: [{ type: "element-active" }],
-  };
 
   return (
     <div className="w-screen mt-8">
@@ -305,7 +263,7 @@ function EmployeeDashboardObject() {
                 >
                   <div class="p-4 justify-center">
                     
-                      {Object.keys(workDetails).length !== 0 ? (
+                      {workDetails.fullname !== "" && workDetails.profilepicture !== "" && workDetails.expiry_date !== "" && workDetails.approved_date !== "" ? (
                     <Card title="Assigned For:">
                     <Link to="/employee-work-schedule" key={workDetails.key}>
                       <div class="mb-5">
@@ -361,9 +319,9 @@ function EmployeeDashboardObject() {
                           <Card>
                             <div class="flex flex-col items-center justify-center space-y-4 p-4">
                               <ExclamationCircleOutlined
-                                style={{ fontSize: "32px", color: "#075985" }}
+                                style={{ fontSize: "32px" , color:"orange"}}
                               />
-                              <h1>No Current Services</h1>
+                              <h1 className="font-bold text-base">NO ACTIVE SERVICE</h1>
                             </div>
                           </Card>
                         </div>

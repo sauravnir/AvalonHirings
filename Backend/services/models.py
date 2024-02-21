@@ -18,7 +18,7 @@ class ServiceList(models.Model):
 
 class ServiceUse(models.Model):
     user = models.ForeignKey(get_user_model(), on_delete=models.CASCADE) 
-    services = models.OneToOneField(ServiceList , on_delete=models.CASCADE) 
+    services = models.ForeignKey(ServiceList , on_delete=models.CASCADE) 
     approved_date = models.DateTimeField(default = timezone.now)
     expiry_date = models.DateTimeField()
     status = models.CharField(max_length=255, default="Pending")
@@ -26,7 +26,7 @@ class ServiceUse(models.Model):
     totalprice = models.IntegerField(default=None)
     servicelocation = models.CharField(max_length=255, default=None)
     startHour = models.TimeField(default = None);
-    
+
 
     def __str__(self):
        return f"{self.user.username} - {self.services.servicename}"

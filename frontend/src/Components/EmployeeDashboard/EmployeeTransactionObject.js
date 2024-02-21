@@ -1,6 +1,6 @@
-import React, { useState, useEffect} from "react";
-import { Table, Button, message , Breadcrumb , Input , Form } from "antd";
-import { HomeOutlined} from "@ant-design/icons";
+import React, { useState, useEffect } from "react";
+import { Table, Button, message, Breadcrumb, Input, Form } from "antd";
+import { HomeOutlined } from "@ant-design/icons";
 import Spinner from "../../Pages/ProfileSettings/Spinner";
 import DashboardFooter from "../Dashboards/DashboardFooter";
 function EmployeeTransactionObject() {
@@ -9,7 +9,8 @@ function EmployeeTransactionObject() {
   const localdata = localStorage.getItem("userData");
   const userType = JSON.parse(localdata);
 
-  const [amount , setAmount] = useState(); 
+  const [amount, setAmount] = useState();
+  const [booked, setBooked] = useState(0);
 
   useEffect(() => {
     const tableValue = async () => {
@@ -20,16 +21,24 @@ function EmployeeTransactionObject() {
         );
         const data = await response.json();
         setData(data);
-
         const totalAmount = data.reduce((acc, item) => {
           const amount = parseFloat(item.amount);
-      if (!isNaN(amount)) {
-        return acc + amount;
-      }
-      return acc;
+          if (!isNaN(amount)) {
+            return acc + amount;
+          }
+          return acc;
         }, 0);
+        
+        const bookedAmount = data.reduce((acc , item)=>{
+          const bamt = parseFloat(item.salary_book);
+          if(!isNaN(bamt)) {
+            return acc + bamt; 
+          }
+          return acc;
+        } , 0);
 
         setAmount(totalAmount);
+        setBooked(bookedAmount);
         setLoading(false);
       } catch (error) {
         message.error("Failed to fetch data.");
@@ -61,19 +70,19 @@ function EmployeeTransactionObject() {
       key: "payment_date",
     },
     {
-      title:"Description",
+      title: "Description",
       dataIndex: "description",
-      key:"description",
-    }
+      key: "description",
+    },
   ];
 
   const tableData = data.map((info, index) => ({
     sn: index + 1,
     key: info.id,
-    booked_amount : `Rs. ${info.salary_book !== null ? info.salary_book : "0"}`, 
+    booked_amount: `Rs. ${info.salary_book !== null ? info.salary_book : "0"}`,
     payment_amount: `Rs. ${info.amount !== null ? info.amount : "0"}`,
     payment_date: info.action_date,
-    description : info.description,
+    description: info.description,
   }));
 
   return (
@@ -82,16 +91,18 @@ function EmployeeTransactionObject() {
       <div class="flex flex-col mt-2 p-6">
         <div class="flex flex-row justify-between items-center py-3">
           <h1 class="text-xl font-bold">All Transactions</h1>
-          <Breadcrumb items={[
+          <Breadcrumb
+            items={[
               {
-                href:"/employee-dashboard",
-                title:<HomeOutlined />
+                href: "/employee-dashboard",
+                title: <HomeOutlined />,
               },
               {
-                href:"/employee-transaction",
-                title:"Transaction"
-              }
-              ]}/>
+                href: "/employee-transaction",
+                title: "Transaction",
+              },
+            ]}
+          />
         </div>
         <div class="grid p-3 mt-2 bg-white rounded shadow-xl shadow-gray-350">
           <div class="m-1">
@@ -102,11 +113,13 @@ function EmployeeTransactionObject() {
                 pageSize: 10,
                 showTotal: (total) => `Total ${total} items`,
               }}
-              
-            >
-            </Table>
+            ></Table>
             <div className="flex flex-row items-center justify-center space-x-3  ">
-              <h1 className="font-bold">Total Received: <span className="text-sky-600"> Rs.{amount}</span></h1>
+              <h1 className="font-bold text-gray-700 text-sm">
+                Total Paid Amount:
+                <span className="text-green-600"> Rs.{amount}</span>
+              </h1>
+              
             </div>
           </div>
         </div>

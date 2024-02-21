@@ -27,36 +27,6 @@ function EmployeeIssueReports() {
   const parsedata = JSON.parse(get_userdata);
   const get_username = parsedata.username;
 
-  // const handleSubmit = async (e) => {
-  //   e.preventDefault();
-
-  //   try {
-  //     // setLoading(true);
-  //     const formData = new FormData();
-  //     formData.append("title", reportTitle);
-  //     formData.append("description", reportDesc);
-  //     formData.append("username", get_username);
-
-  //     const response = await fetch("http://127.0.0.1:8000/report/", {
-  //       method: "POST",
-  //       body: formData,
-  //     });
-      
-  //     if (response.ok) {
-  //       const user_type = reportDetails[0].user.user_type
-  //       const data = await response.json();
-  //       message.success(data.message);
-  //       if(user_type === "Client"){
-  //         navigate("/client-dashboard");
-  //       } else {
-  //         navigate("/employee-dashboard")
-  //       } 
-  //     } 
-  //   } catch (error) {
-      
-      
-  //   }
-  // };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -67,28 +37,35 @@ function EmployeeIssueReports() {
       formData.append("title", reportTitle);
       formData.append("description", reportDesc);
       formData.append("username", get_username);
-  
-      const response = await fetch("http://127.0.0.1:8000/report/", {
-        method: "POST",
-        body: formData,
-      });
-      setLoading(false);
-      if (response.ok) {
-        const user_type = reportDetails[0].user.user_type
-        const data = await response.json();
-        message.success(data.message);
-        if (user_type === "Client") {
-          navigate("/client-dashboard");
+      
+      if(reportTitle  && reportDesc !== null) {
+        const response = await fetch("http://127.0.0.1:8000/report/", {
+          method: "POST",
+          body: formData,
+        });
+        
+        if (response.ok) {
+          const user_type = reportDetails[0].user.user_type
+          const data = await response.json();
+          message.success(data.message);
+          if (user_type === "Client") {
+            navigate("/client-dashboard");
+          } else {
+            navigate("/employee-dashboard")
+          }
         } else {
-          navigate("/employee-dashboard")
+          throw new Error("Failed to submit report");
         }
-      } else {
-        throw new Error("Failed to submit report");
+      } 
+      else{
+        message.error("Please enter with valid details!")
       }
     } catch (error) {
       console.error("Error submitting report:", error);
       message.error("Failed to submit report. Please try again later.");
       window.location.reload();
+    }finally{
+      setLoading(false);
     }
   };
   
@@ -114,22 +91,6 @@ function EmployeeIssueReports() {
 
     fetchReportDetails();
   }, []);
-
-// Displaying the latest data in the table 
-
-// useEffect(() => {
-//   // Reverse the data array to display the most recent data at the top
-//   const reversedData = [...reportDetails].reverse();
-
-//   // Add SN based on the reversed data
-//   const finalData = reversedData.map((info, index) => ({
-//     ...info,
-//     sn: index + 1,
-//   }));
-
-//   // Set the finalData in the component's state
-//   setTableData(finalData);
-// }, [reportDetails]);
 
 
 const contents = [
@@ -238,14 +199,35 @@ const data = reportDetails.map((info , index)=>({
         <div className=" flex flex-col p-3 rounded shadow-xl bg-white shadow-gray-350">
           
             <Card>
-              <div className="flex flex-row justify-between text-red-600">
-                <h1>*Fill with necessary and valid information!*</h1>
-                
+              <div className="flex flex-row justify-between text-red-600">                
               </div>
               
                 <Form layout="vertical" onFinish={handleSubmit}>
                   <Form.Item label="Title:" name="title" rules={rules}>
-                    <Input onChange={(e) => setReportTitle(e.target.value)} />
+                    <Select 
+                    onChange={(value) => setReportTitle(value)}
+                    options={[
+                      {
+                        value: "Choose From The Options Below",
+                        label: "Choose From The Options Below",
+                        disabled: true,
+                      },
+                      {
+                        value: "Voilence / threats",
+                        label: "Voilence / threats",
+                      },
+                      {
+                        value:"Unprofessional Behaviour",
+                        label :"Unprofessional Behaviour",
+                      },
+                      {
+                        value:"Others",
+                        label:"Others",
+                      }
+                    ]}>
+                      
+                    </Select>
+                    {/* <Input onChange={(e) => setReportTitle(e.target.value)} /> */}
                   </Form.Item>
                   <Form.Item label="Description" name="description" rules={rules}>
                     <Input.TextArea
@@ -272,12 +254,6 @@ const data = reportDetails.map((info , index)=>({
                 </Form>
               
             </Card>
-          
-          
-
-          
-
-          
         </div>
         <div class="mt-12 p-3 bg-white rounded shadow-lg">
           <div class="flex flex-row justify-start space-x-2 items-center">
@@ -285,7 +261,7 @@ const data = reportDetails.map((info , index)=>({
             <Tooltip title="Note: Once approved , the related department will contact you for further processing."><Button className="rounded-full" size="small" icon={<QuestionOutlined style={{ fontSize: "13px" }}/>}></Button></Tooltip>
           </div>
             <Table columns={contents} dataSource={data} pagination={{
-              pageSize:5,
+              pageSize:10,
               showTotal:(total) => `Total ${total} items`
             }}></Table>
           </div>

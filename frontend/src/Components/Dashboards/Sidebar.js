@@ -178,21 +178,13 @@ function Sidebar() {
                     <div className="py-1">
                       <Link to="/create-service">
                         <a className="flex items-center text-white flex-row block px-4 py-2 rounded-lg  hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                          {/* <img
-                            class="w-6 h-6 mr-3"
-                            src={require(`../../images/add.png`)}
-                          ></img> */}
-                          Add / View services
+                          
+                          All Services 
                         </a>
                       </Link>
 
                       <Link to="/ratings">
-                        {/* <img src={require(``)}></img> */}
                         <a className="flex flex-row block px-4 text-white  py-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-gray-200">
-                          {/* <img
-                            class="w-5 h-5 mr-4"
-                            src={require(`../../images/view.png`)}
-                          ></img> */}
                           View Ratings
                         </a>
                       </Link>
@@ -344,7 +336,7 @@ function Sidebar() {
                     />
                   </svg>
 
-                  <span class="mx-4 font-medium">Work Schedules</span>
+                  <span class="mx-4 font-medium">Work Status</span>
                 </a>
               </Link>
 

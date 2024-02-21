@@ -137,7 +137,7 @@ function Registration() {
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement("a");
       link.href = url;
-      link.setAttribute("download", "TermsAndConditions.txt");
+      link.setAttribute("download", "TermsAndConditions.pdf");
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -166,11 +166,11 @@ function Registration() {
                 Login here
               </Link>
             </span>
-            <span class="mt-2 text-gray-600">
-                  Before you register , go through all the terms and conditions properly:{" "}
+            <span class="mt-2 text-gray-600 text-sm ">
+                  Before you register , go through all the <span className="font-bold">terms and conditions:</span>
                   <span>
-                    <Button onClick={downloadFile} icon={<DownloadOutlined />}>
-                      Click Here
+                    <Button size="small" onClick={downloadFile} icon={<DownloadOutlined />}>
+                      Download
                     </Button>
                   </span>
                 </span>
@@ -260,8 +260,8 @@ function Registration() {
                     </Form.Item>
                     ) }
 
-                  <div class="flex flex-row justify-center w-full space-x-2">
-                    <Button htmlType="submit" class="bg-sky-700 text-white p-2 hover:bg-sky-600 rounded w-full " >REGISTER</Button>
+                  <div class="flex flex-row justify-center items-center w-full space-x-2">
+                    <Button htmlType="submit" className="bg-sky-700 text-white hover:bg-sky-600 rounded w-full">REGISTER</Button>
                   </div>
                 </Form>
             </Card>

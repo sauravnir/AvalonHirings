@@ -1,16 +1,8 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Link } from "react-router-dom";
-import {
-  Progress,
-  Card,
-  Modal,
-  Button,
-  Statistic,
-  Table,
-  message,
-} from "antd";
-import { EyeOutlined , ExclamationCircleOutlined } from "@ant-design/icons";
+import { Progress, Card, Modal, Button, Statistic, Table, message } from "antd";
+import { EyeOutlined, ExclamationCircleOutlined } from "@ant-design/icons";
 import { SiVirustotal } from "react-icons/si";
 import { TiTick } from "react-icons/ti";
 import { BiSolidReport } from "react-icons/bi";
@@ -46,7 +38,7 @@ function ClientDashboard() {
   const [totalServices, setTotalServices] = useState(0);
   const [activeService, setActiveSetvice] = useState(0);
   const [totalReports, setTotalReports] = useState(0);
-  const [requestedServices , setRequestedServices] = useState([]);
+  const [requestedServices, setRequestedServices] = useState([]);
   // Displaying the work details
   useEffect(() => {
     const handleWork = async () => {
@@ -188,7 +180,6 @@ function ClientDashboard() {
       }
     };
 
-
     const announcement = async () => {
       try {
         setLoading(true);
@@ -258,7 +249,6 @@ function ClientDashboard() {
         console.error("Error fetching report details:", error);
       }
     };
-
 
     fetchSubscriptionDetails();
     fetchReportDetails();
@@ -334,9 +324,6 @@ function ClientDashboard() {
 
   // Pie Chart
 
-  
-  
-
   return (
     <div className="w-screen mt-8">
       <ToastContainer />
@@ -406,43 +393,57 @@ function ClientDashboard() {
           <h1 className="text-3xl font-semibold ">Dashboard</h1>
         </div>
 
-
         <div className="rounded p-4">
-        <div className="grid grid-cols-2">
-          <div class="p-2 space-y-3">
-            <div class="flex flex-row space-x-3 justify-start">
-              <Link to="/request-service">
-                <div className="hover:shadow">
-                  <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50">
-                    <Statistic title="Total Services" value={totalServices} prefix={<SiVirustotal className="mr-4 text-sky-700"/>}/>
-                  </Card>
-                </div>
-              </Link>
+          <div className="grid grid-cols-2">
+            <div class="p-2 space-y-3">
+              <div class="flex flex-row space-x-3 justify-start">
+                <Link to="/request-service">
+                  <div className="hover:shadow">
+                    <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50">
+                      <Statistic
+                        title="Total Services"
+                        value={totalServices}
+                        prefix={<SiVirustotal className="mr-4 text-sky-700" />}
+                      />
+                    </Card>
+                  </div>
+                </Link>
 
-              <Link to="/client-view-service">
-                <div className="hover:shadow">
-                  <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50">
-                    <Statistic title="Active Services" value={activeService} prefix={<TiTick  className="mr-4 text-green-700"/>} />
-                  </Card>
-                </div>
-              </Link>
+                <Link to="/client-view-service">
+                  <div className="hover:shadow">
+                    <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50">
+                      <Statistic
+                        title="Active Services"
+                        value={activeService}
+                        prefix={<TiTick className="mr-4 text-green-700" />}
+                      />
+                    </Card>
+                  </div>
+                </Link>
 
-              <Link to="/client-reports">
-                <div className="hover:shadow items-center">
-                  <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50">
-                    <Statistic title="Issued Reports" value={totalReports} prefix={<BiSolidReport className="mr-4 text-orange-700"/>}/>
-                  </Card>
-                </div>
-              </Link>
-            </div>
+                <Link to="/client-reports">
+                  <div className="hover:shadow items-center">
+                    <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50">
+                      <Statistic
+                        title="Issued Reports"
+                        value={totalReports}
+                        prefix={
+                          <BiSolidReport className="mr-4 text-orange-700" />
+                        }
+                      />
+                    </Card>
+                  </div>
+                </Link>
+              </div>
 
-            <div className="hover:shadow">
-              <Link to="/client-transaction">
-              <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50"
-                title={
-                  <div className="flex flex-row justify-between">
-                    <h1 className="text-sky-800">Values</h1>
-                    <svg
+              <div className="hover:shadow">
+                <Link to="/client-transaction">
+                  <Card
+                    className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50"
+                    title={
+                      <div className="flex flex-row justify-between">
+                        <h1 className="text-sky-800">Values</h1>
+                        <svg
                           class="w-10 h-10"
                           viewBox="0 0 30 30"
                           fill="none"
@@ -463,144 +464,146 @@ function ClientDashboard() {
                             stroke-linejoin="round"
                           />
                         </svg>
-                  </div>
-                }
-              >
-                <div class="grid grid-cols-2">
-                  <div class="flex flex-col font-bold">
-                    <h1>Total Payment:</h1>
-                    <h1>Online Payment:</h1>
-                    <h1>Cash Payment:</h1>
-                  </div>
-                  <div class="flex flex-col ">
-                    <h1 className="text-red-700">Rs.{totalPayment()}</h1>
-                    <h1 className="text-red-700">Rs.{onlinePayment()}</h1>
-                    <h1 className="text-red-700">Rs.{cashPayment()}</h1>
-                  </div>
-                </div>
-              </Card>
-              </Link>
-             
-            </div>
-
-            <div class="rounded border bg-white shadow-xl p-2">
-            <Card
-            title={
-              <div className="flex flex-row justify-between">
-                <h1 className="text-sky-800">Work Progress</h1>
-                <svg
-                  class="w-8 h-8"
-                  viewBox="0 0 30 30"
-                  fill="none"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M12 2.99988V5.99988M12 20.9999V17.9999M4.20577 16.4999L6.80385 14.9999M21 11.9999H18M16.5 19.7941L15 17.196M3 11.9999H6M7.5 4.20565L9 6.80373M7.5 19.7941L9 17.196M19.7942 16.4999L17.1962 14.9999M4.20577 7.49988L6.80385 8.99988"
-                    stroke="#075985"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                  />
-                </svg>
-              </div>
-            }>
-
-            <div class="p-4 justify-center">
-              <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50">
-                {workDetails.filter((item) => item.status === "On-Going")
-                  .length > 0 ? (
-                  workDetails
-                    .filter((item) => item.status === "On-Going")
-                    .map((item) => (
-                      <Link to="/client-view-service" key={item.key}>
-                        <div class="mb-5">
-                          <Progress
-                            percent={progressPercent(item)}
-                            strokeColor={"green"}
-                          />
-                        </div>
-                        <Card title="Assigned To:">
-                          <div class="flex flex-row items-center justify-center space-x-5">
-                            <img
-                              class="rounded-full w-10 h-10"
-                              src={
-                                item.assigned_employee.assigned_employee
-                                  .profilepic
-                              }
-                              alt="Profile Pic"
-                            ></img>
-                            <h1 class="text-sm ">
-                              Employee's Name:{" "}
-                              {
-                                item.assigned_employee.assigned_employee
-                                  .fullname
-                              }
-                            </h1>
-                            <div class="flex flex-row item-center justify-between space-x-5">
-                              <h1>
-                                Start Date:{" "}
-                                {new Date(
-                                  item.approved_date
-                                ).toLocaleDateString()}
-                              </h1>
-                              <h1>
-                                End Date:{" "}
-                                {new Date(
-                                  item.expiry_date
-                                ).toLocaleDateString()}
-                              </h1>
-                              <h1>
-                                Total Duration:{" "}
-                                {Math.round(totalDuration(item))} days
-                              </h1>
-                            </div>
-                          </div>
-                        </Card>
-                      </Link>
-                    ))
-                ) : (
-                  <div><Card>
-                  <div class="flex flex-col items-center justify-center space-y-4 p-4">
-                  <ExclamationCircleOutlined style={{ fontSize: "32px" , color:"red"}}/>
-                      <h1>No Current Services</h1>
-                    <Link to='/request-service'> 
-                      <button class="rounded border p-3 bg-green-600 text-white font-bold hover:shadow-xl hover:bg-amber-700">Request For Services Now!</button>
-                    </Link>
+                      </div>
+                    }
+                  >
+                    <div class="grid grid-cols-2">
+                      <div class="flex flex-col font-bold">
+                        <h1>Total Payment:</h1>
+                        <h1>Online Payment:</h1>
+                        <h1>Cash Payment:</h1>
+                      </div>
+                      <div class="flex flex-col ">
+                        <h1 className="text-red-700">Rs.{totalPayment()}</h1>
+                        <h1 className="text-red-700">Rs.{onlinePayment()}</h1>
+                        <h1 className="text-red-700">Rs.{cashPayment()}</h1>
+                      </div>
                     </div>
-                  </Card></div>
-                )}
-              </Card>
-            </div>
-            </Card>
-            
-            
-          </div>
-          </div>
-            <div className="space-y-5">
-            <div className="p-2 mt-2 bg-white rounded shadow-xl  justify-content-center align-items-center">
-              {/* Displaying Pie Chart */}
-              <Card >
-                  {/* <Chart type="pie"/> */}
-              </Card>
-                </div>
-              <Card className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50"
-               title={
-                  <div className="flex flex-row justify-between">
-                    <h1 className="text-sky-800">Announcements</h1>
-                    <svg
-                        class="w-5 h-5"
-                        viewBox="0 0 24 24"
+                  </Card>
+                </Link>
+              </div>
+
+              <div class="rounded border bg-white shadow-xl p-2">
+                <Card
+                  title={
+                    <div className="flex flex-row justify-between">
+                      <h1 className="text-sky-800">Work Progress</h1>
+                      <svg
+                        class="w-8 h-8"
+                        viewBox="0 0 30 30"
                         fill="none"
                         xmlns="http://www.w3.org/2000/svg"
                       >
                         <path
-                          d="M4 13.9999L5.57465 20.2985C5.61893 20.4756 5.64107 20.5642 5.66727 20.6415C5.92317 21.397 6.60352 21.9282 7.39852 21.9933C7.4799 21.9999 7.5712 21.9999 7.75379 21.9999C7.98244 21.9999 8.09677 21.9999 8.19308 21.9906C9.145 21.8982 9.89834 21.1449 9.99066 20.193C10 20.0967 10 19.9823 10 19.7537V5.49991M18.5 13.4999C20.433 13.4999 22 11.9329 22 9.99991C22 8.06691 20.433 6.49991 18.5 6.49991M10.25 5.49991H6.5C4.01472 5.49991 2 7.51463 2 9.99991C2 12.4852 4.01472 14.4999 6.5 14.4999H10.25C12.0164 14.4999 14.1772 15.4468 15.8443 16.3556C16.8168 16.8857 17.3031 17.1508 17.6216 17.1118C17.9169 17.0756 18.1402 16.943 18.3133 16.701C18.5 16.4401 18.5 15.9179 18.5 14.8736V5.1262C18.5 4.08191 18.5 3.55976 18.3133 3.2988C18.1402 3.05681 17.9169 2.92421 17.6216 2.88804C17.3031 2.84903 16.8168 3.11411 15.8443 3.64427C14.1772 4.55302 12.0164 5.49991 10.25 5.49991Z"
+                          d="M12 2.99988V5.99988M12 20.9999V17.9999M4.20577 16.4999L6.80385 14.9999M21 11.9999H18M16.5 19.7941L15 17.196M3 11.9999H6M7.5 4.20565L9 6.80373M7.5 19.7941L9 17.196M19.7942 16.4999L17.1962 14.9999M4.20577 7.49988L6.80385 8.99988"
                           stroke="#075985"
                           stroke-width="2"
                           stroke-linecap="round"
                           stroke-linejoin="round"
                         />
                       </svg>
+                    </div>
+                  }
+                >
+
+                  <div class="p-4 justify-center overflow-y-auto max-h-[80vh]">
+                   
+                      {workDetails.filter((item) => item.status === "On-Going")
+                        .length > 0 ? (
+                        workDetails
+                          .filter((item) => item.status === "On-Going")
+                          .map((item) => (
+                            <Link to="/client-view-service" key={item.key}>
+                              <div class="mb-5">
+                                <Progress
+                                  percent={progressPercent(item)}
+                                  strokeColor={"green"}
+                                />
+                              </div>
+                              <Card title="Assigned To:">
+                                <div class="flex flex-row items-center justify-center space-x-5">
+                                  <img
+                                    class="rounded-full w-10 h-10"
+                                    src={
+                                      item.assigned_employee.assigned_employee
+                                        .profilepic
+                                    }
+                                    alt="Profile Pic"
+                                  ></img>
+                                  <h1 class="text-sm ">
+                                    Employee's Name:{" "}
+                                    {
+                                      item.assigned_employee.assigned_employee
+                                        .fullname
+                                    }
+                                  </h1>
+                                  <div class="flex flex-row item-center justify-between space-x-5">
+                                    <h1>
+                                      Start Date:{" "}
+                                      {new Date(
+                                        item.approved_date
+                                      ).toLocaleDateString()}
+                                    </h1>
+                                    <h1>
+                                      End Date:{" "}
+                                      {new Date(
+                                        item.expiry_date
+                                      ).toLocaleDateString()}
+                                    </h1>
+                                    <h1>
+                                      Total Duration:{" "}
+                                      {Math.round(totalDuration(item))} days
+                                    </h1>
+                                  </div>
+                                </div>
+                              </Card>
+                            </Link>
+                          ))
+                      ) : (
+                        <div>
+                          <Card>
+                            <div class="flex flex-col items-center justify-center space-y-4 p-4">
+                              <ExclamationCircleOutlined
+                                style={{ fontSize: "32px", color: "red" }}
+                              />
+                              <h1>No Current Services</h1>
+                              <Link to="/request-service">
+                                <button class="rounded border p-3 bg-green-600 text-white font-bold hover:shadow-xl hover:bg-amber-700">
+                                  Request For Services Now!
+                                </button>
+                              </Link>
+                            </div>
+                          </Card>
+                        </div>
+                      )}
+                    
+                  </div>
+                </Card>
+              </div>
+            </div>
+
+
+            <div className="space-y-5">
+              
+              <Card
+                className="shadow-lg hover:bg-gray-50 hover:dark:bg-gray-50"
+                title={
+                  <div className="flex flex-row justify-between">
+                    <h1 className="text-sky-800">Announcements</h1>
+                    <svg
+                      class="w-5 h-5"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <path
+                        d="M4 13.9999L5.57465 20.2985C5.61893 20.4756 5.64107 20.5642 5.66727 20.6415C5.92317 21.397 6.60352 21.9282 7.39852 21.9933C7.4799 21.9999 7.5712 21.9999 7.75379 21.9999C7.98244 21.9999 8.09677 21.9999 8.19308 21.9906C9.145 21.8982 9.89834 21.1449 9.99066 20.193C10 20.0967 10 19.9823 10 19.7537V5.49991M18.5 13.4999C20.433 13.4999 22 11.9329 22 9.99991C22 8.06691 20.433 6.49991 18.5 6.49991M10.25 5.49991H6.5C4.01472 5.49991 2 7.51463 2 9.99991C2 12.4852 4.01472 14.4999 6.5 14.4999H10.25C12.0164 14.4999 14.1772 15.4468 15.8443 16.3556C16.8168 16.8857 17.3031 17.1508 17.6216 17.1118C17.9169 17.0756 18.1402 16.943 18.3133 16.701C18.5 16.4401 18.5 15.9179 18.5 14.8736V5.1262C18.5 4.08191 18.5 3.55976 18.3133 3.2988C18.1402 3.05681 17.9169 2.92421 17.6216 2.88804C17.3031 2.84903 16.8168 3.11411 15.8443 3.64427C14.1772 4.55302 12.0164 5.49991 10.25 5.49991Z"
+                        stroke="#075985"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      />
+                    </svg>
                   </div>
                 }
               >
@@ -625,11 +628,10 @@ function ClientDashboard() {
                   </Button>
                 </div>
               </Card>
-              
             </div>
           </div>
         </div>
-        
+
         <DashboardFooter />
       </div>
     </div>

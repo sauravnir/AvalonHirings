@@ -266,6 +266,7 @@ useEffect(()=>{
               >
                 <Button
                   size="small"
+                  
                   icon={<DeleteOutlined style={{ fontSize: "13px" }} />}
                 ></Button>
               </Popconfirm>
@@ -297,8 +298,8 @@ useEffect(()=>{
                 />
               </Form.Item>
               <div class="flex space-x-2">
-                <Button htmlType="submit">Edit</Button>
-                <Button onClick={() => setOpenModal2(false)}>Discard</Button>
+                <Button htmlType="submit" className="text-white bg-sky-900 hover:bg-sky-700">Update</Button>
+                <Button className="text-white bg-red-900 hover:bg-red-700" onClick={() => setOpenModal2(false)}>Discard</Button>
               </div>
             </Form>
           </Modal>
