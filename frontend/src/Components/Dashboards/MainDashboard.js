@@ -147,13 +147,13 @@ function MainDashboard() {
 
   // Fetching The Table Data
   const tableData = getAnnouncement.map((info, index) => ({
-    sn: index + 1,
+    sn: getAnnouncement.length - index,
     key: info.id,
     title: {
       name: info.title,
       date: info.created_date,
     },
-  }));
+  })).reverse();
 
   // Setting The Table Contents
   const tableContents = [

@@ -107,13 +107,13 @@ const clientContents = [
 
 
 const tableData = data.map((info, index) =>({
-    sn : index+1 ,
+    sn : data.length-index ,
     key : info.id , 
     service_name : info.service_use?.services?.servicename,
     payment_amount :`Rs.${info.amount}`  ,
     payment_method : info.payment_method , 
     date : info.payment_date
-}))
+})).reverse();
 
   return (
     <div class="w-screen mt-8">

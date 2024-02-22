@@ -309,11 +309,11 @@ useEffect(()=>{
   ];
 
   const announcementData = getAnnouncement.map((info, index) => ({
-    sn: index + 1,
+    sn: getAnnouncement.length - index,
     key: info.id,
     title: info.title,
     created_date: new Date(info.created_date).toLocaleDateString(),
-  }));
+  })).reverse();
 
   return (
     <div class="w-screen mt-8">

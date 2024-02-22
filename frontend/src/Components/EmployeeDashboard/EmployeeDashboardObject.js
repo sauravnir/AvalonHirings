@@ -107,13 +107,13 @@ function EmployeeDashboardObject() {
   };
 
   const tableData = getAnnouncement.map((info, index) => ({
-    sn: index + 1,
+    sn: getAnnouncement.length - index,
     key: info.id,
     title: {
       name: info.title,
       date: info.created_date,
     },
-  }));
+  })).reverse();
 
   const tableContents = [
     {

@@ -75,11 +75,17 @@ function ServiceStatus() {
   };
 
   const [selectedRecord, setSelectedRecord] = useState(null);
+  
 
   const handleModalOpen = (record) => {
     setSelectedRecord(record);
     setOpenModal(true);
   };
+
+  const handleModalOpen1 = (record) => {
+    getEmployeeDetails(record.key);
+    setOpenModal1(true);
+}
 
   // Handling Khalti Payment
   const khaltiPayment = async (id, serviceName, totalPrice) => {
@@ -183,21 +189,39 @@ function ServiceStatus() {
         );
         const data = await res.json();
         setSingleService(data);
-        const { assigned_employee } = data[0];
+        onFilterChange.current = data;
+        console.log('employees data' , singleEmployee)
+      } catch (error) {
+        message.error("Something went wrong!");
+      }
+    };
+    singleClientService();
+  }, [userID.user_id]);
+
+
+  // Getting the Single Assisgned Employee Details
+  const getEmployeeDetails = async (record) => {
+    try{
+      const response = await fetch(`http://127.0.0.1:8000/viewclientservice/${userID.user_id}`);
+      const data = await response.json();
+      // Filtering the data
+      const filteredData = data.filter(item => item.id === record);
+      if (filteredData && filteredData.length > 0) {
+        const { assigned_employee } = filteredData[0];
         const viewAssignedEmployee = {
           id: assigned_employee?.assigned_employee?.id || "",
           fullname: assigned_employee?.assigned_employee?.fullname || "",
           contact: assigned_employee?.assigned_employee?.contact || "",
           profilepic: assigned_employee?.assigned_employee?.profilepic || "",
         };
-        setSingleEmployee(viewAssignedEmployee);
-        onFilterChange.current = data;
-      } catch (error) {
-        message.error("Something went wrong!");
-      }
-    };
-    singleClientService();
-  }, []);
+      setSingleEmployee(viewAssignedEmployee);
+    }
+  }
+    catch (error){
+      message.error("Failed To Load Data!")
+    }
+  }
+
 
   // Handling Filter Changes
 
@@ -534,7 +558,7 @@ function ServiceStatus() {
                 size="small"
                 className="text-white bg-sky-900 hover:bg-sky-700"
                 icon={<EyeOutlined style={{ fontSize: "13px" }} />}
-                onClick={() => setOpenModal1(true)}
+                onClick={() => handleModalOpen1(record)}
               >
                 View Maid
               </Button>
@@ -545,8 +569,10 @@ function ServiceStatus() {
                 width={400}
                 centered
               >
+               
                 <div className="text-base font-bold">Employee Details</div>
-                <div className="flex flex-col items-center justify-center mt-5">
+                {singleEmployee && (
+                  <div className="flex flex-col items-center justify-center mt-5">
                   <Descriptions
                     className="flex flex-col justify-center items-center mt-5 text-center"
                     layout="horizontal"
@@ -572,6 +598,7 @@ function ServiceStatus() {
                     </Descriptions.Items>
                   </Descriptions>
                 </div>
+                )}
                 {/* Employee Rating */}
                 <div class="flex justify-end mt-5">
                   <Button

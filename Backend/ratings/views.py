@@ -22,6 +22,11 @@ class EmployeeRating(APIView):
         client = get_object_or_404(Users, id=client_id)
         employee = get_object_or_404(Users, id=employee_id)
 
+        existing_rating = Rating.objects.filter(client_id=client_id, employee_id=employee_id).exists()
+
+        if existing_rating:
+            return Response({"error": "You have already rated this employee"}, status=status.HTTP_400_BAD_REQUEST)
+
         if client is None or employee is None:
             return Response({"error": "Client or employee not found"}, status=status.HTTP_404_NOT_FOUND)
 

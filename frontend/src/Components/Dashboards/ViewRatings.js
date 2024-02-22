@@ -164,12 +164,12 @@ function ViewRatings() {
   ];
 
   const tableData = getAllRating.map((info , index) => ({
-    sn:index+1,
+    sn:getAllRating.length - index,
     key:info.id,
     client_name: info.client.fullname, 
     employee_name : info.employee.fullname , 
     emp_rating : <RatingText rating={info.ratings} />,
-  }))
+  })).reverse();
   return (
     <div className="w-screen mt-8">
       {loading && <Spinner />}

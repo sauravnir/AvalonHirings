@@ -259,13 +259,13 @@ useEffect(() => {
 
   
   const pendingData = reportDetails.map((info, index) => ({
-    sn: index + 1,
+    sn: reportDetails.length - index,
     key: info.id,
     user_name: info.user.fullname,
     user_type: info.user.user_type,
     report_title: info.title,
     report_status: info.report_action,
-  }));
+  })).reverse();
 
   return (
     <div class="w-screen mt-8">

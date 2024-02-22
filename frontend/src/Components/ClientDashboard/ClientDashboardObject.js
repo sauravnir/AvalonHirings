@@ -293,13 +293,13 @@ function ClientDashboard() {
   };
 
   const tableData = getAnnouncement.map((info, index) => ({
-    sn: index + 1,
+    sn: getAnnouncement.length - index,
     key: info.id,
     title: {
       name: info.title,
       date: info.created_date,
     },
-  }));
+  })).reverse();
 
   const tableContents = [
     {
@@ -576,7 +576,6 @@ function ClientDashboard() {
                           </Card>
                         </div>
                       )}
-                    
                   </div>
                 </Card>
               </div>

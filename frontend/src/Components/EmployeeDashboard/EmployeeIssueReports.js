@@ -169,12 +169,12 @@ const contents = [
 ]  
 // table datasource 
 const data = reportDetails.map((info , index)=>({
-  sn : index+1,
+  sn : reportDetails.length - index,
   key : info.id,
   title : info.title, 
   issued_date : info.issue_date,    
   report_status : [info.report_action]
-}));
+})).reverse();
 
 // Sorting Data
 

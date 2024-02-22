@@ -77,13 +77,13 @@ function EmployeeTransactionObject() {
   ];
 
   const tableData = data.map((info, index) => ({
-    sn: index + 1,
+    sn: data.length - index,
     key: info.id,
     booked_amount: `Rs. ${info.salary_book !== null ? info.salary_book : "0"}`,
     payment_amount: `Rs. ${info.amount !== null ? info.amount : "0"}`,
     payment_date: info.action_date,
     description: info.description,
-  }));
+  })).reverse();
 
   return (
     <div class="w-screen mt-8">

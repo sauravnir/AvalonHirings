@@ -82,7 +82,7 @@ function PaymentDashboard() {
   // data for Service Payments 
 
   const servicePayments = paymentDetails?.payment_details?.data?.map((info, index) => ({
-    sn: index + 1,
+    sn: paymentDetails.payment_details.data.length - index,
     key: info?.id,
     user_type: info?.service_use?.user?.user_type,
     user_name: info?.service_use?.user?.fullname,
@@ -90,32 +90,31 @@ function PaymentDashboard() {
     payment_method : info?.payment_method === "Khalti Payment" ? "Online Transaction" : "Cash Transaction",
     date: info?.payment_date,
     description: info?.service_use?.services?.servicename,
-  })) || [];
+  })).reverse() || [];
 
 
 // data for Employee Salary 
 
 const salaryPayments = paymentDetails?.salary_details?.data?.map((info , index) =>({
-  sn:index + 1 ,
+  sn:paymentDetails.salary_details.data.length - index ,
   key:info?.id , 
   user_type:info?.caliber?.employee?.user_type ,
   user_name : info?.caliber?.employee?.fullname , 
   payment_amount : `Rs ${info?.amount !== null ? info?.amount : "0"}` ,
   date:info?.action_date , 
   description:info?.description , 
-}))
+})).reverse();
 // Premium Plans Description 
 
 const premiumPayments = paymentDetails?.subscription_details?.data?.map((info , index)=>({
-  sn:index + 1,
+  sn:paymentDetails.subscription_details.data.length - index,
   key:info?.id,
   user_type :info?.user?.user_type , 
   user_name:info?.user?.fullname,
   payment_amount : `Rs ${info?.amount}` , 
   date : info?.payment_date ,
   description:info?.subscription_name
-
-}))
+})).reverse();
 
   const TabList =[
     {
